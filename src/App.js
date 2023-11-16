@@ -1,11 +1,25 @@
-import { Box, Link } from '@mui/material'
+import { Button, createTheme } from '@mui/material'
+import { ThemeProvider } from '@mui/material/styles'
+import CssBaseline from '@mui/material/CssBaseline'
 
-function App () {
-  return (
-    <Box>
-      <Link href="http://localhost:5003/&zpfunc=fnPlay">Play</Link>
-    </Box>
-  )
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+})
+const handleZpFunc = event => {
+  fetch(`http://localhost:5003/&zpfunc=${event.target.id}`, { mode: 'no-cors' }).then()
 }
 
-export default App
+export default function App () {
+  return (
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline/>
+      <main>
+        <Button id="fnPlay" variant="contained" color="primary" onClick={handleZpFunc} size="small">
+          PLAY
+        </Button>
+      </main>
+    </ThemeProvider>
+  )
+}
