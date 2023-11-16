@@ -1,25 +1,11 @@
-import logo from './logo.svg';
-import './App.css';
+import { Box, Link } from '@mui/material'
 
-function App() {
+function App () {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <Box>
+      <Link href="http://localhost:5003/&zpfunc=fnPlay">Play</Link>
+    </Box>
+  )
 }
 
-export default App;
+export default App
