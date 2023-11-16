@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Alert, Box, Button, createTheme, CssBaseline, Paper, ThemeProvider, Typography } from '@mui/material'
+import { Alert, Box, Button, createTheme, CssBaseline, Paper, ThemeProvider } from '@mui/material'
 import { makeStyles } from '@mui/styles'
 
 const darkTheme = createTheme({
@@ -10,39 +10,60 @@ const darkTheme = createTheme({
 
 const useStyles = makeStyles(theme => ({
   fullHeightPaper: {
-    height: '100vh', // Imposta l'altezza al 100% dell'area visibile
+    height: '100vh',
   },
   mainContainer: {
-    height: '100%', // Assicurati che il contenitore principale abbia un'altezza del 100%
+    height: '100%',
   },
 }))
+
+const handleZpFunc = async event => {
+  try {
+    await fetch(`http://localhost:3000/zoom/command?code=5100 ${event.target.id}`)
+  } catch (error) {
+    console.error('Errore nella funzione handleZpFunc:', error)
+  }
+}
+
+const tcpCommand = async command => {
+  try {
+    const response = await fetch(`http://localhost:3000/zoom/command?code=${command}`)
+    console.log('response:', response)
+    const data = await response.json()
+    console.log('data:', data)
+  } catch (error) {
+    console.error('Errore nel comando TCP:', error)
+  }
+}
 
 export default function App () {
   const classes = useStyles()
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   
+  const checkConnection = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/zoom/connect')
+      const { ok } = await response.json()
+      setIsConnected(ok)
+      return ok
+    } catch (error) {
+      console.error('Errore nella verifica della connessione:', error)
+    }
+  }
+  
   useEffect(() => {
-    setIsLoading(true)
-    checkConnection()
-  }, [])
-  
-  const checkConnection = () => {
-    fetch('http://localhost:3000/zoom/connect')
-      .then(response => response.json())
-      .then(data => {
-        setIsConnected(data.ok)
+    const establishConnection = async () => {
+      if (!isConnected) {
+        setIsLoading(true)
+        const result = await checkConnection()
+        result && await tcpCommand('5100 fnChapter')
         setIsLoading(false)
-      })
-      .catch(error => {
-        console.error('Errore nella verifica della connessione:', error)
-        setIsLoading(false)
-      })
-  }
-  
-  const handleZpFunc = event => {
-    fetch(`http://localhost:5003/&zpfunc=${event.target.id}`, { mode: 'no-cors' }).then()
-  }
+      }
+    }
+    
+    establishConnection().then()
+  }, [isConnected])
   
   return (
     <ThemeProvider theme={darkTheme}>
@@ -50,17 +71,13 @@ export default function App () {
       <Box className={classes.mainContainer}>
         <Paper className={classes.fullHeightPaper}>
           {
-            isConnected ? (
-              <Typography><Alert severity="success">Connesso!</Alert></Typography>
-            ) : (
-              <Typography>{
-                isLoading ?
-                  <Alert severity="info">Loading!</Alert>
-                  :
-                  <Alert severity="error">Connessione non riuscita!</Alert>
-              }
-              </Typography>
-            )
+            isConnected ?
+              <Alert severity="success">Connesso!</Alert>
+              :
+              isLoading ?
+                <Alert severity="info">Loading...</Alert>
+                :
+                <Alert severity="error">Connessione non riuscita!</Alert>
           }
           <Box p={2}>
             <Button id="fnPlay" variant="contained" color="primary" onClick={handleZpFunc} size="small">
