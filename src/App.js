@@ -12,7 +12,7 @@ const darkTheme = createTheme({
 })
 
 function print (data) {
-  console.log('data:', data)
+  //console.log('data:', data)
   if (data.ok) {
     return { open: true, text: data.ok ? data.output : data.message, severity: data.ok ? 'success' : 'error' }
   } else {
@@ -22,7 +22,7 @@ function print (data) {
 
 const tcpCommand = async command => {
   try {
-    console.log(command)
+    //console.log(command)
     const response = await fetch(`http://localhost:${PORT}/zoom/command?code=${command}`)
     const data = await response.json()
     return print(data)
@@ -38,7 +38,7 @@ const Alert = React.forwardRef(function Alert (props, ref) {
 export default function App () {
   const [message, setMessage] = useState({ open: false })
   const renderedRef = useRef(false)
-  
+  const [currentState, setCurrentState] = useState('')
   const handleClose = () => setMessage({ ...message, open: false })
   
   const play = useCallback(async () => {
@@ -64,6 +64,23 @@ export default function App () {
       })()
       renderedRef.current = true
     }
+    if (renderedRef.current) {
+      const interval = setInterval(async () => {
+        const { text } = await tcpCommand('1100')
+        console.log('text:', text)
+        const [command, result] = text.split(' ')
+        if (command === '1100') {
+          const [time] = result.split('/')
+          if (time) {
+            //console.log('time:', time)
+          }
+        }
+        if (command === '1200') {
+          console.log('state:', result)
+        }
+      }, 1000)
+      return () => clearInterval(interval)
+    }
   }, [])
   
   return (
@@ -81,7 +98,7 @@ export default function App () {
           </Box>
           <Snackbar
             open={message.open}
-            autoHideDuration={2000}
+            autoHideDuration={3000}
             onClose={handleClose}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             TransitionComponent={props => <Slide {...props} direction="up" children={props.children}/>}
