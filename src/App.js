@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Box, Button, createTheme, CssBaseline, Paper, Slide, Snackbar, ThemeProvider } from '@mui/material'
+import { Box, Button, createTheme, CssBaseline, Paper, Snackbar, ThemeProvider } from '@mui/material'
 import MuiAlert from '@mui/material/Alert'
 import { envConfig } from './init'
 
@@ -10,6 +10,21 @@ const darkTheme = createTheme({
     mode: 'dark',
   },
 })
+
+const convertMilli = (millisecondi) => {
+  let secondi = Math.floor(millisecondi / 1000)
+  let minuti = Math.floor(secondi / 60)
+  let ore = Math.floor(minuti / 60)
+  
+  secondi = secondi % 60
+  minuti = minuti % 60
+  
+  // Aggiungi uno zero davanti ai minuti e ai secondi se sono meno di 10
+  const minutiFormattati = minuti < 10 ? `0${minuti}` : minuti
+  const secondiFormattati = secondi < 10 ? `0${secondi}` : secondi
+  
+  return `${ore}:${minutiFormattati}:${secondiFormattati}`
+}
 
 function print (data) {
   //console.log('data:', data)
@@ -36,7 +51,8 @@ const Alert = React.forwardRef(function Alert (props, ref) {
 })
 
 function manageResponse ({ text }) {
-  const [command, result] = text.split(' ')
+  const [command, ...rest] = text.split(' ')
+  const result = rest.join(' ')
   return { command, result }
 }
 
@@ -47,22 +63,22 @@ async function connect (setMessage) {
     console.log('data:', data)
     setMessage(print(data))
   } catch (error) {
-    setMessage({ open: true, text: `Backend error: ${error}`, severity: 'error' })
+    const text = `Backend error: ${error}`
+    setMessage({ open: true, text, severity: 'error' })
   }
 }
-
 export default function App () {
   const [message, setMessage] = useState({ open: false })
   const renderedRef = useRef(false)
   const handleClose = () => setMessage({ ...message, open: false })
   const play = useCallback(async () => {
-    const { result } = manageResponse(await tcpCommand('1000'))
-    console.log('result:', result)
-    await tcpCommand(`5100 ${result === '3' ? 'fnPause' : 'fnPlay'}`)
+    await tcpCommand('5100 fnPlay')
   }, [])
   const saveChapter = useCallback(async () => {
     const response = await tcpCommand('5100 fnAddChapter')
     await tcpCommand('5100 fnSaveChapter')
+    const { result: file } = manageResponse(await tcpCommand('1800'))
+    console.log('file:', file)
     setMessage(response)
   }, [])
   
@@ -73,20 +89,18 @@ export default function App () {
     }
     if (renderedRef.current) {
       const interval = setInterval(async () => {
-        const { command, result } = manageResponse(await tcpCommand('1100'))
-        console.log('command:', command)
+        const { command, result: status } = manageResponse(await tcpCommand('1000'))
         if (['Not', 'Error'].includes(command)) {await connect(setMessage)}
-        if (command === '1100') {
-          const [time] = result.split('/')
-          if (time) {
-            const elem = document.getElementById('time')
-            elem.textContent = time
-          }
+        const button = document.getElementById('play')
+        if (status === '3') {
+          button.textContent = '⏸'
+          const { result } = manageResponse(await tcpCommand('1120'))
+          const elem = document.getElementById('time')
+          elem.textContent = convertMilli(result)
+        } else {
+          button.textContent = '▶'
         }
-        if (command === '1200') {
-          console.log('state:', result)
-        }
-      }, 1000)
+      }, 500)
       return () => clearInterval(interval)
     }
   }, [])
@@ -96,21 +110,30 @@ export default function App () {
       <CssBaseline/>
       <Box sx={{ height: '100%' }}>
         <Paper sx={{ height: '100vh' }}>
+          <Box
+            id="time"
+            p={2}
+            sx={{
+              fontSize: '2rem', // Aumenta la dimensione del testo
+              textAlign: 'center', // Allinea il testo al centro
+              width: '100%', // Imposta la larghezza del Box al 100%
+              margin: 'auto' // Centra il Box
+            }}
+          >
+            0:00:00
+          </Box>
           <Box p={2}>
-            <Button variant="contained" color="primary" onClick={saveChapter} size="small">
+            <Button variant="contained" color="primary" onClick={saveChapter}>
               OFSALE MEXAL
             </Button>
-            <Button variant="contained" color="primary" onClick={play} size="small">
-              PLAY
+            <Button variant="contained" color="primary" onClick={play}>
+              <span id="play" style={{ fontSize: '1.5rem' }}>⧗</span>
             </Button>
           </Box>
-          <div id="time">0:00:00</div>
           <Snackbar
             open={message.open}
-            autoHideDuration={message.severity === 'error' ? 0 : 3000}
             onClose={handleClose}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            TransitionComponent={props => <Slide {...props} direction="up" children={props.children}/>}
           >
             <Alert onClose={handleClose} severity={message.severity}>
               {message.text}
