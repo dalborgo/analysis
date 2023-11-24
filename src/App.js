@@ -79,6 +79,7 @@ export default function App () {
     await tcpCommand('5100 fnSaveChapter')
     const { result: file } = manageResponse(await tcpCommand('1800'))
     console.log('file:', file)
+    //await fetch(`http://localhost:${PORT}/zoom/write-bookmark?file=${file}&text=prova`)
     setMessage(response)
   }, [])
   
@@ -90,20 +91,31 @@ export default function App () {
     if (renderedRef.current) {
       const interval = setInterval(async () => {
         const { command, result: status } = manageResponse(await tcpCommand('1000'))
-        if (['Not', 'Error'].includes(command)) {await connect(setMessage)}
+        if (['Not', 'Error'].includes(command)) {
+          await connect(setMessage)
+        } else {
+          if (message.open && message.severity ==='error') {
+            setMessage({...message, open: false })
+          }
+        }
         const button = document.getElementById('play')
+        console.log('status:', status)
         if (status === '3') {
           button.textContent = '⏸'
-          const { result } = manageResponse(await tcpCommand('1120'))
-          const elem = document.getElementById('time')
-          elem.textContent = convertMilli(result)
+          const { result, command } = manageResponse(await tcpCommand('1120'))
+          if(command === '1120') {
+            const elem = document.getElementById('time')
+            elem.textContent = convertMilli(result)
+          }
         } else {
-          button.textContent = '▶'
+          if(command === '1000') {
+            button.textContent = '▶'
+          }
         }
       }, 500)
       return () => clearInterval(interval)
     }
-  }, [])
+  }, [message])
   
   return (
     <ThemeProvider theme={darkTheme}>
