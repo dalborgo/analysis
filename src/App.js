@@ -67,12 +67,16 @@ async function connect (setMessage) {
     setMessage({ open: true, text, severity: 'error' })
   }
 }
+
 export default function App () {
   const [message, setMessage] = useState({ open: false })
   const renderedRef = useRef(false)
   const handleClose = () => setMessage({ ...message, open: false })
   const play = useCallback(async () => {
     await tcpCommand('5100 fnPlay')
+    const { result: status } = manageResponse(await tcpCommand('1000'))
+    const button = document.getElementById('play')
+    button.textContent = status === '3' ? '⏸' : '▶'
   }, [])
   const saveChapter = useCallback(async () => {
     const response = await tcpCommand('5100 fnAddChapter')
@@ -94,8 +98,8 @@ export default function App () {
         if (['Not', 'Error'].includes(command)) {
           await connect(setMessage)
         } else {
-          if (message.open && message.severity ==='error') {
-            setMessage({...message, open: false })
+          if (message.open && message.severity === 'error') {
+            setMessage({ ...message, open: false })
           }
         }
         const button = document.getElementById('play')
@@ -103,14 +107,12 @@ export default function App () {
         if (status === '3') {
           button.textContent = '⏸'
           const { result, command } = manageResponse(await tcpCommand('1120'))
-          if(command === '1120') {
+          if (command === '1120') {
             const elem = document.getElementById('time')
             elem.textContent = convertMilli(result)
           }
         } else {
-          if(command === '1000') {
-            button.textContent = '▶'
-          }
+          if (command === '1000') {button.textContent = '▶'}
         }
       }, 500)
       return () => clearInterval(interval)
