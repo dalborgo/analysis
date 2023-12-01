@@ -82,8 +82,7 @@ export default function App () {
     const response = await tcpCommand('5100 fnAddChapter')
     await tcpCommand('5100 fnSaveChapter')
     const { result: file } = manageResponse(await tcpCommand('1800'))
-    console.log('file:', file)
-    //await fetch(`http://localhost:${PORT}/zoom/write-bookmark?file=${file}&text=prova`)
+    await fetch(`http://localhost:${PORT}/zoom/write-bookmark?file=${file}&text=prova`)
     setMessage(response)
   }, [])
   
