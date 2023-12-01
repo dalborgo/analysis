@@ -23,7 +23,7 @@ const convertMilli = (millisecondi) => {
   const minutiFormattati = minuti < 10 ? `0${minuti}` : minuti
   const secondiFormattati = secondi < 10 ? `0${secondi}` : secondi
   
-  return `${ore}:${minutiFormattati}:${secondiFormattati}`
+  return {long: `${ore}:${minutiFormattati}:${secondiFormattati}`, short: `${minuti + 1}′` }
 }
 
 function print (data) {
@@ -107,8 +107,10 @@ export default function App () {
           button.textContent = '⏸'
           const { result, command } = manageResponse(await tcpCommand('1120'))
           if (command === '1120') {
-            const elem = document.getElementById('time')
-            elem.textContent = convertMilli(result)
+            const elemLong = document.getElementById('time')
+            const elemShort = document.getElementById('time_min')
+            elemLong.textContent = convertMilli(result).long
+            elemShort.textContent = convertMilli(result).short
           }
         } else {
           if (command === '1000') {button.textContent = '▶'}
@@ -127,13 +129,25 @@ export default function App () {
             id="time"
             p={2}
             sx={{
-              fontSize: '2rem', // Aumenta la dimensione del testo
-              textAlign: 'center', // Allinea il testo al centro
-              width: '100%', // Imposta la larghezza del Box al 100%
-              margin: 'auto' // Centra il Box
+              fontSize: '2rem',
+              textAlign: 'center',
+              width: '100%',
+              margin: 'auto',
             }}
           >
             0:00:00
+          </Box>
+          <Box
+            id="time_min"
+            p={2}
+            sx={{
+              fontSize: '2rem',
+              textAlign: 'center',
+              width: '100%',
+              margin: 'auto',
+            }}
+          >
+            00
           </Box>
           <Box p={2}>
             <Button variant="contained" color="primary" onClick={saveChapter}>
