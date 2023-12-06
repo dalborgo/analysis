@@ -11,7 +11,7 @@ const darkTheme = createTheme({
   },
 })
 
-const convertMilli = (millisecondi) => {
+const convertMilli = millisecondi => {
   let secondi = Math.floor(millisecondi / 1000)
   let minuti = Math.floor(secondi / 60)
   let ore = Math.floor(minuti / 60)
@@ -23,7 +23,7 @@ const convertMilli = (millisecondi) => {
   const minutiFormattati = minuti < 10 ? `0${minuti}` : minuti
   const secondiFormattati = secondi < 10 ? `0${secondi}` : secondi
   
-  return {long: `${ore}:${minutiFormattati}:${secondiFormattati}`, short: `${minuti + 1}′` }
+  return { long: `${ore}:${minutiFormattati}:${secondiFormattati}`, short: `${minuti + 1}′` }
 }
 
 function print (data) {
@@ -68,8 +68,9 @@ async function connect (setMessage) {
   }
 }
 
-export default function App () {
+export default function App ({ halfTime }) {
   const [message, setMessage] = useState({ open: false })
+  const [halfTimeEnd, setHalfTimeEnd] = useState(halfTime)
   const renderedRef = useRef(false)
   const handleClose = () => setMessage({ ...message, open: false })
   const play = useCallback(async () => {
@@ -85,7 +86,12 @@ export default function App () {
     await fetch(`http://localhost:${PORT}/zoom/write-bookmark?file=${file}&text=prova`)
     setMessage(response)
   }, [])
-  
+  const setHafTime = useCallback(async () => {
+    const { result } = manageResponse(await tcpCommand('1120'))
+    sessionStorage.setItem('halfTimeEnd', result.toString())
+    setHalfTimeEnd(result)
+  }, [])
+  console.log('halfTimeEnd:', halfTimeEnd)
   useEffect(() => {
     if (!renderedRef.current) {
       (async () => {await connect(setMessage)})()
@@ -110,7 +116,7 @@ export default function App () {
             const elemLong = document.getElementById('time')
             const elemShort = document.getElementById('time_min')
             elemLong.textContent = convertMilli(result).long
-            elemShort.textContent = convertMilli(result).short
+            elemShort.textContent = result > halfTimeEnd ? `${convertMilli(result - halfTimeEnd).short} st` : `${convertMilli(result).short} pt`
           }
         } else {
           if (command === '1000') {button.textContent = '▶'}
@@ -118,7 +124,7 @@ export default function App () {
       }, 500)
       return () => clearInterval(interval)
     }
-  }, [message])
+  }, [halfTimeEnd, message])
   
   return (
     <ThemeProvider theme={darkTheme}>
@@ -147,9 +153,12 @@ export default function App () {
               margin: 'auto',
             }}
           >
-            00
+            0
           </Box>
           <Box p={2}>
+            <Button variant="contained" color="primary" onClick={setHafTime}>
+              HALF
+            </Button>
             <Button variant="contained" color="primary" onClick={saveChapter}>
               OFSALE MEXAL
             </Button>
