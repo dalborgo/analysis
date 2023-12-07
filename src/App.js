@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Box, Button, createTheme, CssBaseline, Paper, Snackbar, ThemeProvider } from '@mui/material'
+import { Box, Button, createTheme, CssBaseline, Paper, Snackbar, TextField, ThemeProvider } from '@mui/material'
 import MuiAlert from '@mui/material/Alert'
 import { envConfig } from './init'
 
@@ -11,8 +11,8 @@ const darkTheme = createTheme({
   },
 })
 
-const convertMilli = millisecondi => {
-  let secondi = Math.floor(millisecondi / 1000)
+const convertMilli = (millisecondi, halfTime = 0) => {
+  let secondi = Math.floor((halfTime ? millisecondi - halfTime : millisecondi) / 1000)
   let minuti = Math.floor(secondi / 60)
   let ore = Math.floor(minuti / 60)
   
@@ -71,6 +71,22 @@ async function connect (setMessage) {
 export default function App ({ halfTime }) {
   const [message, setMessage] = useState({ open: false })
   const [halfTimeEnd, setHalfTimeEnd] = useState(halfTime)
+  const [longPressTimer, setLongPressTimer] = useState(null)
+  const [longPressTriggered, setLongPressTriggered] = useState(false)
+  
+  const handleLongPressStart = () => {
+    setLongPressTriggered(false)
+    const timer = setTimeout(() => {
+      setHalfTimeEnd(0)
+      setLongPressTriggered(true)
+    }, 1000) // 1000ms = 1 secondo
+    
+    setLongPressTimer(timer)
+  }
+  const handleLongPressEnd = () => {
+    clearTimeout(longPressTimer)
+  }
+  
   const renderedRef = useRef(false)
   const handleClose = () => setMessage({ ...message, open: false })
   const play = useCallback(async () => {
@@ -80,18 +96,20 @@ export default function App ({ halfTime }) {
     button.textContent = status === '3' ? '⏸' : '▶'
   }, [])
   const saveChapter = useCallback(async () => {
+    const episode = document.getElementById('episodeDescription').value
     const response = await tcpCommand('5100 fnAddChapter')
     await tcpCommand('5100 fnSaveChapter')
     const { result: file } = manageResponse(await tcpCommand('1800'))
-    await fetch(`http://localhost:${PORT}/zoom/write-bookmark?file=${file}&text=prova`)
+    await fetch(`http://localhost:${PORT}/zoom/write-bookmark?file=${file}&text=${episode || 'untitled'}`)
     setMessage(response)
   }, [])
   const setHafTime = useCallback(async () => {
-    const { result } = manageResponse(await tcpCommand('1120'))
-    sessionStorage.setItem('halfTimeEnd', result.toString())
-    setHalfTimeEnd(result)
-  }, [])
-  console.log('halfTimeEnd:', halfTimeEnd)
+    if (!longPressTriggered) {
+      const { result } = manageResponse(await tcpCommand('1120'))
+      localStorage.setItem('halfTimeEnd', result.toString())
+      setHalfTimeEnd(result)
+    }
+  }, [longPressTriggered])
   useEffect(() => {
     if (!renderedRef.current) {
       (async () => {await connect(setMessage)})()
@@ -99,6 +117,14 @@ export default function App ({ halfTime }) {
     }
     if (renderedRef.current) {
       const interval = setInterval(async () => {
+        const { result: file } = manageResponse(await tcpCommand('1800'))
+        const title = document.getElementById('title')
+        const filePattern = /^[a-zA-Z]:\\(?:[^\\:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]+\.[a-zA-Z0-9]+$/
+        if (filePattern.test(file)) {
+          if (title.textContent !== file) {
+            title.textContent = file;
+          }
+        }
         const { command, result: status } = manageResponse(await tcpCommand('1000'))
         if (['Not', 'Error'].includes(command)) {
           await connect(setMessage)
@@ -108,15 +134,19 @@ export default function App ({ halfTime }) {
           }
         }
         const button = document.getElementById('play')
-        console.log('status:', status)
+        //console.log('status:', status)
         if (status === '3') {
           button.textContent = '⏸'
           const { result, command } = manageResponse(await tcpCommand('1120'))
           if (command === '1120') {
             const elemLong = document.getElementById('time')
             const elemShort = document.getElementById('time_min')
+            const fractionElem = document.getElementById('fraction')
             elemLong.textContent = convertMilli(result).long
-            elemShort.textContent = result > halfTimeEnd ? `${convertMilli(result - halfTimeEnd).short} st` : `${convertMilli(result).short} pt`
+            elemShort.textContent = convertMilli(result, halfTimeEnd).short
+            if (fractionElem) {
+              fractionElem.textContent = result > halfTimeEnd ? 'st' : 'pt'
+            }
           }
         } else {
           if (command === '1000') {button.textContent = '▶'}
@@ -132,6 +162,18 @@ export default function App ({ halfTime }) {
       <Box sx={{ height: '100%' }}>
         <Paper sx={{ height: '100vh' }}>
           <Box
+            id="title"
+            p={2}
+            sx={{
+              fontSize: '2rem',
+              textAlign: 'center',
+              width: '100%',
+              margin: 'auto',
+            }}
+          >
+            ⧗
+          </Box>
+          <Box
             id="time"
             p={2}
             sx={{
@@ -143,22 +185,34 @@ export default function App ({ halfTime }) {
           >
             0:00:00
           </Box>
-          <Box
-            id="time_min"
-            p={2}
-            sx={{
-              fontSize: '2rem',
-              textAlign: 'center',
-              width: '100%',
-              margin: 'auto',
-            }}
+          <Box display="flex"
+               p={2}
+               sx={{
+                 fontSize: '2rem',
+                 textAlign: 'center',
+                 width: '100%',
+                 margin: 'auto',
+                 justifyContent: 'center',
+               }}
           >
-            0
+            <Box id="time_min">0</Box>{Boolean(halfTimeEnd) && <Box id="fraction">&nbsp;</Box>}
           </Box>
           <Box p={2}>
-            <Button variant="contained" color="primary" onClick={setHafTime}>
-              HALF
+            <Button
+              onMouseDown={handleLongPressStart}
+              onMouseUp={handleLongPressEnd}
+              onMouseLeave={handleLongPressEnd}
+              variant="contained"
+              color="primary"
+              onClick={setHafTime}>
+              HALF {halfTimeEnd}
             </Button>
+            <TextField
+              id="episodeDescription"
+              label=""
+              variant="outlined"
+              color="primary"
+            />
             <Button variant="contained" color="primary" onClick={saveChapter}>
               OFSALE MEXAL
             </Button>
