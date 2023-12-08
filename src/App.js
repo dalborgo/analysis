@@ -12,7 +12,7 @@ const darkTheme = createTheme({
 })
 
 const convertMilli = (millisecondi, halfTime = 0) => {
-  let secondi = Math.floor((halfTime ? millisecondi - halfTime : millisecondi) / 1000)
+  let secondi = Math.floor((halfTime && millisecondi > halfTime ? millisecondi - halfTime : millisecondi) / 1000)
   let minuti = Math.floor(secondi / 60)
   let ore = Math.floor(minuti / 60)
   
