@@ -103,6 +103,12 @@ export default function App ({ halfTime }) {
     await fetch(`http://localhost:${PORT}/zoom/write-bookmark?file=${file}&text=${episode || 'untitled'}`)
     setMessage(response)
   }, [])
+  const skipForward = useCallback(async () => {
+    await tcpCommand('5100 fnSkipForward')
+  }, [])
+  const skipBackward = useCallback(async () => {
+    await tcpCommand('5100 fnSkipBackward')
+  }, [])
   const setHafTime = useCallback(async () => {
     if (!longPressTriggered) {
       const { result } = manageResponse(await tcpCommand('1120'))
@@ -207,12 +213,18 @@ export default function App ({ halfTime }) {
               onClick={setHafTime}>
               HALF {halfTimeEnd}
             </Button>
+            <Button variant="contained" color="primary" onClick={skipBackward}>
+              <span style={{ fontSize: '1.5rem' }}>{'<-'}</span>
+            </Button>
             <TextField
               id="episodeDescription"
               label=""
               variant="outlined"
               color="primary"
             />
+            <Button variant="contained" color="primary" onClick={skipForward}>
+              <span style={{ fontSize: '1.5rem' }}>{'->'}</span>
+            </Button>
             <Button variant="contained" color="primary" onClick={saveChapter}>
               OFSALE MEXAL
             </Button>
