@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Box, Button, createTheme, CssBaseline, Paper, Snackbar, TextField, ThemeProvider } from '@mui/material'
+import { Box, Button, createTheme, CssBaseline, Paper, Snackbar, TextField, ThemeProvider, } from '@mui/material'
 import MuiAlert from '@mui/material/Alert'
 import { envConfig } from './init'
+import RefereeDisplay from './comp/RefereeDisplay'
 
 const PORT = envConfig['BACKEND_PORT']
 
@@ -10,6 +11,13 @@ const darkTheme = createTheme({
     mode: 'dark',
   },
 })
+
+function extractID (path) {
+  const fileName = path.split('\\').pop()
+  const pattern = /g(\d+)-/
+  const match = fileName.match(pattern)
+  return match ? match[1] : null
+}
 
 const convertMilli = (millisecondi, halfTime = 0) => {
   let secondi = Math.floor((halfTime && millisecondi > halfTime ? millisecondi - halfTime : millisecondi) / 1000)
@@ -68,18 +76,29 @@ async function connect (setMessage) {
   }
 }
 
+async function getMatch (id, setMatch) {
+  try {
+    const response = await fetch(`http://localhost:${PORT}/wyscout/match/${id}`)
+    const data = await response.json()
+    setMatch(data?.results)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 export default function App ({ halfTime }) {
   const [message, setMessage] = useState({ open: false })
+  const [match, setMatch] = useState()
   const [halfTimeEnd, setHalfTimeEnd] = useState(halfTime)
   const [longPressTimer, setLongPressTimer] = useState(null)
   const [longPressTriggered, setLongPressTriggered] = useState(false)
-  
+  console.log('match:', match)
   const handleLongPressStart = () => {
     setLongPressTriggered(false)
     const timer = setTimeout(() => {
       setHalfTimeEnd(0)
       setLongPressTriggered(true)
-    }, 1000) // 1000ms = 1 secondo
+    }, 1000)
     
     setLongPressTimer(timer)
   }
@@ -118,7 +137,9 @@ export default function App ({ halfTime }) {
   }, [longPressTriggered])
   useEffect(() => {
     if (!renderedRef.current) {
-      (async () => {await connect(setMessage)})()
+      (async () => {
+        await connect(setMessage)
+      })()
       renderedRef.current = true
     }
     if (renderedRef.current) {
@@ -128,7 +149,9 @@ export default function App ({ halfTime }) {
         const filePattern = /^[a-zA-Z]:\\(?:[^\\:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]+\.[a-zA-Z0-9]+$/
         if (filePattern.test(file)) {
           if (title.textContent !== file) {
-            title.textContent = file;
+            const id = extractID(file)
+            await getMatch(id, setMatch)
+            title.textContent = file
           }
         }
         const { command, result: status } = manageResponse(await tcpCommand('1000'))
@@ -140,7 +163,6 @@ export default function App ({ halfTime }) {
           }
         }
         const button = document.getElementById('play')
-        //console.log('status:', status)
         if (status === '3') {
           button.textContent = '⏸'
           const { result, command } = manageResponse(await tcpCommand('1120'))
@@ -167,21 +189,10 @@ export default function App ({ halfTime }) {
       <CssBaseline/>
       <Box sx={{ height: '100%' }}>
         <Paper sx={{ height: '100vh' }}>
-          <Box
-            id="title"
-            p={2}
-            sx={{
-              fontSize: '2rem',
-              textAlign: 'center',
-              width: '100%',
-              margin: 'auto',
-            }}
-          >
-            ⧗
-          </Box>
+          <RefereeDisplay match={match}/>
           <Box
             id="time"
-            p={2}
+            p={0}
             sx={{
               fontSize: '2rem',
               textAlign: 'center',
@@ -192,7 +203,7 @@ export default function App ({ halfTime }) {
             0:00:00
           </Box>
           <Box display="flex"
-               p={2}
+               p={0}
                sx={{
                  fontSize: '2rem',
                  textAlign: 'center',
