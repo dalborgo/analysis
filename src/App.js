@@ -13,10 +13,10 @@ const darkTheme = createTheme({
 })
 
 function extractID (path) {
-  const fileName = path.split('\\').pop()
-  const pattern = /g(\d+)-/
-  const match = fileName.match(pattern)
-  return match ? match[1] : null
+  const fileName = path.split('\\').pop();
+  const pattern = /g(\d+)[^0-9]*/;
+  const match = fileName.match(pattern);
+  return match ? match[1] : null;
 }
 
 const convertMilli = (millisecondi, halfTime = 0) => {
