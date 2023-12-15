@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Box, Button, createTheme, CssBaseline, Paper, Snackbar, TextField, ThemeProvider, } from '@mui/material'
+import { Box, Button, createTheme, CssBaseline, Snackbar, TextField, ThemeProvider, } from '@mui/material'
 import MuiAlert from '@mui/material/Alert'
 import { envConfig } from './init'
 import RefereeDisplay from './comp/RefereeDisplay'
+import MatchInfo from './comp/MatchInfo'
 
 const PORT = envConfig['BACKEND_PORT']
 
@@ -198,85 +199,85 @@ export default function App ({ halfTime }) {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline/>
-      <Box sx={{ height: '100%' }}>
-        <Paper sx={{ height: '100vh' }}>
-          <RefereeDisplay match={match}/>
-          <Box
-            id="time"
-            p={0}
-            sx={{
-              fontSize: '2rem',
-              textAlign: 'center',
-              width: '100%',
-              margin: 'auto',
-            }}
-          >
-            0:00:00
-          </Box>
-          <Box
-            display={'none'}
-            id="time_long"
-            p={0}
-            sx={{
-              fontSize: '0.8rem',
-              textAlign: 'center',
-              width: '100%',
-              margin: 'auto',
-            }}
-          >
-            0:00:00
-          </Box>
-          <Box display="flex"
-               p={0}
-               sx={{
-                 fontSize: '2rem',
-                 textAlign: 'center',
-                 width: '100%',
-                 margin: 'auto',
-                 justifyContent: 'center',
-               }}
-          >
-            <Box id="time_min">0</Box>{Boolean(halfTimeEnd) && <Box id="fraction">&nbsp;</Box>}
-          </Box>
-          <Box p={2}>
-            <Button
-              onMouseDown={handleLongPressStart}
-              onMouseUp={handleLongPressEnd}
-              onMouseLeave={handleLongPressEnd}
-              variant="contained"
-              color="primary"
-              onClick={setHafTime}>
-              HALF {halfTimeEnd}
-            </Button>
-            <Button variant="contained" color="primary" onClick={skipBackward}>
-              <span style={{ fontSize: '1.5rem' }}>{'<-'}</span>
-            </Button>
-            <TextField
-              id="episodeDescription"
-              label=""
-              variant="outlined"
-              color="primary"
-            />
-            <Button variant="contained" color="primary" onClick={skipForward}>
-              <span style={{ fontSize: '1.5rem' }}>{'->'}</span>
-            </Button>
-            <Button variant="contained" color="primary" onClick={saveChapter}>
-              OFSALE MEXAL
-            </Button>
-            <Button variant="contained" color="primary" onClick={play}>
-              <span id="play" style={{ fontSize: '1.5rem' }}>⧗</span>
-            </Button>
-          </Box>
-          <Snackbar
-            open={message.open}
-            onClose={handleClose}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-          >
-            <Alert onClose={handleClose} severity={message.severity}>
-              {message.text}
-            </Alert>
-          </Snackbar>
-        </Paper>
+      <Box mb={1}>
+        <RefereeDisplay match={match}/>
+        <Box
+          id="time"
+          p={0}
+          sx={{
+            fontSize: '2rem',
+            textAlign: 'center',
+            width: '100%',
+            margin: 'auto',
+          }}
+        >
+          0:00:00
+        </Box>
+        <Box
+          display={'none'}
+          id="time_long"
+          p={0}
+          sx={{
+            fontSize: '0.8rem',
+            textAlign: 'center',
+            width: '100%',
+            margin: 'auto',
+          }}
+        >
+          0:00:00
+        </Box>
+        <Box display="flex"
+             p={0}
+             sx={{
+               fontSize: '2rem',
+               textAlign: 'center',
+               width: '100%',
+               margin: 'auto',
+               justifyContent: 'center',
+             }}
+        >
+          <Box id="time_min">0</Box>{Boolean(halfTimeEnd) && <Box id="fraction">&nbsp;</Box>}
+        </Box>
+        <Box p={1}>
+          <Button
+            onMouseDown={handleLongPressStart}
+            onMouseUp={handleLongPressEnd}
+            onMouseLeave={handleLongPressEnd}
+            variant="contained"
+            color="primary"
+            onClick={setHafTime}>
+            HALF {halfTimeEnd}
+          </Button>
+          <Button variant="contained" color="primary" onClick={skipBackward}>
+            <span style={{ fontSize: '1rem' }}>{'<-'}</span>
+          </Button>
+          <TextField
+            id="episodeDescription"
+            label=""
+            variant="outlined"
+            color="primary"
+            size="small"
+          />
+          <Button variant="contained" color="primary" onClick={skipForward}>
+            <span style={{ fontSize: '1rem' }}>{'->'}</span>
+          </Button>
+          <Button variant="contained" color="primary" onClick={saveChapter}>
+            OFSALE MEXAL
+          </Button>
+          <Button variant="contained" color="primary" onClick={play}>
+            <span id="play" style={{ fontSize: '1rem' }}>⧗</span>
+          </Button>
+        </Box>
+        {match && <MatchInfo match={match}/>}
+        <Snackbar
+          open={message.open}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert onClose={handleClose} severity={message.severity}>
+            {message.text}
+          </Alert>
+        </Snackbar>
       </Box>
     </ThemeProvider>
   )

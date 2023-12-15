@@ -11,7 +11,7 @@ const RefereeDisplay = ({ match }) => {
       <span key={referee.id}>
         <img src={iconUrl} alt={role} style={{ marginRight: '5px' }}/>
         {fullName}&nbsp;&nbsp;
-        <img src={referee.thumb.url} alt={fullName} style={{ width: '20px' }}/>
+        <img src={referee.thumb.url} alt={fullName} style={{ width: 15, height: 15 }} />
       </span>
     )
   }
@@ -38,7 +38,7 @@ const RefereeDisplay = ({ match }) => {
       </Box>
       {
         match &&
-        <Box style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }} mt={2}>
+        <Box style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }} mt={1}>
           {
             match.match['referees'].elements
               .sort((a, b) => {
