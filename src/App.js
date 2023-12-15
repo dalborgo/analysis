@@ -20,18 +20,24 @@ function extractID (path) {
 }
 
 const convertMilli = (millisecondi, halfTime = 0) => {
-  let secondi = Math.floor((halfTime && millisecondi > halfTime ? millisecondi - halfTime : millisecondi) / 1000)
-  let minuti = Math.floor(secondi / 60)
-  let ore = Math.floor(minuti / 60)
+  const minute45 = 2_700_000
+  const secondi = Math.floor((halfTime && millisecondi > halfTime ? millisecondi - halfTime : millisecondi) / 1000)
+  const minuti = Math.floor(secondi / 60)
+  const short = minuti % 60
   
-  secondi = secondi % 60
-  minuti = minuti % 60
+  function getTime (secondi) {
+    const minuti = Math.floor(secondi / 60)
+    const ore = Math.floor(minuti / 60)
+    const secondi_ = secondi % 60
+    const minuti_ = minuti % 60
+    const minutiFormattati = minuti_ < 10 ? `0${minuti_}` : minuti_
+    const secondiFormattati = secondi_ < 10 ? `0${secondi_}` : secondi_
+    return `${ore}:${minutiFormattati}:${secondiFormattati}`
+  }
   
-  // Aggiungi uno zero davanti ai minuti e ai secondi se sono meno di 10
-  const minutiFormattati = minuti < 10 ? `0${minuti}` : minuti
-  const secondiFormattati = secondi < 10 ? `0${secondi}` : secondi
-  
-  return { long: `${ore}:${minutiFormattati}:${secondiFormattati}`, short: `${minuti + 1}′` }
+  const effectiveLong = getTime(Math.floor((halfTime && millisecondi > halfTime ? minute45 + (millisecondi - halfTime) : millisecondi) / 1000))
+  const long = getTime(Math.floor(millisecondi / 1000))
+  return { long, effectiveLong, short: `${short + 1}′` }
 }
 
 function print (data) {
@@ -169,11 +175,14 @@ export default function App ({ halfTime }) {
           button.textContent = '⏸'
           const { result, command } = manageResponse(await tcpCommand('1120'))
           if (command === '1120') {
-            const elemLong = document.getElementById('time')
+            const elemEff = document.getElementById('time')
+            const elemLong = document.getElementById('time_long')
             const elemShort = document.getElementById('time_min')
             const fractionElem = document.getElementById('fraction')
-            elemLong.textContent = convertMilli(result).long
-            elemShort.textContent = convertMilli(result, halfTimeEnd).short
+            const time = convertMilli(parseInt(result), halfTimeEnd)
+            elemEff.textContent = time.effectiveLong
+            elemLong.textContent = time.long
+            elemShort.textContent = time.short
             if (fractionElem) {
               fractionElem.textContent = result > halfTimeEnd ? 'st' : 'pt'
             }
@@ -197,6 +206,19 @@ export default function App ({ halfTime }) {
             p={0}
             sx={{
               fontSize: '2rem',
+              textAlign: 'center',
+              width: '100%',
+              margin: 'auto',
+            }}
+          >
+            0:00:00
+          </Box>
+          <Box
+            display={'none'}
+            id="time_long"
+            p={0}
+            sx={{
+              fontSize: '0.8rem',
               textAlign: 'center',
               width: '100%',
               margin: 'auto',
