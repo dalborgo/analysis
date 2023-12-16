@@ -135,6 +135,11 @@ export default function App ({ halfTime }) {
   const skipBackward = useCallback(async () => {
     await tcpCommand('5100 fnSkipBackward')
   }, [])
+  const goTime = useCallback(async eventTime => {
+    const { minute, period } = eventTime
+    const to = period === 2 && halfTime ? minute * 60000 + halfTimeEnd : minute * 60000
+    await tcpCommand(`5000 ${(to - 60000) / 1000}`)
+  }, [halfTime, halfTimeEnd])
   const setHafTime = useCallback(async () => {
     if (!longPressTriggered) {
       const { result } = manageResponse(await tcpCommand('1120'))
@@ -142,6 +147,19 @@ export default function App ({ halfTime }) {
       setHalfTimeEnd(result)
     }
   }, [longPressTriggered])
+  const handleKeyPress = useCallback(event => {
+    if (event.key === 'ArrowRight') {skipForward()}
+    if (event.key === 'ArrowLeft') {skipBackward()}
+    if (event.key === ' ') {play()}
+  }, [skipBackward, skipForward, play])
+  
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress)
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress)
+    }
+  }, [handleKeyPress])
+  
   useEffect(() => {
     if (!renderedRef.current) {
       (async () => {
@@ -268,7 +286,7 @@ export default function App ({ halfTime }) {
             <span id="play" style={{ fontSize: '1rem' }}>⧗</span>
           </Button>
         </Box>
-        {match && <MatchInfo match={match}/>}
+        {match && <MatchInfo match={match} goTime={goTime}/>}
         <Snackbar
           open={message.open}
           onClose={handleClose}

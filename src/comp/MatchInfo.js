@@ -1,18 +1,36 @@
 import React from 'react'
 import Box from '@mui/material/Box'
+import Link from '@mui/material/Link'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { Avatar, Tooltip } from '@mui/material'
 
-const MatchInfo = ({ match }) => {
+const getEventImageUrl = eventType => {
+  switch (eventType) {
+    case 'YELLOW_CARD':
+      return 'http://www.arbitri.com/forum/images/smilies/giallo.gif'
+    case 'RED_CARD':
+      return 'http://www.arbitri.com/forum/images/smilies/rosso.gif'
+    case 'GOAL_PENALTY':
+      return 'http://www.arbitri.com/forum/images/smilies/fischietto.png'
+    default:
+      return null
+  }
+}
+const shouldDisplayAvatar = (url) => {
+  return !url.includes('ndplayer')
+}
+const getCoachName = (team) => {
+  return team.coach && team.coach.shortName ? team.coach.shortName : '--'
+}
+const getCoachUrl = (team) => {
+  return team.coach && team.coach.thumb.url ? team.coach.thumb.url : 'ndplayer'
+}
+const MatchInfo = ({ match, goTime }) => {
   const { teamsData } = match['match']
   const players = match['players']
-  const getCoachName = (team) => {
-    return team.coach && team.coach.shortName ? team.coach.shortName : '--'
-  }
-  const getCoachUrl = (team) => {
-    return team.coach && team.coach.thumb.url ? team.coach.thumb.url : 'ndplayer'
-  }
+  const events = match['events']
+  
   const sortedTeams = Object.values(teamsData).sort((a, b) => {
     if (a.side === 'home') return -1
     if (b.side === 'home') return 1
@@ -42,13 +60,24 @@ const MatchInfo = ({ match }) => {
           lastCode = player.code
           return player
         }
+      }).map(player => {
+        const playerEvents = events.filter(event => event.playerId === player.player.id)
+        const eventDetails = playerEvents
+          .filter(event => ['YELLOW_CARD', 'RED_CARD', 'GOAL_PENALTY'].includes(event.eventType))
+          .map(event => {
+            return {
+              imageUrl: getEventImageUrl(event.eventType),
+              time: event.time
+            }
+          })
+        
+        return {
+          ...player,
+          eventImages: eventDetails.map(detail => detail.imageUrl),
+          eventTimes: eventDetails.map(detail => detail.time)
+        }
       })
   }
-  const shouldDisplayAvatar = (url) => {
-    return !url.includes('ndplayer')
-  }
-
-  
   return (
     <Box pl={2}>
       <Grid container spacing={0}>
@@ -106,7 +135,39 @@ const MatchInfo = ({ match }) => {
                     <Grid item>
                       <Typography variant="body2" ml={1}>{player.player.shortName}</Typography>
                     </Grid>
+                    {player.eventImages && player.eventImages.length > 0 && (
+                      <Grid item>
+                        {player.eventImages.map((imageUrl, index) => (
+                          <React.Fragment key={index}>
+                            &nbsp;&nbsp;<Link
+                            onClick={() => goTime(player.eventTimes[index])}
+                            style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+                            variant="body2"
+                          >
+                            <img src={imageUrl} alt="Event" style={{ width: 18, height: 18 }}/>
+                          </Link>
+                          </React.Fragment>
+                        ))}
+                      </Grid>
+                    )}
+                    
+                    {player.eventTimes && player.eventTimes.length > 0 && (
+                      <Grid item>
+                        {player.eventTimes.map((time, index) => (
+                          <Link
+                            key={index}
+                            onClick={() => goTime(time)}
+                            style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+                            variant="body2"
+                          >
+                            <Typography variant="body2"
+                                        ml={0.5}>{`${time.minute}′${time.period === 2 ? 'st' : 'pt'}`}</Typography>
+                          </Link>
+                        ))}
+                      </Grid>
+                    )}
                   </Grid>
+                
                 </Box>
               ))}
             </Box>
