@@ -20,13 +20,14 @@ function extractID (path) {
   return match ? match[1] : null
 }
 
-const convertMilli = (millisecondi, halfTime = 0) => {
+const convertMilli = (millisecondi, halfTime = 0, initTime = 0) => {
+  if (millisecondi < initTime) { return { long: '00:00:00', effectiveLong: '00:00:00', short: '0\'' }}
   const minute45 = 2_700_000
-  const secondi = Math.floor((halfTime && millisecondi > halfTime ? millisecondi - halfTime : millisecondi) / 1000)
+  const secondi = Math.floor((halfTime && millisecondi > halfTime ? millisecondi - halfTime : millisecondi - initTime) / 1000)
   const minuti = Math.floor(secondi / 60)
   const short = minuti % 60
   
-  function getTime (secondi) {
+  function getTimeLong (secondi) {
     const minuti = Math.floor(secondi / 60)
     const ore = Math.floor(minuti / 60)
     const secondi_ = secondi % 60
@@ -35,9 +36,16 @@ const convertMilli = (millisecondi, halfTime = 0) => {
     const secondiFormattati = secondi_ < 10 ? `0${secondi_}` : secondi_
     return `${ore}:${minutiFormattati}:${secondiFormattati}`
   }
+  function getTime (secondi) {
+    const minuti = Math.floor(secondi / 60)
+    const secondi_ = secondi % 60
+    const minutiFormattati = minuti < 10 ? `0${minuti}` : minuti
+    const secondiFormattati = secondi_ < 10 ? `0${secondi_}` : secondi_
+    return `${minutiFormattati}:${secondiFormattati}`
+  }
   
-  const effectiveLong = getTime(Math.floor((halfTime && millisecondi > halfTime ? minute45 + (millisecondi - halfTime) : millisecondi) / 1000))
-  const long = getTime(Math.floor(millisecondi / 1000))
+  const effectiveLong = getTime(Math.floor((halfTime && millisecondi > halfTime ? minute45 + (millisecondi - halfTime) : millisecondi - initTime) / 1000))
+  const long = getTimeLong(Math.floor(millisecondi / 1000))
   return { long, effectiveLong, short: `${short + 1}′` }
 }
 
@@ -75,7 +83,6 @@ async function connect (setMessage) {
   try {
     const response = await fetch(`http://localhost:${PORT}/zoom/connect`)
     const data = await response.json()
-    console.log('data:', data)
     setMessage(print(data))
   } catch (error) {
     const text = `Backend error: ${error}`
@@ -93,10 +100,11 @@ async function getMatch (id, setMatch) {
   }
 }
 
-export default function App ({ halfTime }) {
+export default function App ({ halfTime, initTime = 0 }) {
   const [message, setMessage] = useState({ open: false })
   const [match, setMatch] = useState()
   const [halfTimeEnd, setHalfTimeEnd] = useState(halfTime)
+  const [initTimeEnd, setInitTimeEnd] = useState(initTime)
   const [longPressTimer, setLongPressTimer] = useState(null)
   const [longPressTriggered, setLongPressTriggered] = useState(false)
   console.log('match:', match)
@@ -104,6 +112,7 @@ export default function App ({ halfTime }) {
     setLongPressTriggered(false)
     const timer = setTimeout(() => {
       setHalfTimeEnd(0)
+      setInitTimeEnd(0)
       setLongPressTriggered(true)
     }, 1000)
     
@@ -137,14 +146,23 @@ export default function App ({ halfTime }) {
   }, [])
   const goTime = useCallback(async eventTime => {
     const { minute, period } = eventTime
-    const to = period === 2 && halfTime ? minute * 60000 + halfTimeEnd : minute * 60000
+    console.log('minute:', minute)
+    console.log('period:', period)
+    const to = period === 2 && halfTime ? minute * 60000 + halfTimeEnd : (minute * 60000) + initTimeEnd
     await tcpCommand(`5000 ${(to - 60000) / 1000}`)
-  }, [halfTime, halfTimeEnd])
-  const setHafTime = useCallback(async () => {
+  }, [halfTime, halfTimeEnd, initTimeEnd])
+  const setHalfTime = useCallback(async () => {
     if (!longPressTriggered) {
       const { result } = manageResponse(await tcpCommand('1120'))
       localStorage.setItem('halfTimeEnd', result.toString())
       setHalfTimeEnd(result)
+    }
+  }, [longPressTriggered])
+  const setInitTime = useCallback(async () => {
+    if (!longPressTriggered) {
+      const { result } = manageResponse(await tcpCommand('1120'))
+      localStorage.setItem('initTimeEnd', result.toString())
+      setInitTimeEnd(result)
     }
   }, [longPressTriggered])
   const handleKeyPress = useCallback(event => {
@@ -198,7 +216,7 @@ export default function App ({ halfTime }) {
             const elemLong = document.getElementById('time_long')
             const elemShort = document.getElementById('time_min')
             const fractionElem = document.getElementById('fraction')
-            const time = convertMilli(parseInt(result), halfTimeEnd)
+            const time = convertMilli(parseInt(result), halfTimeEnd, initTime)
             elemEff.textContent = time.effectiveLong
             elemLong.textContent = time.long
             elemShort.textContent = time.short
@@ -212,7 +230,7 @@ export default function App ({ halfTime }) {
       }, 500)
       return () => clearInterval(interval)
     }
-  }, [halfTimeEnd, message])
+  }, [halfTimeEnd, initTime, message])
   
   return (
     <ThemeProvider theme={darkTheme}>
@@ -263,7 +281,16 @@ export default function App ({ halfTime }) {
             onMouseLeave={handleLongPressEnd}
             variant="contained"
             color="primary"
-            onClick={setHafTime}>
+            onClick={setInitTime}>
+            INIT {initTimeEnd}
+          </Button>
+          <Button
+            onMouseDown={handleLongPressStart}
+            onMouseUp={handleLongPressEnd}
+            onMouseLeave={handleLongPressEnd}
+            variant="contained"
+            color="primary"
+            onClick={setHalfTime}>
             HALF {halfTimeEnd}
           </Button>
           <Button variant="contained" color="primary" onClick={skipBackward}>

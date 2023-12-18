@@ -9,6 +9,7 @@ const getEventImageUrl = eventType => {
   switch (eventType) {
     case 'YELLOW_CARD':
       return 'http://www.arbitri.com/forum/images/smilies/giallo.gif'
+    case 'DOUBLE_YELLOW_CARD':
     case 'RED_CARD':
       return 'http://www.arbitri.com/forum/images/smilies/rosso.gif'
     case 'GOAL_PENALTY':
@@ -63,7 +64,7 @@ const MatchInfo = ({ match, goTime }) => {
       }).map(player => {
         const playerEvents = events.filter(event => event.playerId === player.player.id)
         const eventDetails = playerEvents
-          .filter(event => ['YELLOW_CARD', 'RED_CARD', 'GOAL_PENALTY'].includes(event.eventType))
+          .filter(event => ['YELLOW_CARD', 'RED_CARD', 'GOAL_PENALTY', 'DOUBLE_YELLOW_CARD'].includes(event.eventType))
           .map(event => {
             return {
               imageUrl: getEventImageUrl(event.eventType),
@@ -136,38 +137,33 @@ const MatchInfo = ({ match, goTime }) => {
                       <Typography variant="body2" ml={1}>{player.player.shortName}</Typography>
                     </Grid>
                     {player.eventImages && player.eventImages.length > 0 && (
-                      <Grid item>
+                      <>
                         {player.eventImages.map((imageUrl, index) => (
                           <React.Fragment key={index}>
-                            &nbsp;&nbsp;<Link
-                            onClick={() => goTime(player.eventTimes[index])}
-                            style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
-                            variant="body2"
-                          >
-                            <img src={imageUrl} alt="Event" style={{ width: 18, height: 18 }}/>
-                          </Link>
+                            <Grid item>
+                              &nbsp;&nbsp;<Link
+                              onClick={() => goTime(player.eventTimes[index])}
+                              style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+                              variant="body2"
+                            >
+                              <img src={imageUrl} alt="Event" style={{ width: 18, height: 18 }}/>
+                            </Link>
+                            </Grid>
+                            <Grid item>
+                              <Link
+                                onClick={() => goTime(player.eventTimes[index])}
+                                style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+                                variant="body2"
+                              >
+                                <Typography variant="body2"
+                                            ml={0.5}>{`${player.eventTimes[index].minute}′${player.eventTimes[index].period === 2 ? 'st' : 'pt'}`}</Typography>
+                              </Link>
+                            </Grid>
                           </React.Fragment>
                         ))}
-                      </Grid>
-                    )}
-                    
-                    {player.eventTimes && player.eventTimes.length > 0 && (
-                      <Grid item>
-                        {player.eventTimes.map((time, index) => (
-                          <Link
-                            key={index}
-                            onClick={() => goTime(time)}
-                            style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
-                            variant="body2"
-                          >
-                            <Typography variant="body2"
-                                        ml={0.5}>{`${time.minute}′${time.period === 2 ? 'st' : 'pt'}`}</Typography>
-                          </Link>
-                        ))}
-                      </Grid>
+                      </>
                     )}
                   </Grid>
-                
                 </Box>
               ))}
             </Box>
