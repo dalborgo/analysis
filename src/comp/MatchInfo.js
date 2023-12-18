@@ -8,12 +8,13 @@ import { Avatar, Tooltip } from '@mui/material'
 const getEventImageUrl = eventType => {
   switch (eventType) {
     case 'YELLOW_CARD':
-      return 'http://www.arbitri.com/forum/images/smilies/giallo.gif'
+      return '/static/giallo.gif'
     case 'DOUBLE_YELLOW_CARD':
+      return '/static/gr.png'
     case 'RED_CARD':
-      return 'http://www.arbitri.com/forum/images/smilies/rosso.gif'
+      return '/static/rosso.gif'
     case 'GOAL_PENALTY':
-      return 'http://www.arbitri.com/forum/images/smilies/fischietto.png'
+      return '/static/fischietto.png'
     default:
       return null
   }
