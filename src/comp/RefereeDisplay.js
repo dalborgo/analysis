@@ -5,8 +5,8 @@ const RefereeDisplay = ({ match }) => {
   const renderReferee = ({ referee, role }) => {
     const fullName = `${referee['firstName']} ${referee['middleName']} ${referee['lastName']}`.trim()
     const iconUrl = ['referee', 'fourthOfficial'].includes(role)
-      ? 'http://www.arbitri.com/forum/images/smilies/fischietto.png'
-      : 'http://www.arbitri.com/forum/images/smilies/bandierina.png'
+      ? '/static/fischietto.png'
+      : '/static/bandierina.png'
     return (
       <span key={referee.id}>
         <img src={iconUrl} alt={role} style={{ marginRight: '5px' }}/>

@@ -4,6 +4,7 @@ import Link from '@mui/material/Link'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { Avatar, Tooltip } from '@mui/material'
+import ChaptersList from './ChaptersList'
 
 const getEventImageUrl = eventType => {
   switch (eventType) {
@@ -28,7 +29,7 @@ const getCoachName = (team) => {
 const getCoachUrl = (team) => {
   return team.coach && team.coach.thumb.url ? team.coach.thumb.url : 'ndplayer'
 }
-const MatchInfo = ({ match, goTime }) => {
+const MatchInfo = ({ match, goTime, chapters, halfTimeEnd }) => {
   const { teamsData } = match['match']
   const players = match['players']
   const events = match['events']
@@ -84,7 +85,7 @@ const MatchInfo = ({ match, goTime }) => {
     <Box pl={2}>
       <Grid container spacing={0}>
         {sortedTeams.map((team, index) => (
-          <Grid item xs={6} key={index}>
+          <Grid item xs={4} key={index}>
             <Box display={'flex'}>
               <Typography variant="body1">Allenatore:&nbsp;</Typography>
               {shouldDisplayAvatar(getCoachUrl(team)) &&
@@ -170,6 +171,7 @@ const MatchInfo = ({ match, goTime }) => {
             </Box>
           </Grid>
         ))}
+        <Grid item xs={4}><ChaptersList goTime={goTime} chapters={chapters} halfTimeEnd={halfTimeEnd}/></Grid>
       </Grid>
     </Box>
   )

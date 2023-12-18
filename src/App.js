@@ -20,7 +20,7 @@ function extractID (path) {
   return match ? match[1] : null
 }
 
-const convertMilli = (millisecondi, halfTime = 0, initTime = 0) => {
+export const convertMilli = (millisecondi, halfTime = 0, initTime = 0) => {
   if (millisecondi < initTime) { return { long: '00:00:00', effectiveLong: '00:00:00', short: '0\'' }}
   const minute45 = 2_700_000
   const secondi = Math.floor((halfTime && millisecondi > halfTime ? millisecondi - halfTime : millisecondi - initTime) / 1000)
@@ -36,6 +36,7 @@ const convertMilli = (millisecondi, halfTime = 0, initTime = 0) => {
     const secondiFormattati = secondi_ < 10 ? `0${secondi_}` : secondi_
     return `${ore}:${minutiFormattati}:${secondiFormattati}`
   }
+  
   function getTime (secondi) {
     const minuti = Math.floor(secondi / 60)
     const secondi_ = secondi % 60
@@ -46,7 +47,7 @@ const convertMilli = (millisecondi, halfTime = 0, initTime = 0) => {
   
   const effectiveLong = getTime(Math.floor((halfTime && millisecondi > halfTime ? minute45 + (millisecondi - halfTime) : millisecondi - initTime) / 1000))
   const long = getTimeLong(Math.floor(millisecondi / 1000))
-  return { long, effectiveLong, short: `${short + 1}′` }
+  return { long, effectiveLong, short: `${short + 1}′`, period: millisecondi > halfTime? 'st' : 'pt' }
 }
 
 function print (data) {
@@ -100,19 +101,33 @@ async function getMatch (id, setMatch) {
   }
 }
 
+async function getChapters (file, setChapters) {
+  try {
+    const response = await fetch(`http://localhost:${PORT}/wyscout/chapters?file=${file}`)
+    const data = await response.json()
+    setChapters(data?.results)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 export default function App ({ halfTime, initTime = 0 }) {
   const [message, setMessage] = useState({ open: false })
   const [match, setMatch] = useState()
+  const [chapters, setChapters] = useState()
   const [halfTimeEnd, setHalfTimeEnd] = useState(halfTime)
   const [initTimeEnd, setInitTimeEnd] = useState(initTime)
   const [longPressTimer, setLongPressTimer] = useState(null)
   const [longPressTriggered, setLongPressTriggered] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
   console.log('match:', match)
   const handleLongPressStart = () => {
     setLongPressTriggered(false)
     const timer = setTimeout(() => {
       setHalfTimeEnd(0)
       setInitTimeEnd(0)
+      localStorage.setItem('halfTimeEnd', 0)
+      localStorage.setItem('initTimeEnd', 0)
       setLongPressTriggered(true)
     }, 1000)
     
@@ -121,7 +136,7 @@ export default function App ({ halfTime, initTime = 0 }) {
   const handleLongPressEnd = () => {
     clearTimeout(longPressTimer)
   }
-  
+  console.log('chapters:', chapters)
   const renderedRef = useRef(false)
   const handleClose = () => setMessage({ ...message, open: false })
   const play = useCallback(async () => {
@@ -132,6 +147,7 @@ export default function App ({ halfTime, initTime = 0 }) {
   }, [])
   const saveChapter = useCallback(async () => {
     const episode = document.getElementById('episodeDescription').value
+    if (!episode) {return}
     const response = await tcpCommand('5100 fnAddChapter')
     await tcpCommand('5100 fnSaveChapter')
     const { result: file } = manageResponse(await tcpCommand('1800'))
@@ -144,7 +160,10 @@ export default function App ({ halfTime, initTime = 0 }) {
   const skipBackward = useCallback(async () => {
     await tcpCommand('5100 fnSkipBackward')
   }, [])
-  const goTime = useCallback(async eventTime => {
+  const goTime = useCallback(async (eventTime, direct = false) => {
+    if (direct) {
+      return tcpCommand(`5000 ${eventTime}`)
+    }
     const { minute, period } = eventTime
     console.log('minute:', minute)
     console.log('period:', period)
@@ -166,11 +185,22 @@ export default function App ({ halfTime, initTime = 0 }) {
     }
   }, [longPressTriggered])
   const handleKeyPress = useCallback(event => {
-    if (event.key === 'ArrowRight') {skipForward()}
-    if (event.key === 'ArrowLeft') {skipBackward()}
-    if (event.key === ' ') {play()}
-  }, [skipBackward, skipForward, play])
-  
+    if (!isFocused) {
+      switch (event.key) {
+        case 'ArrowRight':
+          skipForward()
+          break
+        case 'ArrowLeft':
+          skipBackward()
+          break
+        case ' ':
+          play()
+          break
+        default:
+          break
+      }
+    }
+  }, [isFocused, skipForward, skipBackward, play])
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress)
     return () => {
@@ -195,6 +225,7 @@ export default function App ({ halfTime, initTime = 0 }) {
             const id = extractID(file)
             if (id) {
               await getMatch(id, setMatch)
+              await getChapters(file, setChapters)
             }
             title.textContent = file
           }
@@ -302,6 +333,8 @@ export default function App ({ halfTime, initTime = 0 }) {
             variant="outlined"
             color="primary"
             size="small"
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
           />
           <Button variant="contained" color="primary" onClick={skipForward}>
             <span style={{ fontSize: '1rem' }}>{'->'}</span>
@@ -313,7 +346,7 @@ export default function App ({ halfTime, initTime = 0 }) {
             <span id="play" style={{ fontSize: '1rem' }}>⧗</span>
           </Button>
         </Box>
-        {match && <MatchInfo match={match} goTime={goTime}/>}
+        {match && <MatchInfo match={match} goTime={goTime} chapters={chapters} halfTimeEnd={halfTimeEnd}/>}
         <Snackbar
           open={message.open}
           onClose={handleClose}
