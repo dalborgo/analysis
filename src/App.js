@@ -4,6 +4,7 @@ import MuiAlert from '@mui/material/Alert'
 import { envConfig } from './init'
 import RefereeDisplay from './comp/RefereeDisplay'
 import MatchInfo from './comp/MatchInfo'
+import ChaptersList from './comp/ChaptersList'
 
 const PORT = envConfig['BACKEND_PORT']
 
@@ -47,7 +48,7 @@ export const convertMilli = (millisecondi, halfTime = 0, initTime = 0) => {
   
   const effectiveLong = getTime(Math.floor((halfTime && millisecondi > halfTime ? minute45 + (millisecondi - halfTime) : millisecondi - initTime) / 1000))
   const long = getTimeLong(Math.floor(millisecondi / 1000))
-  return { long, effectiveLong, short: `${short + 1}′`, period: millisecondi > halfTime? 'st' : 'pt' }
+  return { long, effectiveLong, short: `${short + 1}′`, period: millisecondi > halfTime ? 'st' : 'pt' }
 }
 
 function print (data) {
@@ -114,7 +115,7 @@ async function getChapters (file, setChapters) {
 export default function App ({ halfTime, initTime = 0 }) {
   const [message, setMessage] = useState({ open: false })
   const [match, setMatch] = useState()
-  const [chapters, setChapters] = useState()
+  const [chapters, setChapters] = useState([])
   const [halfTimeEnd, setHalfTimeEnd] = useState(halfTime)
   const [initTimeEnd, setInitTimeEnd] = useState(initTime)
   const [longPressTimer, setLongPressTimer] = useState(null)
@@ -146,14 +147,19 @@ export default function App ({ halfTime, initTime = 0 }) {
     button.textContent = status === '3' ? '⏸' : '▶'
   }, [])
   const saveChapter = useCallback(async () => {
-    const episode = document.getElementById('episodeDescription').value
+    const episodeDescription = document.getElementById('episodeDescription')
+    const episode = episodeDescription.value
     if (!episode) {return}
+    const elem = document.getElementById('milliBox')
+    const newChapters = [...chapters, { time: parseInt(elem.value / 1000) , text: episode }].sort((a, b) => a.time - b.time)
+    setChapters(newChapters)
     const response = await tcpCommand('5100 fnAddChapter')
     await tcpCommand('5100 fnSaveChapter')
     const { result: file } = manageResponse(await tcpCommand('1800'))
     await fetch(`http://localhost:${PORT}/zoom/write-bookmark?file=${file}&text=${episode || 'untitled'}`)
+    episodeDescription.value = ''
     setMessage(response)
-  }, [])
+  }, [chapters])
   const skipForward = useCallback(async () => {
     await tcpCommand('5100 fnSkipForward')
   }, [])
@@ -225,8 +231,8 @@ export default function App ({ halfTime, initTime = 0 }) {
             const id = extractID(file)
             if (id) {
               await getMatch(id, setMatch)
-              await getChapters(file, setChapters)
             }
+            await getChapters(file, setChapters)
             title.textContent = file
           }
         }
@@ -243,6 +249,7 @@ export default function App ({ halfTime, initTime = 0 }) {
           button.textContent = '⏸'
           const { result, command } = manageResponse(await tcpCommand('1120'))
           if (command === '1120') {
+            const milliBox = document.getElementById('milliBox')
             const elemEff = document.getElementById('time')
             const elemLong = document.getElementById('time_long')
             const elemShort = document.getElementById('time_min')
@@ -251,6 +258,7 @@ export default function App ({ halfTime, initTime = 0 }) {
             elemEff.textContent = time.effectiveLong
             elemLong.textContent = time.long
             elemShort.textContent = time.short
+            milliBox.value = result
             if (fractionElem) {
               fractionElem.textContent = result > halfTimeEnd ? 'st' : 'pt'
             }
@@ -268,6 +276,7 @@ export default function App ({ halfTime, initTime = 0 }) {
       <CssBaseline/>
       <Box mb={1}>
         <RefereeDisplay match={match}/>
+        <input id="milliBox" style={{display: 'none'}}/>
         <Box
           id="time"
           p={0}
@@ -346,6 +355,7 @@ export default function App ({ halfTime, initTime = 0 }) {
             <span id="play" style={{ fontSize: '1rem' }}>⧗</span>
           </Button>
         </Box>
+        {Boolean(chapters?.length) && <ChaptersList chapters={chapters} halfTimeEnd={halfTimeEnd} goTime={goTime}/>}
         {match && <MatchInfo match={match} goTime={goTime} chapters={chapters} halfTimeEnd={halfTimeEnd}/>}
         <Snackbar
           open={message.open}
