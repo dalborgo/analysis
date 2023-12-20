@@ -5,6 +5,7 @@ import { envConfig } from './init'
 import RefereeDisplay from './comp/RefereeDisplay'
 import MatchInfo from './comp/MatchInfo'
 import ChaptersList from './comp/ChaptersList'
+import Grid from '@mui/material/Grid'
 
 const PORT = envConfig['BACKEND_PORT']
 
@@ -22,7 +23,7 @@ function extractID (path) {
 }
 
 export const convertMilli = (millisecondi, halfTime = 0, initTime = 0) => {
-  if (millisecondi < initTime) { return { long: '00:00:00', effectiveLong: '00:00:00', short: '0\'' }}
+  if (millisecondi < initTime) { return { long: '00:00:00', effectiveLong: '00:00:00', short: '0′' }}
   const minute45 = 2_700_000
   const secondi = Math.floor((halfTime && millisecondi > halfTime ? millisecondi - halfTime : millisecondi - initTime) / 1000)
   const minuti = Math.floor(secondi / 60)
@@ -103,7 +104,6 @@ async function getMatch (id, setMatch) {
 }
 
 async function getChapters (file, setChapters) {
-  console.log('QUA!!!!!!!!')
   try {
     const response = await fetch(`http://localhost:${PORT}/zoom/chapters?file=${file}`)
     console.log('response:', response)
@@ -154,7 +154,10 @@ export default function App ({ halfTime, initTime = 0 }) {
     const episode = episodeDescription.value
     if (!episode) {return}
     const elem = document.getElementById('milliBox')
-    const newChapters = [...chapters, { time: parseFloat(elem.value / 1000) , text: episode }].sort((a, b) => a.time - b.time)
+    const newChapters = [...chapters, {
+      time: parseFloat(elem.value / 1000),
+      text: episode
+    }].sort((a, b) => a.time - b.time)
     setChapters(newChapters)
     const response = await tcpCommand('5100 fnAddChapter')
     await tcpCommand('5100 fnSaveChapter')
@@ -179,13 +182,9 @@ export default function App ({ halfTime, initTime = 0 }) {
     await tcpCommand('5100 fnSkipBackward')
   }, [])
   const goTime = useCallback(async (eventTime, direct = false) => {
-    if (direct) {
-      return tcpCommand(`5000 ${eventTime}`)
-    }
-    const { minute, period } = eventTime
-    console.log('minute:', minute)
-    console.log('period:', period)
-    const to = period === 2 && halfTime ? minute * 60000 + halfTimeEnd : (minute * 60000) + initTimeEnd
+    if (direct) {return tcpCommand(`5000 ${eventTime}`)}
+    const { minute, period } = eventTime || {}
+    const to = period === 2 && halfTime ? minute * 60000 + parseInt(halfTimeEnd) : (minute * 60000) + parseInt(initTimeEnd)
     await tcpCommand(`5000 ${(to - 60000) / 1000}`)
   }, [halfTime, halfTimeEnd, initTimeEnd])
   const setHalfTime = useCallback(async () => {
@@ -271,7 +270,7 @@ export default function App ({ halfTime, initTime = 0 }) {
             elemLong.textContent = time.long
             elemShort.textContent = time.short
             milliBox.value = result
-            if (fractionElem) {
+            if (fractionElem && !time.short.startsWith('0')) {
               fractionElem.textContent = result > halfTimeEnd ? 'st' : 'pt'
             }
           }
@@ -288,7 +287,7 @@ export default function App ({ halfTime, initTime = 0 }) {
       <CssBaseline/>
       <Box mb={1}>
         <RefereeDisplay match={match}/>
-        <input id="milliBox" style={{display: 'none'}}/>
+        <input id="milliBox" style={{ display: 'none' }}/>
         <Box
           id="time"
           p={0}
@@ -324,7 +323,7 @@ export default function App ({ halfTime, initTime = 0 }) {
                justifyContent: 'center',
              }}
         >
-          <Box id="time_min">0</Box>{Boolean(halfTimeEnd) && <Box id="fraction">&nbsp;</Box>}
+          <Box id="time_min">0′</Box>{Boolean(halfTimeEnd) && <Box id="fraction">&nbsp;</Box>}
         </Box>
         <Box p={1}>
           <Button
@@ -373,8 +372,11 @@ export default function App ({ halfTime, initTime = 0 }) {
             <span id="play" style={{ fontSize: '1rem' }}>⧗</span>
           </Button>
         </Box>
-        {Boolean(chapters?.length) && <ChaptersList chapters={chapters} halfTimeEnd={halfTimeEnd} goTime={goTime}/>}
-        {match && <MatchInfo match={match} goTime={goTime} chapters={chapters} halfTimeEnd={halfTimeEnd}/>}
+        
+        <Grid container spacing={2}>
+          {Boolean(chapters?.length) && <ChaptersList chapters={chapters} halfTimeEnd={halfTimeEnd} goTime={goTime}/>}
+          {match && <MatchInfo match={match} goTime={goTime} chapters={chapters} halfTimeEnd={halfTimeEnd}/>}
+        </Grid>
         <Snackbar
           open={message.open}
           onClose={handleClose}

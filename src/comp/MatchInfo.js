@@ -19,11 +19,14 @@ const getEventImageUrl = eventType => {
       return null
   }
 }
-const shouldDisplayAvatar = (url) => {
-  return !url.includes('ndplayer')
+const shouldDisplayAvatar = (thumbId) => {
+  return thumbId !== 'ndplayer'
 }
 const getCoachName = (team) => {
   return team.coach && team.coach.shortName ? team.coach.shortName : '--'
+}
+const getCoachInfo = (team) => {
+  return team.coach && team.coach.birthDate ? team.coach.birthDate : '--'
 }
 const getCoachUrl = (team) => {
   return team.coach && team.coach.thumb.url ? team.coach.thumb.url : 'ndplayer'
@@ -81,97 +84,112 @@ const MatchInfo = ({ match, goTime }) => {
       })
   }
   return (
-    <Box pl={2} display={'flec'}>
-      <Grid container spacing={0}>
-        {sortedTeams.map((team, index) => (
-          <Grid item xs={4} key={index}>
-            <Box display={'flex'}>
-              <Typography variant="body1">Allenatore:&nbsp;</Typography>
-              {shouldDisplayAvatar(getCoachUrl(team)) &&
-               <>
-                 <Tooltip
-                   title={<img src={getCoachUrl(team)} alt={'img'} style={{
-                     width: 'auto',
-                     height: 'auto',
-                     maxWidth: '200px',
-                     maxHeight: '200px'
-                   }}/>}
-                   placement="top"
-                 >
-                   <Avatar src={getCoachUrl(team)} style={{ width: 18, height: 18, cursor: 'pointer' }}/>
-                 </Tooltip>&nbsp;
-               </>
-              }
-              <Typography variant="body1">{getCoachName(team)}</Typography>
-            </Box>
-            <Box>
-              {getTeamPlayers(team.teamId).map((player, index) => (
-                <Box key={index}>
-                  {player.isSubstituteFirst && <Box mt={2}/>}
-                  <Grid container mt={1}>
-                    <Grid item style={{ textAlign: 'right' }}>
-                      {
-                        shouldDisplayAvatar(player.player.thumb.url) ?
-                          <Tooltip
-                            title={<img src={player.player.thumb.url} alt={player.player.shortName} style={{
-                              width: 'auto',
-                              height: 'auto',
-                              maxWidth: '200px',
-                              maxHeight: '200px'
-                            }}/>}
-                            placement="top"
+    <>
+      
+      {sortedTeams.map((team, index) => (
+        <Grid item xs={4} key={index}>
+          <Box display={'flex'}>
+            <Typography variant="body1">Allenatore:&nbsp;</Typography>
+            {shouldDisplayAvatar(team.coach.thumbId) &&
+             <>
+               <Tooltip
+                 title={<img src={getCoachUrl(team)} alt={'img'} style={{
+                   width: 'auto',
+                   height: 'auto',
+                   maxWidth: '200px',
+                   maxHeight: '200px'
+                 }}/>}
+                 placement="top"
+               >
+                 <Avatar src={getCoachUrl(team)} style={{ width: 18, height: 18, cursor: 'pointer' }}/>
+               </Tooltip>&nbsp;
+             </>
+            }
+            <Tooltip
+              title={getCoachInfo(team)}
+              placement="top"
+            >
+              <Typography variant="body1" style={{ cursor: 'help' }}>{getCoachName(team)}</Typography>
+            </Tooltip>
+          </Box>
+          <Box>
+            {getTeamPlayers(team.teamId).map((player, index) => (
+              <Box key={index}>
+                {player.isSubstituteFirst && <Box mt={2}/>}
+                <Grid container mt={1}>
+                  <Grid item style={{ textAlign: 'right' }}>
+                    {
+                      shouldDisplayAvatar(player.player.thumbId) ?
+                        <Tooltip
+                          title={<img src={player.player.thumb.url} alt={player.player.shortName} style={{
+                            width: 'auto',
+                            height: 'auto',
+                            maxWidth: '200px',
+                            maxHeight: '200px'
+                          }}/>}
+                          placement="top"
+                        >
+                          <Avatar src={player.player.thumb.url} style={{ width: 18, height: 18, cursor: 'pointer' }}/>
+                        </Tooltip>
+                        :
+                        <Avatar src={player.player.thumb.url}
+                                style={{ width: 18, height: 18, visibility: 'hidden' }}/>
+                    }
+                  </Grid>
+                  <Grid item style={{ textAlign: 'right', width: 25 }}>
+                    <Typography variant="body2"><strong>{player.shirtNumber}</strong></Typography>
+                  </Grid>
+                  <Grid item>
+                    <Tooltip
+                      title={player.player.birthDate}
+                      placement="top"
+                    >
+                      <Typography
+                        variant="body2" ml={1}
+                        style={{ cursor: 'help' }}
+                      >
+                        {player.player.role.code2}
+                      </Typography>
+                    </Tooltip>
+                  </Grid>
+                  <Grid item>
+                    <Typography variant="body2" ml={1}>{player.player.shortName}</Typography>
+                  </Grid>
+                  {player.eventImages && player.eventImages.length > 0 && (
+                    <>
+                      {player.eventImages.map((imageUrl, index) => (
+                        <React.Fragment key={index}>
+                          <Grid item>
+                            &nbsp;&nbsp;<Link
+                            onClick={() => goTime(player.eventTimes[index])}
+                            style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+                            variant="body2"
                           >
-                            <Avatar src={player.player.thumb.url} style={{ width: 18, height: 18, cursor: 'pointer' }}/>
-                          </Tooltip>
-                          :
-                          <Avatar src={player.player.thumb.url}
-                                  style={{ width: 18, height: 18, visibility: 'hidden' }}/>
-                      }
-                    </Grid>
-                    <Grid item style={{ textAlign: 'right', width: 25 }}>
-                      <Typography variant="body2"><strong>{player.shirtNumber}</strong></Typography>
-                    </Grid>
-                    <Grid item>
-                      <Typography variant="body2" ml={1}>{player.player.role.code2}</Typography>
-                    </Grid>
-                    <Grid item>
-                      <Typography variant="body2" ml={1}>{player.player.shortName}</Typography>
-                    </Grid>
-                    {player.eventImages && player.eventImages.length > 0 && (
-                      <>
-                        {player.eventImages.map((imageUrl, index) => (
-                          <React.Fragment key={index}>
-                            <Grid item>
-                              &nbsp;&nbsp;<Link
+                            <img src={imageUrl} alt="Event" style={{ width: 18, height: 18 }}/>
+                          </Link>
+                          </Grid>
+                          <Grid item>
+                            <Link
                               onClick={() => goTime(player.eventTimes[index])}
                               style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
                               variant="body2"
                             >
-                              <img src={imageUrl} alt="Event" style={{ width: 18, height: 18 }}/>
+                              <Typography variant="body2"
+                                          ml={0.5}>{`${player.eventTimes[index].minute}′${player.eventTimes[index].period === 2 ? 'st' : 'pt'}`}</Typography>
                             </Link>
-                            </Grid>
-                            <Grid item>
-                              <Link
-                                onClick={() => goTime(player.eventTimes[index])}
-                                style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
-                                variant="body2"
-                              >
-                                <Typography variant="body2"
-                                            ml={0.5}>{`${player.eventTimes[index].minute}′${player.eventTimes[index].period === 2 ? 'st' : 'pt'}`}</Typography>
-                              </Link>
-                            </Grid>
-                          </React.Fragment>
-                        ))}
-                      </>
-                    )}
-                  </Grid>
-                </Box>
-              ))}
-            </Box>
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
+                          </Grid>
+                        </React.Fragment>
+                      ))}
+                    </>
+                  )}
+                </Grid>
+              </Box>
+            ))}
+          </Box>
+        </Grid>
+      ))}
+    </>
+  
   )
 }
 
