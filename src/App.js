@@ -356,12 +356,18 @@ export default function App ({ halfTime, initTime = 0 }) {
             size="small"
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
+            onKeyPress={(event) => {
+              if (event.key === 'Enter') {
+                saveChapter()
+                event.preventDefault()
+              }
+            }}
           />
           <Button variant="contained" color="primary" onClick={skipForward}>
             <span style={{ fontSize: '1rem' }}>{'->'}</span>
           </Button>
           <Button variant="contained" color="primary" onClick={saveChapter}>
-            OFSALE MEXAL
+            SALVA
           </Button>
           <Button variant="contained" color="primary" onClick={play}>
             <span id="play" style={{ fontSize: '1rem' }}>⧗</span>
