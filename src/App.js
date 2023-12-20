@@ -106,9 +106,7 @@ async function getMatch (id, setMatch) {
 async function getChapters (file, setChapters) {
   try {
     const response = await fetch(`http://localhost:${PORT}/zoom/chapters?file=${file}`)
-    console.log('response:', response)
     const data = await response.json()
-    console.log('data:', data)
     setChapters(data?.results)
   } catch (error) {
     console.error(error)
@@ -124,7 +122,6 @@ export default function App ({ halfTime, initTime = 0 }) {
   const [longPressTimer, setLongPressTimer] = useState(null)
   const [longPressTriggered, setLongPressTriggered] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
-  console.log('match:', match)
   const handleLongPressStart = () => {
     setLongPressTriggered(false)
     const timer = setTimeout(() => {
@@ -140,7 +137,6 @@ export default function App ({ halfTime, initTime = 0 }) {
   const handleLongPressEnd = () => {
     clearTimeout(longPressTimer)
   }
-  console.log('chapters:', chapters)
   const renderedRef = useRef(false)
   const handleClose = () => setMessage({ ...message, open: false })
   const play = useCallback(async () => {

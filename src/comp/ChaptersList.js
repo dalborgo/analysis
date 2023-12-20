@@ -8,7 +8,6 @@ import { createTheme, ThemeProvider } from '@mui/material'
 import Grid from '@mui/material/Grid'
 
 function ChaptersList ({ chapters = [], goTime, halfTimeEnd }) {
-  console.log('chapters:', chapters)
   return (
     <Grid item xs={4}>
       <ThemeProvider
@@ -33,7 +32,6 @@ function ChaptersList ({ chapters = [], goTime, halfTimeEnd }) {
           {
             chapters.map((item, index) => {
               const time = convertMilli(item.time * 1000, halfTimeEnd)
-              console.log('time:', time)
               return (<ListItem
                 key={index}
                 disablePadding

@@ -101,7 +101,7 @@ const MatchInfo = ({ match, goTime }) => {
                  }}/>}
                  placement="top"
                >
-                 <Avatar src={getCoachUrl(team)} style={{ width: 18, height: 18, cursor: 'pointer' }}/>
+                 <Avatar src={getCoachUrl(team)} style={{ width: 18, height: 18, cursor: 'help' }}/>
                </Tooltip>&nbsp;
              </>
             }
