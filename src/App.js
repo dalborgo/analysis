@@ -103,9 +103,12 @@ async function getMatch (id, setMatch) {
 }
 
 async function getChapters (file, setChapters) {
+  console.log('QUA!!!!!!!!')
   try {
-    const response = await fetch(`http://localhost:${PORT}/wyscout/chapters?file=${file}`)
+    const response = await fetch(`http://localhost:${PORT}/zoom/chapters?file=${file}`)
+    console.log('response:', response)
     const data = await response.json()
+    console.log('data:', data)
     setChapters(data?.results)
   } catch (error) {
     console.error(error)
@@ -151,12 +154,21 @@ export default function App ({ halfTime, initTime = 0 }) {
     const episode = episodeDescription.value
     if (!episode) {return}
     const elem = document.getElementById('milliBox')
-    const newChapters = [...chapters, { time: parseInt(elem.value / 1000) , text: episode }].sort((a, b) => a.time - b.time)
+    const newChapters = [...chapters, { time: parseFloat(elem.value / 1000) , text: episode }].sort((a, b) => a.time - b.time)
     setChapters(newChapters)
     const response = await tcpCommand('5100 fnAddChapter')
     await tcpCommand('5100 fnSaveChapter')
     const { result: file } = manageResponse(await tcpCommand('1800'))
-    await fetch(`http://localhost:${PORT}/zoom/write-bookmark?file=${file}&text=${episode || 'untitled'}`)
+    await fetch(`http://localhost:${PORT}/zoom/write-bookmark`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        file: file,
+        chapters: newChapters
+      })
+    })
     episodeDescription.value = ''
     setMessage(response)
   }, [chapters])
