@@ -40,7 +40,7 @@ const RefereeDisplay = ({ match }) => {
         match &&
         <Box style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }} mt={1}>
           {
-            match.match['referees'].elements
+            match.match['referees']?.elements
               .sort((a, b) => {
                 const roles = ['referee', 'firstAssistant', 'secondAssistant', 'fourthOfficial']
                 return roles.indexOf(a.role) - roles.indexOf(b.role)
