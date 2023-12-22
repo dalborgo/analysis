@@ -107,6 +107,7 @@ async function getChapters (file, setChapters) {
   try {
     const response = await fetch(`http://localhost:${PORT}/zoom/chapters?file=${file}`)
     const data = await response.json()
+    console.log('data:', data)
     setChapters(data?.results)
   } catch (error) {
     console.error(error)
@@ -183,6 +184,12 @@ export default function App ({ halfTime, initTime = 0 }) {
     const to = period === 2 && halfTime ? minute * 60000 + parseInt(halfTimeEnd) : (minute * 60000) + parseInt(initTimeEnd)
     await tcpCommand(`5000 ${(to - 60000) / 1000}`)
   }, [halfTime, halfTimeEnd, initTimeEnd])
+  const seekMinute = useCallback(async dir => {
+    const elem = document.getElementById('time_min')
+    const fraction = document.getElementById('fraction')
+    const minute = parseInt(elem.textContent.replace('′', ''))
+    await goTime({ minute: dir === '+' ? minute + 1 : minute - 1, period: fraction.textContent === 'st' ? 2 : 1 })
+  }, [goTime])
   const setHalfTime = useCallback(async () => {
     if (!longPressTriggered) {
       const { result } = manageResponse(await tcpCommand('1120'))
@@ -251,9 +258,7 @@ export default function App ({ halfTime, initTime = 0 }) {
             setMessage({ ...message, open: false })
           }
         }
-        const button = document.getElementById('play')
-        if (status === '3') {
-          button.textContent = '⏸'
+        {
           const { result, command } = manageResponse(await tcpCommand('1120'))
           if (command === '1120') {
             const milliBox = document.getElementById('milliBox')
@@ -270,6 +275,11 @@ export default function App ({ halfTime, initTime = 0 }) {
               fractionElem.textContent = result > halfTimeEnd ? 'st' : 'pt'
             }
           }
+        }
+        const button = document.getElementById('play')
+        if (status === '3') {
+          button.textContent = '⏸'
+          
         } else {
           if (command === '1000') {button.textContent = '▶'}
         }
@@ -294,7 +304,7 @@ export default function App ({ halfTime, initTime = 0 }) {
             margin: 'auto',
           }}
         >
-          0:00:00
+          -:--:--
         </Box>
         <Box
           display={'none'}
@@ -307,19 +317,28 @@ export default function App ({ halfTime, initTime = 0 }) {
             margin: 'auto',
           }}
         >
-          0:00:00
+          -:--:--
         </Box>
         <Box display="flex"
-             p={0}
              sx={{
                fontSize: '2rem',
                textAlign: 'center',
-               width: '100%',
-               margin: 'auto',
                justifyContent: 'center',
              }}
         >
-          <Box id="time_min">0′</Box>{Boolean(halfTimeEnd) && <Box id="fraction">&nbsp;</Box>}
+          <Box>
+            <Button onClick={() => seekMinute('-')} variant="outlined" size="small" style={{marginRight: 15}}>
+              -
+            </Button>
+          </Box>
+          <Box display="flex" p={0}>
+            <Box id="time_min">--</Box>{Boolean(halfTimeEnd) && <Box id="fraction">&nbsp;</Box>}
+          </Box>
+          <Box>
+            <Button onClick={() => seekMinute('+')} variant="outlined" size="small" style={{ marginLeft: 15 }}>
+              +
+            </Button>
+          </Box>
         </Box>
         <Box p={1}>
           <Button
