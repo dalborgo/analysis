@@ -6,6 +6,7 @@ import RefereeDisplay from './comp/RefereeDisplay'
 import MatchInfo from './comp/MatchInfo'
 import ChaptersList from './comp/ChaptersList'
 import Grid from '@mui/material/Grid'
+import SeekMinute from './comp/SeekMinute'
 
 const PORT = envConfig['BACKEND_PORT']
 
@@ -182,7 +183,7 @@ export default function App ({ halfTime, initTime = 0 }) {
     if (direct) {return tcpCommand(`5000 ${eventTime}`)}
     const { minute, period } = eventTime || {}
     const to = period === 2 && halfTime ? minute * 60000 + parseInt(halfTimeEnd) : (minute * 60000) + parseInt(initTimeEnd)
-    await tcpCommand(`5000 ${(to - 60000) / 1000}`)
+    await tcpCommand(`5000 ${(to - 59000) / 1000}`) // 59 per arrotondamento
   }, [halfTime, halfTimeEnd, initTimeEnd])
   const seekMinute = useCallback(async dir => {
     const elem = document.getElementById('time_min')
@@ -291,117 +292,125 @@ export default function App ({ halfTime, initTime = 0 }) {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline/>
-      <Box mb={1}>
-        <RefereeDisplay match={match}/>
-        <input id="milliBox" style={{ display: 'none' }}/>
-        <Box
-          id="time"
-          p={0}
-          sx={{
-            fontSize: '2rem',
-            textAlign: 'center',
-            width: '100%',
-            margin: 'auto',
-          }}
-        >
-          -:--:--
-        </Box>
-        <Box
-          display={'none'}
-          id="time_long"
-          p={0}
-          sx={{
-            fontSize: '0.8rem',
-            textAlign: 'center',
-            width: '100%',
-            margin: 'auto',
-          }}
-        >
-          -:--:--
-        </Box>
-        <Box display="flex"
-             sx={{
-               fontSize: '2rem',
-               textAlign: 'center',
-               justifyContent: 'center',
-             }}
-        >
-          <Box>
-            <Button onClick={() => seekMinute('-')} variant="outlined" size="small" style={{marginRight: 15}}>
-              -
-            </Button>
-          </Box>
-          <Box display="flex" p={0}>
-            <Box id="time_min">--</Box>{Boolean(halfTimeEnd) && <Box id="fraction">&nbsp;</Box>}
-          </Box>
-          <Box>
-            <Button onClick={() => seekMinute('+')} variant="outlined" size="small" style={{ marginLeft: 15 }}>
-              +
-            </Button>
-          </Box>
-        </Box>
-        <Box p={1}>
-          <Button
-            onMouseDown={handleLongPressStart}
-            onMouseUp={handleLongPressEnd}
-            onMouseLeave={handleLongPressEnd}
-            variant="contained"
-            color="primary"
-            onClick={setInitTime}>
-            INIT {initTimeEnd}
-          </Button>
-          <Button
-            onMouseDown={handleLongPressStart}
-            onMouseUp={handleLongPressEnd}
-            onMouseLeave={handleLongPressEnd}
-            variant="contained"
-            color="primary"
-            onClick={setHalfTime}>
-            HALF {halfTimeEnd}
-          </Button>
-          <Button variant="contained" color="primary" onClick={skipBackward}>
-            <span style={{ fontSize: '1rem' }}>{'<-'}</span>
-          </Button>
-          <TextField
-            id="episodeDescription"
-            label=""
-            variant="outlined"
-            color="primary"
-            size="small"
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            onKeyPress={(event) => {
-              if (event.key === 'Enter') {
-                saveChapter()
-                event.preventDefault()
-              }
+      <Box display={'flex'}>
+        <SeekMinute goTime={goTime}/>
+        <Box mb={1} flexGrow={1}>
+          <RefereeDisplay match={match}/>
+          <input id="milliBox" style={{ display: 'none' }}/>
+          <Box
+            id="time"
+            p={0}
+            sx={{
+              fontSize: '2rem',
+              textAlign: 'center',
+              width: '100%',
+              margin: 'auto',
             }}
-          />
-          <Button variant="contained" color="primary" onClick={skipForward}>
-            <span style={{ fontSize: '1rem' }}>{'->'}</span>
-          </Button>
-          <Button variant="contained" color="primary" onClick={saveChapter}>
-            SALVA
-          </Button>
-          <Button variant="contained" color="primary" onClick={play}>
-            <span id="play" style={{ fontSize: '1rem' }}>⧗</span>
-          </Button>
-        </Box>
+          >
+            -:--:--
+          </Box>
+          <Box
+            display={'none'}
+            id="time_long"
+            p={0}
+            sx={{
+              fontSize: '0.8rem',
+              textAlign: 'center',
+              width: '100%',
+              margin: 'auto',
+            }}
+          >
+            -:--:--
+          </Box>
+          <Box display="flex"
+               sx={{
+                 fontSize: '2rem',
+                 textAlign: 'center',
+                 justifyContent: 'center',
+               }}
+          >
+            <Box>
+              <Button onClick={() => seekMinute('-')} variant="outlined" size="small" style={{ marginRight: 15 }}>
+                -
+              </Button>
+            </Box>
+            <Box display="flex" p={0}>
+              <Box id="time_min">--</Box>{Boolean(halfTimeEnd) && <Box id="fraction">&nbsp;</Box>}
+            </Box>
+            <Box>
+              <Button onClick={() => seekMinute('+')} variant="outlined" size="small" style={{ marginLeft: 15 }}>
+                +
+              </Button>
+            </Box>
+          </Box>
+          <Box p={1} justifyContent={'center'} display={'flex'}>
+            <Button
+              onMouseDown={handleLongPressStart}
+              onMouseUp={handleLongPressEnd}
+              onMouseLeave={handleLongPressEnd}
+              variant="outlined"
+              color="primary"
+              onClick={setInitTime}>
+              I: {initTimeEnd}
+            </Button>&nbsp;
+            <Button
+              onMouseDown={handleLongPressStart}
+              onMouseUp={handleLongPressEnd}
+              onMouseLeave={handleLongPressEnd}
+              variant="outlined"
+              color="primary"
+              onClick={setHalfTime}>
+              H: {halfTimeEnd}
+            </Button>&nbsp;
+            <Button variant="outlined" color="primary" onClick={skipBackward}>
+              <span style={{ fontSize: '1rem' }}>{'<-'}</span>
+            </Button>&nbsp;
+            <Box width={400}>
+              <TextField
+                id="episodeDescription"
+                fullWidth
+                label="Episodi"
+                variant="outlined"
+                size="small"
+                focused
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                onKeyPress={(event) => {
+                  if (event.key === 'Enter') {
+                    saveChapter()
+                    event.preventDefault()
+                  }
+                }}
+              />
+            </Box>&nbsp;
+            <Button variant="outlined" color="primary" onClick={skipForward}>
+              <span style={{ fontSize: '1rem' }}>{'->'}</span>
+            </Button>&nbsp;
+            <Button variant="outlined" color="primary" onClick={saveChapter}>
+              SALVA
+            </Button>&nbsp;
+            <Button variant="outlined" color="primary" onClick={play}>
+              <span id="play" style={{ fontSize: '1rem' }}>⧗</span>
+            </Button>
+          </Box>
+          <Grid container spacing={2} justifyContent={'center'}>
+            {Boolean(chapters?.length) && <ChaptersList chapters={chapters} halfTimeEnd={halfTimeEnd} goTime={goTime}/>}
+            {match && <MatchInfo match={match} goTime={goTime} chapters={chapters} halfTimeEnd={halfTimeEnd}/>}
+          </Grid>
         
-        <Grid container spacing={2}>
-          {Boolean(chapters?.length) && <ChaptersList chapters={chapters} halfTimeEnd={halfTimeEnd} goTime={goTime}/>}
-          {match && <MatchInfo match={match} goTime={goTime} chapters={chapters} halfTimeEnd={halfTimeEnd}/>}
-        </Grid>
-        <Snackbar
-          open={message.open}
-          onClose={handleClose}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        >
-          <Alert onClose={handleClose} severity={message.severity}>
-            {message.text}
-          </Alert>
-        </Snackbar>
+        </Box>
+        <SeekMinute goTime={goTime} period={2}/>
       </Box>
+      
+      <Snackbar
+        open={message.open}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleClose} severity={message.severity}>
+          {message.text}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   )
 }
