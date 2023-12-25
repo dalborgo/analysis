@@ -23,10 +23,10 @@ function extractID (path) {
   return match ? match[1] : null
 }
 
-export const convertMilli = (millisecondi, halfTime = 0, initTime = 0) => {
-  if (millisecondi < initTime) { return { long: '00:00:00', effectiveLong: '00:00:00', short: '0′' }}
+export const convertMilli = (millisecondi, halfTimeEnd = 0, initTimeEnd = 0) => {
+  if (millisecondi < initTimeEnd) { return { long: '00:00:00', effectiveLong: '00:00:00', short: '0′' }}
   const minute45 = 2_700_000
-  const secondi = Math.floor((halfTime && millisecondi > halfTime ? millisecondi - halfTime : millisecondi - initTime) / 1000)
+  const secondi = Math.floor((halfTimeEnd && millisecondi > halfTimeEnd ? millisecondi - halfTimeEnd : millisecondi - initTimeEnd) / 1000)
   const minuti = Math.floor(secondi / 60)
   const short = minuti % 60
   
@@ -48,9 +48,9 @@ export const convertMilli = (millisecondi, halfTime = 0, initTime = 0) => {
     return `${minutiFormattati}:${secondiFormattati}`
   }
   
-  const effectiveLong = getTime(Math.floor((halfTime && millisecondi > halfTime ? minute45 + (millisecondi - halfTime) : millisecondi - initTime) / 1000))
+  const effectiveLong = getTime(Math.floor((halfTimeEnd && millisecondi > halfTimeEnd ? minute45 + (millisecondi - halfTimeEnd) : millisecondi - initTimeEnd) / 1000))
   const long = getTimeLong(Math.floor(millisecondi / 1000))
-  return { long, effectiveLong, short: `${short + 1}′`, period: millisecondi > halfTime ? 'st' : 'pt' }
+  return { long, effectiveLong, short: `${short + 1}′`, period: millisecondi > halfTimeEnd ? 'st' : 'pt' }
 }
 
 function print (data) {
@@ -182,9 +182,9 @@ export default function App ({ halfTime, initTime = 0 }) {
   const goTime = useCallback(async (eventTime, direct = false) => {
     if (direct) {return tcpCommand(`5000 ${eventTime}`)}
     const { minute, period } = eventTime || {}
-    const to = period === 2 && halfTime ? minute * 60000 + parseInt(halfTimeEnd) : (minute * 60000) + parseInt(initTimeEnd)
+    const to = period === 2 && halfTimeEnd ? minute * 60000 + parseInt(halfTimeEnd) : (minute * 60000) + parseInt(initTimeEnd)
     await tcpCommand(`5000 ${(to - 59000) / 1000}`) // 59 per arrotondamento
-  }, [halfTime, halfTimeEnd, initTimeEnd])
+  }, [halfTimeEnd, initTimeEnd])
   const seekMinute = useCallback(async dir => {
     const elem = document.getElementById('time_min')
     const fraction = document.getElementById('fraction')
@@ -267,7 +267,7 @@ export default function App ({ halfTime, initTime = 0 }) {
             const elemLong = document.getElementById('time_long')
             const elemShort = document.getElementById('time_min')
             const fractionElem = document.getElementById('fraction')
-            const time = convertMilli(parseInt(result), halfTimeEnd, initTime)
+            const time = convertMilli(parseInt(result), halfTimeEnd, initTimeEnd)
             elemEff.textContent = time.effectiveLong
             elemLong.textContent = time.long
             elemShort.textContent = time.short
@@ -287,7 +287,7 @@ export default function App ({ halfTime, initTime = 0 }) {
       }, 500)
       return () => clearInterval(interval)
     }
-  }, [halfTimeEnd, initTime, message])
+  }, [halfTimeEnd, initTimeEnd, message])
   
   return (
     <ThemeProvider theme={darkTheme}>
