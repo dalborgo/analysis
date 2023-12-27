@@ -7,6 +7,10 @@ import { Avatar, Tooltip } from '@mui/material'
 
 const getEventImageUrl = eventType => {
   switch (eventType) {
+    case 'SUB_OUT':
+      return '/static/out.svg'
+    case 'SUB_IN':
+      return '/static/in.svg'
     case 'YELLOW_CARD':
       return '/static/giallo.gif'
     case 'DOUBLE_YELLOW_CARD':
@@ -23,13 +27,13 @@ const shouldDisplayAvatar = (thumbId) => {
   return thumbId !== 'ndplayer'
 }
 const getCoachName = (team) => {
-  return team.coach && team.coach.shortName ? team.coach.shortName : '--'
+  return team.coach && team.coach?.shortName ? team.coach.shortName : '--'
 }
 const getCoachInfo = (team) => {
-  return team.coach && team.coach.birthDate ? team.coach.birthDate : '--'
+  return team.coach && team.coach?.birthDate ? team.coach.birthDate : '--'
 }
 const getCoachUrl = (team) => {
-  return team.coach && team.coach.thumb.url ? team.coach.thumb.url : 'ndplayer'
+  return team.coach && team.coach?.thumb.url ? team.coach.thumb.url : 'ndplayer'
 }
 const MatchInfo = ({ match, goTime }) => {
   const { teamsData } = match['match']
@@ -51,8 +55,8 @@ const MatchInfo = ({ match, goTime }) => {
         if (b.code === 'L' && a.code !== 'L') return 1
         if (a.code === 'SUB' && b.code !== 'SUB') return -1
         if (b.code === 'SUB' && a.code !== 'SUB') return 1
-        const roleIndexA = roleOrder.indexOf(a.player.role.code2)
-        const roleIndexB = roleOrder.indexOf(b.player.role.code2)
+        const roleIndexA = roleOrder.indexOf(a.player?.role?.code2)
+        const roleIndexB = roleOrder.indexOf(b.player?.role?.code2)
         if (roleIndexA !== roleIndexB) {return roleIndexA - roleIndexB}
         return a.shirtNumber - b.shirtNumber
       })
@@ -68,7 +72,7 @@ const MatchInfo = ({ match, goTime }) => {
       }).map(player => {
         const playerEvents = events.filter(event => event.playerId === player.player.id)
         const eventDetails = playerEvents
-          .filter(event => ['YELLOW_CARD', 'RED_CARD', 'GOAL_PENALTY', 'DOUBLE_YELLOW_CARD'].includes(event.eventType))
+          .filter(event => ['YELLOW_CARD', 'RED_CARD', 'GOAL_PENALTY', 'DOUBLE_YELLOW_CARD', 'SUB_OUT', 'SUB_IN'].includes(event.eventType))
           .map(event => {
             return {
               imageUrl: getEventImageUrl(event.eventType),
@@ -90,7 +94,7 @@ const MatchInfo = ({ match, goTime }) => {
         <Grid item xs={4} key={index}>
           <Box display={'flex'}>
             <Typography variant="body1">Allenatore:&nbsp;</Typography>
-            {shouldDisplayAvatar(team.coach.thumbId) &&
+            {shouldDisplayAvatar(team.coach?.thumbId) &&
              <>
                <Tooltip
                  title={<img src={getCoachUrl(team)} alt={'img'} style={{
@@ -148,7 +152,7 @@ const MatchInfo = ({ match, goTime }) => {
                         variant="body2" ml={1}
                         style={{ cursor: 'help' }}
                       >
-                        {player.player.role.code2}
+                        {player.player?.role?.code2}
                       </Typography>
                     </Tooltip>
                   </Grid>
@@ -160,7 +164,7 @@ const MatchInfo = ({ match, goTime }) => {
                       {player.eventImages.map((imageUrl, index) => (
                         <React.Fragment key={index}>
                           <Grid item>
-                            &nbsp;&nbsp;<Link
+                            &nbsp;<Link
                             onClick={() => goTime(player.eventTimes[index])}
                             style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
                             variant="body2"
