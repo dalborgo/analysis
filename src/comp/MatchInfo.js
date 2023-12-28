@@ -12,13 +12,15 @@ const getEventImageUrl = eventType => {
     case 'SUB_IN':
       return '/static/in.svg'
     case 'YELLOW_CARD':
-      return '/static/giallo.gif'
+      return '/static/giallo.svg'
     case 'DOUBLE_YELLOW_CARD':
-      return '/static/gr.png'
+      return '/static/gr.svg'
     case 'RED_CARD':
-      return '/static/rosso.gif'
+      return '/static/rosso.svg'
+    case 'GOAL':
+      return '/static/goal.svg'
     case 'GOAL_PENALTY':
-      return '/static/fischietto.png'
+      return '/static/penalty.svg'
     default:
       return null
   }
@@ -72,7 +74,6 @@ const MatchInfo = ({ match, goTime }) => {
       }).map(player => {
         const playerEvents = events.filter(event => event.playerId === player.player.id)
         const eventDetails = playerEvents
-          .filter(event => ['YELLOW_CARD', 'RED_CARD', 'GOAL_PENALTY', 'DOUBLE_YELLOW_CARD', 'SUB_OUT', 'SUB_IN'].includes(event.eventType))
           .map(event => {
             return {
               imageUrl: getEventImageUrl(event.eventType),

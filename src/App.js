@@ -330,7 +330,7 @@ export default function App ({ halfTime, initTime = 0 }) {
                }}
           >
             <Box>
-              <Button onClick={() => seekMinute('-')} variant="outlined" size="small" style={{ marginRight: 15 }}>
+              <Button onClick={() => seekMinute('-')} variant="outlined" style={{ marginRight: 15, padding: 0, minWidth: 30 }}>
                 -
               </Button>
             </Box>
@@ -338,7 +338,7 @@ export default function App ({ halfTime, initTime = 0 }) {
               <Box id="time_min">--</Box>{Boolean(halfTimeEnd) && <Box id="fraction">&nbsp;</Box>}
             </Box>
             <Box>
-              <Button onClick={() => seekMinute('+')} variant="outlined" size="small" style={{ marginLeft: 15 }}>
+              <Button onClick={() => seekMinute('+')} variant="outlined" style={{ marginLeft: 15, padding: 0, minWidth: 30 }}>
                 +
               </Button>
             </Box>
@@ -397,7 +397,6 @@ export default function App ({ halfTime, initTime = 0 }) {
             {Boolean(chapters?.length) && <ChaptersList chapters={chapters} halfTimeEnd={halfTimeEnd} goTime={goTime}/>}
             {match && <MatchInfo match={match} goTime={goTime} chapters={chapters} halfTimeEnd={halfTimeEnd}/>}
           </Grid>
-        
         </Box>
         <SeekMinute goTime={goTime} period={2}/>
       </Box>
