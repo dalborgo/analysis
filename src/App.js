@@ -369,7 +369,7 @@ export default function App ({ halfTime, initTime = 0 }) {
               </Button>
             </Box>
           </Box>
-          <Box p={1} justifyContent={'center'} display={'flex'}>
+          <Box p={1} justifyContent="center" display="flex" mb={2}>
             <Button
               onMouseDown={handleLongPressStart}
               onMouseUp={handleLongPressEnd}

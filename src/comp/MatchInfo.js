@@ -25,8 +25,8 @@ const getEventImageUrl = eventType => {
       return null
   }
 }
-const shouldDisplayAvatar = (thumbId) => {
-  return thumbId !== 'ndplayer'
+const shouldDisplayAvatar = thumbId => {
+  return thumbId && thumbId !== 'ndplayer'
 }
 const getCoachName = (team) => {
   return team.coach && team.coach?.shortName ? team.coach.shortName : '--'
@@ -49,7 +49,6 @@ const MatchInfo = ({ match, goTime }) => {
   const { teamsData } = match['match']
   const players = match['players']
   const events = match['events']
-  console.log('matchXXX:', match)
   const sortedTeams = Object.values(teamsData).sort((a, b) => {
     if (a.side === 'home') return -1
     if (b.side === 'home') return 1
@@ -96,12 +95,12 @@ const MatchInfo = ({ match, goTime }) => {
         }
       })
   }
+  console.log('team.coach:', sortedTeams)
   return (
     <>
-      
       {sortedTeams.map((team, index) => (
         <Grid item xs={4} key={index}>
-          <Box display={'flex'}>
+          <Box display="flex">
             <Typography variant="body1">Allenatore:&nbsp;</Typography>
             {shouldDisplayAvatar(team.coach?.thumbId) &&
              <>
@@ -130,7 +129,7 @@ const MatchInfo = ({ match, goTime }) => {
             {getTeamPlayers(team.teamId).map((player, index) => (
               <Box key={index}>
                 {player.isSubstituteFirst && <Box mt={2}/>}
-                <Grid container mt={1}>
+                <Grid container mt={0.6}>
                   <Grid item style={{ textAlign: 'right' }}>
                     {
                       shouldDisplayAvatar(player.player.thumbId) ?
@@ -184,7 +183,7 @@ const MatchInfo = ({ match, goTime }) => {
                     <>
                       {player.eventImages.map((imageUrl, index) => (
                         <React.Fragment key={index}>
-                          <Grid item>
+                          <Grid item height={0}>
                             &nbsp;<Link
                             onClick={() => goTime(player.eventTimes[index])}
                             style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
@@ -193,7 +192,7 @@ const MatchInfo = ({ match, goTime }) => {
                             <img src={imageUrl} alt="Event" style={{ width: 18, height: 18 }}/>
                           </Link>
                           </Grid>
-                          <Grid item>
+                          <Grid item height={0}>
                             <Link
                               onClick={() => goTime(player.eventTimes[index])}
                               style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}

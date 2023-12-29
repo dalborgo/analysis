@@ -24,12 +24,12 @@ function SeekMinute ({ goTime, period = 1 }) {
           },
         })}
       >
-        <Box display="flex" m={1} border={'1px solid #2A2929'} padding={0.5}>
+        <Box display="flex" m={1} border={'1px solid #2A2929'} p={1} pt={0.5} pb={0.5}>
           <List dense
                 sx={{ bgcolor: 'background.paper', padding: 0 }}
           >
             {
-              Array.from({ length: 52 }).map((item, index) => {
+              Array.from({ length: 51 }).map((item, index) => {
                 return (<ListItem
                   key={index}
                   disablePadding
