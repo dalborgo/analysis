@@ -108,7 +108,6 @@ async function getChapters (file, setChapters) {
   try {
     const response = await fetch(`http://localhost:${PORT}/zoom/chapters?file=${file}`)
     const data = await response.json()
-    console.log('data:', data)
     setChapters(data?.results)
   } catch (error) {
     console.error(error)
@@ -312,7 +311,6 @@ export default function App ({ halfTime, initTime = 0 }) {
       return () => clearInterval(interval)
     }
   }, [halfTimeEnd, initTimeEnd, message])
-  console.log('match:', match)
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline/>

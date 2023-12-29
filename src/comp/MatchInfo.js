@@ -95,7 +95,6 @@ const MatchInfo = ({ match, goTime }) => {
         }
       })
   }
-  console.log('team.coach:', sortedTeams)
   return (
     <>
       {sortedTeams.map((team, index) => (
