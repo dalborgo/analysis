@@ -3,9 +3,10 @@ import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import ListItemButton from '@mui/material/ListItemButton'
-import { Box, createTheme, ThemeProvider } from '@mui/material'
+import { Box, createTheme, ThemeProvider, useTheme } from '@mui/material'
 
 function SeekMinute ({ goTime, period = 1 }) {
+  const theme = useTheme()
   return (
     <Box>
       <ThemeProvider
@@ -23,48 +24,26 @@ function SeekMinute ({ goTime, period = 1 }) {
           },
         })}
       >
-        <Box display={'flex'} m={1}>
+        <Box display="flex" m={1} border={'1px solid #2A2929'} padding={0.5}>
           <List dense
-                sx={{ bgcolor: 'background.paper' }}
-                component="nav"
+                sx={{ bgcolor: 'background.paper', padding: 0 }}
           >
             {
-              Array.from({ length: 25 }).map((item, index) => {
+              Array.from({ length: 52 }).map((item, index) => {
                 return (<ListItem
                   key={index}
                   disablePadding
-                  style={{ padding: 0 }}
                   onClick={() => goTime({ minute: index + 1, period })}
                 >
-                  <ListItemButton style={{ textAlign: 'center', padding: 1 }}>
-                    <ListItemText primary={index + 1}/>
+                  <ListItemButton style={{ textAlign: 'center', padding: 0, marginRight: -8 }} sx={{color: theme.palette.primary.main}}>
+                    <ListItemText primary={index + 1} sx={{margin: 0, fontSize: 12}} disableTypography/>
                   </ListItemButton>
                 </ListItem>)
               })}
           </List>&nbsp;&nbsp;
-          <List dense
-                sx={{ bgcolor: 'background.paper' }}
-                component="nav"
-          >
-            {
-              Array.from({ length: 25 }).map((item, index) => {
-                return (<ListItem
-                  key={index}
-                  disablePadding
-                  style={{ padding: 0 }}
-                  onClick={() => goTime({ minute: index + 30 + 1, period })}
-                >
-                  <ListItemButton style={{ textAlign: 'center', padding: 1 }}>
-                    <ListItemText primary={index + 30 + 1}/>
-                  </ListItemButton>
-                </ListItem>)
-              })}
-          </List>
         </Box>
-      
       </ThemeProvider>
     </Box>
-  
   )
 }
 

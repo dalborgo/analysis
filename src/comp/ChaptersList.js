@@ -9,7 +9,7 @@ import Grid from '@mui/material/Grid'
 
 function ChaptersList ({ chapters = [], goTime, halfTimeEnd }) {
   return (
-    <Grid item xs={4}>
+    <Grid item>
       <ThemeProvider
         theme={createTheme({
           components: {
@@ -26,7 +26,7 @@ function ChaptersList ({ chapters = [], goTime, halfTimeEnd }) {
         })}
       >
         <List dense
-              sx={{ bgcolor: 'background.paper' }}
+              sx={{ bgcolor: 'background.paper', border: '1px solid #2A2929', marginTop: 4 }}
               component="nav"
         >
           {
@@ -38,7 +38,7 @@ function ChaptersList ({ chapters = [], goTime, halfTimeEnd }) {
                 onClick={() => goTime(item.time, true)}
               >
                 <ListItemButton>
-                  <ListItemText primary={`${time.short}${time.period}: ${item.text}`}/>
+                  <ListItemText primary={`${time.short}${time.period}: ${item.text}`} style={{margin: 0}}/>
                 </ListItemButton>
               </ListItem>)
             })}

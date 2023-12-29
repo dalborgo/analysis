@@ -154,7 +154,7 @@ export default function App ({ halfTime, initTime = 0 }) {
     const elem = document.getElementById('milliBox')
     const newChapters = [...chapters, {
       time: parseFloat(elem.value / 1000),
-      text: episode
+      text: episode.trim()
     }].sort((a, b) => a.time - b.time)
     setChapters(newChapters)
     const response = await tcpCommand('5100 fnAddChapter')
@@ -220,6 +220,30 @@ export default function App ({ halfTime, initTime = 0 }) {
         default:
           break
       }
+    }
+    const elem = document.getElementById('episodeDescription')
+    const getValue = () => elem.value.trim().replace(/\[.*?]\s*/, '')
+    switch (event.key) {
+      case 'F1':
+        elem.value = `[SOGL] ${getValue()} `
+        break
+      case 'F2':
+        elem.value = `[TEC] ${getValue()} `
+        break
+      case 'F4':
+        elem.value = `[DIS] ${getValue()} `
+        break
+      case 'F7':
+        elem.value = `[ATL] ${getValue()} `
+        break
+      case 'F8':
+        elem.value = `[TATT] ${getValue()} `
+        break
+      case 'F9':
+        elem.value = `[PERS] ${getValue()} `
+        break
+      default:
+        break
     }
   }, [isFocused, skipForward, skipBackward, play])
   useEffect(() => {
@@ -330,7 +354,8 @@ export default function App ({ halfTime, initTime = 0 }) {
                }}
           >
             <Box>
-              <Button onClick={() => seekMinute('-')} variant="outlined" style={{ marginRight: 15, padding: 0, minWidth: 30 }}>
+              <Button onClick={() => seekMinute('-')} variant="outlined"
+                      style={{ marginRight: 15, padding: 0, minWidth: 30 }}>
                 -
               </Button>
             </Box>
@@ -338,7 +363,8 @@ export default function App ({ halfTime, initTime = 0 }) {
               <Box id="time_min">--</Box>{Boolean(halfTimeEnd) && <Box id="fraction">&nbsp;</Box>}
             </Box>
             <Box>
-              <Button onClick={() => seekMinute('+')} variant="outlined" style={{ marginLeft: 15, padding: 0, minWidth: 30 }}>
+              <Button onClick={() => seekMinute('+')} variant="outlined"
+                      style={{ marginLeft: 15, padding: 0, minWidth: 30 }}>
                 +
               </Button>
             </Box>
@@ -373,10 +399,7 @@ export default function App ({ halfTime, initTime = 0 }) {
                 variant="outlined"
                 size="small"
                 focused
-                onFocus={event => {
-                  event.target.select()
-                  setIsFocused(true)
-                }}
+                onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 onKeyPress={(event) => {
                   if (event.key === 'Enter') {
@@ -396,7 +419,7 @@ export default function App ({ halfTime, initTime = 0 }) {
               <span id="play" style={{ fontSize: '1rem' }}>⧗</span>
             </Button>
           </Box>
-          <Grid container spacing={2} justifyContent={'center'}>
+          <Grid container spacing={8} justifyContent="center">
             {Boolean(chapters?.length) && <ChaptersList chapters={chapters} halfTimeEnd={halfTimeEnd} goTime={goTime}/>}
             {match && <MatchInfo match={match} goTime={goTime} chapters={chapters} halfTimeEnd={halfTimeEnd}/>}
           </Grid>

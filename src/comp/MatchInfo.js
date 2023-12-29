@@ -39,10 +39,10 @@ const getCoachUrl = (team) => {
 }
 
 const writeBox = event => {
-  console.log('MERDA')
   const text = event.target.id
   const elem = document.getElementById('episodeDescription')
   elem.value = `${elem.value.trim() ? `${elem.value.trim()} ${text}` : text}`
+  elem.focus()
 }
 
 const MatchInfo = ({ match, goTime }) => {
@@ -112,7 +112,7 @@ const MatchInfo = ({ match, goTime }) => {
                    maxWidth: '200px',
                    maxHeight: '200px'
                  }}/>}
-                 placement="top"
+                 placement="left"
                >
                  <Avatar src={getCoachUrl(team)} style={{ width: 18, height: 18, cursor: 'help' }}/>
                </Tooltip>&nbsp;
@@ -120,7 +120,7 @@ const MatchInfo = ({ match, goTime }) => {
             }
             <Tooltip
               title={getCoachInfo(team)}
-              placement="top"
+              placement="left"
             >
               <Typography variant="body1" style={{ cursor: 'help' }}>{getCoachName(team)}</Typography>
             </Tooltip>
@@ -141,7 +141,7 @@ const MatchInfo = ({ match, goTime }) => {
                             maxWidth: '200px',
                             maxHeight: '200px'
                           }}/>}
-                          placement="top"
+                          placement="left"
                         >
                           <Avatar src={player.player.thumb.url} style={{ width: 18, height: 18, cursor: 'help' }}/>
                         </Tooltip>
@@ -156,16 +156,18 @@ const MatchInfo = ({ match, goTime }) => {
                       style={{ cursor: 'pointer', fontWeight: 'bold' }}
                       onClick={writeBox}
                       id={player.player.teamId === match['metadata'].home ?
-                        `#${player.shirtNumber} ${match['metadata'].nameHome}`
+                        `#${player.shirtNumber} ${match['metadata'].nameHome} `
                         :
-                        `#${player.shirtNumber} ${match['metadata'].nameAway}`}>
+                        `#${player.shirtNumber} ${match['metadata'].nameAway} `}>
                       {player.shirtNumber}
                     </Typography>
                   </Grid>
                   <Grid item>
                     <Tooltip
+                      enterDelay={500}
+                      enterNextDelay={500}
                       title={player.player.birthDate}
-                      placement="top"
+                      placement="right"
                     >
                       <Typography
                         variant="body2" ml={1}
