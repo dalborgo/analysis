@@ -9,7 +9,7 @@ import Grid from '@mui/material/Grid'
 
 function ChaptersList ({ chapters = [], goTime, halfTimeEnd }) {
   return (
-    <Grid item>
+    <Grid item style={{marginRight: '5%'}}>
       <ThemeProvider
         theme={createTheme({
           components: {

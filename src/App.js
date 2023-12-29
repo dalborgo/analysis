@@ -377,7 +377,7 @@ export default function App ({ halfTime, initTime = 0 }) {
               variant="outlined"
               color="primary"
               onClick={setInitTime}>
-              I: {initTimeEnd}
+              {initTimeEnd}
             </Button>&nbsp;
             <Button
               onMouseDown={handleLongPressStart}
@@ -386,12 +386,12 @@ export default function App ({ halfTime, initTime = 0 }) {
               variant="outlined"
               color="primary"
               onClick={setHalfTime}>
-              H: {halfTimeEnd}
+              {halfTimeEnd}
             </Button>&nbsp;
             <Button variant="outlined" color="primary" onClick={skipBackward}>
               <span style={{ fontSize: '1rem' }}>{'<-'}</span>
             </Button>&nbsp;
-            <Box width={400}>
+            <Box width={'40%'}>
               <TextField
                 id="episodeDescription"
                 fullWidth
@@ -419,7 +419,7 @@ export default function App ({ halfTime, initTime = 0 }) {
               <span id="play" style={{ fontSize: '1rem' }}>⧗</span>
             </Button>
           </Box>
-          <Grid container spacing={8} justifyContent="center">
+          <Grid container justifyContent="center">
             {Boolean(chapters?.length) && <ChaptersList chapters={chapters} halfTimeEnd={halfTimeEnd} goTime={goTime}/>}
             {match && <MatchInfo match={match} goTime={goTime} chapters={chapters} halfTimeEnd={halfTimeEnd}/>}
           </Grid>
