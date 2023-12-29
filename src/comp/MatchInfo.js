@@ -37,11 +37,19 @@ const getCoachInfo = (team) => {
 const getCoachUrl = (team) => {
   return team.coach && team.coach?.thumb.url ? team.coach.thumb.url : 'ndplayer'
 }
+
+const writeBox = event => {
+  console.log('MERDA')
+  const text = event.target.id
+  const elem = document.getElementById('episodeDescription')
+  elem.value = `${elem.value.trim() ? `${elem.value.trim()} ${text}` : text}`
+}
+
 const MatchInfo = ({ match, goTime }) => {
   const { teamsData } = match['match']
   const players = match['players']
   const events = match['events']
-  
+  console.log('matchXXX:', match)
   const sortedTeams = Object.values(teamsData).sort((a, b) => {
     if (a.side === 'home') return -1
     if (b.side === 'home') return 1
@@ -116,6 +124,7 @@ const MatchInfo = ({ match, goTime }) => {
             >
               <Typography variant="body1" style={{ cursor: 'help' }}>{getCoachName(team)}</Typography>
             </Tooltip>
+            &nbsp;({match['metadata']['scheme' + (index ? 'Away' : 'Home')]})
           </Box>
           <Box>
             {getTeamPlayers(team.teamId).map((player, index) => (
@@ -134,7 +143,7 @@ const MatchInfo = ({ match, goTime }) => {
                           }}/>}
                           placement="top"
                         >
-                          <Avatar src={player.player.thumb.url} style={{ width: 18, height: 18, cursor: 'pointer' }}/>
+                          <Avatar src={player.player.thumb.url} style={{ width: 18, height: 18, cursor: 'help' }}/>
                         </Tooltip>
                         :
                         <Avatar src={player.player.thumb.url}
@@ -142,7 +151,16 @@ const MatchInfo = ({ match, goTime }) => {
                     }
                   </Grid>
                   <Grid item style={{ textAlign: 'right', width: 25 }}>
-                    <Typography variant="body2"><strong>{player.shirtNumber}</strong></Typography>
+                    <Typography
+                      variant="body2"
+                      style={{ cursor: 'pointer', fontWeight: 'bold' }}
+                      onClick={writeBox}
+                      id={player.player.teamId === match['metadata'].home ?
+                        `#${player.shirtNumber} ${match['metadata'].nameHome}`
+                        :
+                        `#${player.shirtNumber} ${match['metadata'].nameAway}`}>
+                      {player.shirtNumber}
+                    </Typography>
                   </Grid>
                   <Grid item>
                     <Tooltip
@@ -194,7 +212,6 @@ const MatchInfo = ({ match, goTime }) => {
         </Grid>
       ))}
     </>
-  
   )
 }
 

@@ -45,7 +45,6 @@ function ChaptersList ({ chapters = [], goTime, halfTimeEnd }) {
         </List>
       </ThemeProvider>
     </Grid>
-  
   )
 }
 

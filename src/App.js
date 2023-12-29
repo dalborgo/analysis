@@ -288,7 +288,7 @@ export default function App ({ halfTime, initTime = 0 }) {
       return () => clearInterval(interval)
     }
   }, [halfTimeEnd, initTimeEnd, message])
-  
+  console.log('match:', match)
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline/>
@@ -373,7 +373,10 @@ export default function App ({ halfTime, initTime = 0 }) {
                 variant="outlined"
                 size="small"
                 focused
-                onFocus={() => setIsFocused(true)}
+                onFocus={event => {
+                  event.target.select()
+                  setIsFocused(true)
+                }}
                 onBlur={() => setIsFocused(false)}
                 onKeyPress={(event) => {
                   if (event.key === 'Enter') {
