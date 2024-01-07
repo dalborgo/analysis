@@ -54,7 +54,7 @@ const MatchInfo = ({ match, goTime }) => {
     if (b.side === 'home') return 1
     return 0
   })
-  const getTeamPlayers = (teamId) => {
+  const getTeamPlayers = teamId => {
     let lastCode = null
     const roleOrder = ['GK', 'DF', 'MD', 'AT']
     return players
@@ -153,7 +153,7 @@ const MatchInfo = ({ match, goTime }) => {
                       variant="body2"
                       style={{ cursor: 'pointer', fontWeight: 'bold' }}
                       onClick={writeBox}
-                      id={player.player.teamId === match['metadata'].home ?
+                      id={player.teamId === match['metadata'].home ?
                         `#${player.shirtNumber} ${match['metadata'].nameHome} `
                         :
                         `#${player.shirtNumber} ${match['metadata'].nameAway} `}>
