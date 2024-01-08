@@ -1,15 +1,26 @@
-import React from 'react'
+import React, { useState } from 'react'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import ListItemButton from '@mui/material/ListItemButton'
 import { convertMilli } from '../App'
-import { createTheme, ThemeProvider } from '@mui/material'
+import { createTheme, IconButton, ThemeProvider, Tooltip } from '@mui/material'
 import Grid from '@mui/material/Grid'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+
+const getTextText = (chapters, halfTimeEnd) => {
+  const output = []
+  for (const item of chapters) {
+    const time = convertMilli(item.time * 1000, halfTimeEnd)
+    output.push(`${time.short}${time.period}: ${item.text}`)
+  }
+  return output.join('\n')
+}
 
 function ChaptersList ({ chapters = [], goTime, halfTimeEnd }) {
+  const [copied, setCopied] = useState('')
   return (
-    <Grid item style={{marginRight: '5%'}}>
+    <Grid item style={{ marginRight: '5%' }}>
       <ThemeProvider
         theme={createTheme({
           components: {
@@ -26,7 +37,13 @@ function ChaptersList ({ chapters = [], goTime, halfTimeEnd }) {
         })}
       >
         <List dense
-              sx={{ bgcolor: 'background.paper', border: '1px solid #2A2929', marginTop: 4 }}
+              sx={{
+                bgcolor: 'background.paper',
+                border: '1px solid #2A2929',
+                marginTop: 4,
+                position: 'relative',
+                paddingRight: 1
+              }}
               component="nav"
         >
           {
@@ -38,10 +55,36 @@ function ChaptersList ({ chapters = [], goTime, halfTimeEnd }) {
                 onClick={() => goTime(item.time, true)}
               >
                 <ListItemButton>
-                  <ListItemText primary={`${time.short}${time.period}: ${item.text}`} style={{margin: 0}}/>
+                  <ListItemText primary={`${time.short}${time.period}: ${item.text}`} style={{ margin: 0 }}/>
                 </ListItemButton>
               </ListItem>)
             })}
+          <CopyToClipboard
+            onCopy={() => setCopied('Copiato!')}
+            text={getTextText(chapters, halfTimeEnd)}
+          >
+            {copied ?
+              <Tooltip
+                onClose={() => setCopied('')}
+                title={copied}
+                placement="top"
+              >
+                <IconButton
+                  size="small"
+                  style={{ cursor: 'hand', position: 'absolute', right: 4, top: 4, padding: 0 }}
+                >
+                  <span style={{ fontSize: 'small' }}>📋</span>
+                </IconButton>
+              </Tooltip>
+              :
+              <IconButton
+                size="small"
+                style={{ cursor: 'hand', position: 'absolute', right: 4, top: 4, padding: 0 }}
+              >
+                <span style={{ fontSize: 'small' }}>📋</span>
+              </IconButton>
+            }
+          </CopyToClipboard>
         </List>
       </ThemeProvider>
     </Grid>
