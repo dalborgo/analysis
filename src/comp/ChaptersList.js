@@ -8,16 +8,16 @@ import { createTheme, IconButton, ThemeProvider, Tooltip } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
-const getTextText = (chapters, halfTimeEnd) => {
+const getTextText = (chapters, halfTimeEnd, fullMode) => {
   const output = []
   for (const item of chapters) {
     const time = convertMilli(item.time * 1000, halfTimeEnd)
-    output.push(`${time.short}${time.period}: ${item.text}`)
+    output.push(`${fullMode ? parseInt(time.short) + 45+'′' : time.short}${time.period}: ${item.text}`)
   }
   return output.join('\n')
 }
 
-function ChaptersList ({ chapters = [], goTime, halfTimeEnd }) {
+function ChaptersList ({ chapters = [], goTime, halfTimeEnd, fullMode }) {
   const [copied, setCopied] = useState('')
   return (
     <Grid item style={{ marginRight: '5%' }}>
@@ -55,13 +55,13 @@ function ChaptersList ({ chapters = [], goTime, halfTimeEnd }) {
                 onClick={() => goTime(item.time, true)}
               >
                 <ListItemButton>
-                  <ListItemText primary={`${time.short}${time.period}: ${item.text}`} style={{ margin: 0 }}/>
+                  <ListItemText primary={`${fullMode ? parseInt(time.short) + 45 +'′' : time.short}${time.period}: ${item.text}`} style={{ margin: 0 }}/>
                 </ListItemButton>
               </ListItem>)
             })}
           <CopyToClipboard
             onCopy={() => setCopied('Copiato!')}
-            text={getTextText(chapters, halfTimeEnd)}
+            text={getTextText(chapters, halfTimeEnd, fullMode)}
           >
             {copied ?
               <Tooltip

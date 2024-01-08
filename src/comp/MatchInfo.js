@@ -45,7 +45,7 @@ const writeBox = event => {
   elem.focus()
 }
 
-const MatchInfo = ({ match, goTime }) => {
+const MatchInfo = ({ match, goTime, fullMode }) => {
   const { teamsData } = match['match']
   const players = match['players']
   const events = match['events']
@@ -198,7 +198,12 @@ const MatchInfo = ({ match, goTime }) => {
                               variant="body2"
                             >
                               <Typography variant="body2"
-                                          ml={0.5}>{`${player.eventTimes[index].minute}′${player.eventTimes[index].period === 2 ? 'st' : 'pt'}`}</Typography>
+                                          ml={0.5}>{`${
+                                player.eventTimes[index].period === 2 ?
+                                  fullMode ? player.eventTimes[index].minute + 45 : player.eventTimes[index].minute
+                                  :
+                                  player.eventTimes[index].minute
+                              }′${player.eventTimes[index].period === 2 ? 'st' : 'pt'}`}</Typography>
                             </Link>
                           </Grid>
                         </React.Fragment>

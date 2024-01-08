@@ -23,12 +23,12 @@ function extractID (path) {
   return match ? match[1] : null
 }
 
-export const convertMilli = (millisecondi, halfTimeEnd = 0, initTimeEnd = 0) => {
+export const convertMilli = (millisecondi, halfTimeEnd = 0, initTimeEnd = 0, fullMode) => {
   if (millisecondi < initTimeEnd) { return { long: '00:00:00', effectiveLong: '00:00:00', short: '0′' }}
   const minute45 = 2_700_000
   const secondi = Math.floor((halfTimeEnd && millisecondi > halfTimeEnd ? millisecondi - halfTimeEnd : millisecondi - initTimeEnd) / 1000)
   const minuti = Math.floor(secondi / 60)
-  const short = minuti % 60
+  const short = fullMode ? millisecondi > halfTimeEnd ? (minuti % 60) + 45 : minuti % 60 : minuti % 60
   
   function getTimeLong (secondi) {
     const minuti = Math.floor(secondi / 60)
@@ -108,8 +108,9 @@ async function getChapters (file, setChapters) {
   try {
     const response = await fetch(`http://localhost:${PORT}/zoom/chapters?file=${file}`)
     const data = await response.json()
-    setChapters(data?.results)
+    setChapters(data?.results ?? [])
   } catch (error) {
+    setChapters([])
     console.error(error)
   }
 }
@@ -120,6 +121,7 @@ export default function App ({ halfTime, initTime = 0 }) {
   const [chapters, setChapters] = useState([])
   const [halfTimeEnd, setHalfTimeEnd] = useState(halfTime)
   const [initTimeEnd, setInitTimeEnd] = useState(initTime)
+  const [fullMode, setFullMode] = useState(false)
   const [longPressTimer, setLongPressTimer] = useState(null)
   const [longPressTriggered, setLongPressTriggered] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
@@ -187,9 +189,9 @@ export default function App ({ halfTime, initTime = 0 }) {
   const seekMinute = useCallback(async dir => {
     const elem = document.getElementById('time_min')
     const fraction = document.getElementById('fraction')
-    const minute = parseInt(elem.textContent.replace('′', ''))
+    const minute = fullMode ? parseInt(elem.textContent.replace('′', '')) - 45 : parseInt(elem.textContent.replace('′', ''))
     await goTime({ minute: dir === '+' ? minute + 1 : minute - 1, period: fraction.textContent === 'st' ? 2 : 1 })
-  }, [goTime])
+  }, [fullMode, goTime])
   const setHalfTime = useCallback(async () => {
     if (!longPressTriggered) {
       const { result } = manageResponse(await tcpCommand('1120'))
@@ -290,7 +292,7 @@ export default function App ({ halfTime, initTime = 0 }) {
             const elemLong = document.getElementById('time_long')
             const elemShort = document.getElementById('time_min')
             const fractionElem = document.getElementById('fraction')
-            const time = convertMilli(parseInt(result), halfTimeEnd, initTimeEnd)
+            const time = convertMilli(parseInt(result), halfTimeEnd, initTimeEnd, fullMode)
             elemEff.textContent = time.effectiveLong
             elemLong.textContent = time.long
             elemShort.textContent = time.short
@@ -310,11 +312,11 @@ export default function App ({ halfTime, initTime = 0 }) {
       }, 500)
       return () => clearInterval(interval)
     }
-  }, [halfTimeEnd, initTimeEnd, message])
+  }, [fullMode, halfTimeEnd, initTimeEnd, message])
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline/>
-      <Box display={'flex'}>
+      <Box display="flex">
         <SeekMinute goTime={goTime}/>
         <Box mb={1} flexGrow={1}>
           <RefereeDisplay match={match}/>
@@ -332,7 +334,7 @@ export default function App ({ halfTime, initTime = 0 }) {
             -:--:--
           </Box>
           <Box
-            display={'none'}
+            display="none"
             id="time_long"
             p={0}
             sx={{
@@ -418,11 +420,12 @@ export default function App ({ halfTime, initTime = 0 }) {
             </Button>
           </Box>
           <Grid container justifyContent="center">
-            {Boolean(chapters?.length) && <ChaptersList chapters={chapters} halfTimeEnd={halfTimeEnd} goTime={goTime}/>}
-            {match && <MatchInfo match={match} goTime={goTime} chapters={chapters} halfTimeEnd={halfTimeEnd}/>}
+            {Boolean(chapters?.length) && <ChaptersList chapters={chapters} halfTimeEnd={halfTimeEnd} goTime={goTime} fullMode={fullMode}/>}
+            {match && <MatchInfo match={match} goTime={goTime} chapters={chapters} halfTimeEnd={halfTimeEnd}
+                                 fullMode={fullMode}/>}
           </Grid>
         </Box>
-        <SeekMinute goTime={goTime} period={2}/>
+        <SeekMinute goTime={goTime} period={2} setFullMode={setFullMode} fullMode={fullMode} halfTimeEnd={halfTimeEnd}/>
       </Box>
       
       <Snackbar
