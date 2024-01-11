@@ -226,22 +226,22 @@ export default function App ({ halfTime, initTime = 0 }) {
     const getValue = () => elem.value.trim().replace(/\[.*?]\s*/, '')
     switch (event.key) {
       case 'F1':
-        elem.value = `[SOGL] ${getValue()} `
+        elem.value = `[SOGL] ${getValue() ? `${getValue()} `: ''}`
         break
       case 'F2':
-        elem.value = `[TEC] ${getValue()} `
+        elem.value = `[TEC] ${getValue() ? `${getValue()} `: ''}`
         break
       case 'F4':
-        elem.value = `[DIS] ${getValue()} `
+        elem.value = `[DIS] ${getValue() ? `${getValue()} `: ''}`
         break
       case 'F7':
-        elem.value = `[ATL] ${getValue()} `
+        elem.value = `[ATL] ${getValue() ? `${getValue()} `: ''}`
         break
       case 'F8':
-        elem.value = `[TATT] ${getValue()} `
+        elem.value = `[TATT] ${getValue() ? `${getValue()} `: ''}`
         break
       case 'F9':
-        elem.value = `[PERS] ${getValue()} `
+        elem.value = `[PERS] ${getValue() ? `${getValue()} `: ''}`
         break
       default:
         break
