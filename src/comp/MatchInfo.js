@@ -100,21 +100,42 @@ const MatchInfo = ({ match, goTime, fullMode }) => {
       {sortedTeams.map((team, index) => (
         <Grid item xs={4} key={index}>
           <Box display="flex">
+            <Tooltip
+              title={<img src={match['metadata']['img' + (index ? 'Away' : 'Home')]} alt="img" style={{
+                width: 'auto',
+                height: 'auto',
+                maxWidth: '200px',
+                maxHeight: '200px'
+              }}/>}
+              placement="left"
+            >
+              <Avatar
+                onClick={() => window.open(match['metadata']['img' + (index ? 'Away' : 'Home')], '_blank')}
+                src={match['metadata']['img' + (index ? 'Away' : 'Home')]}
+                onMouseUp={event => {
+                  if (event.button === 1) {
+                    window.open(match['metadata']['img' + (index ? 'Away' : 'Home')], '_blank')
+                  }
+                }}
+                style={{ width: 18, height: 18, cursor: 'pointer' }}
+              />
+            </Tooltip>&nbsp;&nbsp;
             <Typography variant="body1">Allenatore:&nbsp;</Typography>
-            {shouldDisplayAvatar(team.coach?.thumbId) &&
-             <>
-               <Tooltip
-                 title={<img src={getCoachUrl(team)} alt={'img'} style={{
-                   width: 'auto',
-                   height: 'auto',
-                   maxWidth: '200px',
-                   maxHeight: '200px'
-                 }}/>}
-                 placement="left"
-               >
-                 <Avatar src={getCoachUrl(team)} style={{ width: 18, height: 18, cursor: 'help' }}/>
-               </Tooltip>&nbsp;
-             </>
+            {
+              shouldDisplayAvatar(team.coach?.thumbId) &&
+              <>
+                <Tooltip
+                  title={<img src={getCoachUrl(team)} alt={'img'} style={{
+                    width: 'auto',
+                    height: 'auto',
+                    maxWidth: '200px',
+                    maxHeight: '200px'
+                  }}/>}
+                  placement="left"
+                >
+                  <Avatar src={getCoachUrl(team)} style={{ width: 18, height: 18, cursor: 'help' }}/>
+                </Tooltip>&nbsp;
+              </>
             }
             <Tooltip
               title={getCoachInfo(team)}
