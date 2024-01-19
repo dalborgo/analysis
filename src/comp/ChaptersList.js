@@ -4,11 +4,11 @@ import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import ListItemButton from '@mui/material/ListItemButton'
 import { convertMilli } from '../App'
-import { createTheme, IconButton, ThemeProvider, Tooltip } from '@mui/material'
+import { createTheme, IconButton, ListItemIcon, ThemeProvider, Tooltip } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
-const getTextText = (chapters, halfTimeEnd, fullMode) => {
+const getListText = (chapters, halfTimeEnd, fullMode) => {
   const output = []
   for (const item of chapters) {
     const time = convertMilli(item.time * 1000, halfTimeEnd)
@@ -56,7 +56,14 @@ function ChaptersList ({ chapters = [], goTime, halfTimeEnd, fullMode }) {
                   disablePadding
                   onClick={() => goTime(item.time, true)}
                 >
-                  <ListItemButton>
+                
+                  <ListItemButton style={{paddingLeft:0, paddingRight: 0}}>
+                    <ListItemIcon style={{ marginRight: 5, padding: 0, minWidth: 0}} onClick={()=> {
+                      const elem = document.getElementById('episodeDescription')
+                      elem.value = item.text
+                    }}>
+                      <span style={{ fontSize: 'small' }}>📋</span>
+                    </ListItemIcon>
                     <ListItemText
                       id={'' + (item.time * 1000)}
                       primary={`${fullMode ? parseInt(time.short) + 45 + '′' : time.short}${time.period}: ${item.text}`}
@@ -68,7 +75,7 @@ function ChaptersList ({ chapters = [], goTime, halfTimeEnd, fullMode }) {
             })}
           <CopyToClipboard
             onCopy={() => setCopied('Copiato!')}
-            text={getTextText(chapters, halfTimeEnd, fullMode)}
+            text={getListText(chapters, halfTimeEnd, fullMode)}
           >
             {
               copied ?
