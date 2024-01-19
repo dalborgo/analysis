@@ -23,8 +23,9 @@ function extractID (path) {
   return match ? match[1] : null
 }
 
+const tolerance = 1
 export const convertMilli = (millisecondi, halfTimeEnd = 0, initTimeEnd = 0, fullMode) => {
-  if (millisecondi < initTimeEnd) { return { long: '00:00:00', effectiveLong: '00:00:00', short: '0′' }}
+  if (millisecondi < initTimeEnd) { return { long: '00:00', effectiveLong: '00:00', short: '0′' }}
   const minute45 = 2_700_000
   const secondi = Math.floor((halfTimeEnd && millisecondi > halfTimeEnd ? millisecondi - halfTimeEnd : millisecondi - initTimeEnd) / 1000)
   const minuti = Math.floor(secondi / 60)
@@ -54,7 +55,6 @@ export const convertMilli = (millisecondi, halfTimeEnd = 0, initTimeEnd = 0, ful
 }
 
 function print (data) {
-  //console.log('data:', data)
   if (data.ok) {
     return { open: true, text: data.ok ? data.output : data.message, severity: data.ok ? 'success' : 'error' }
   } else {
@@ -64,7 +64,6 @@ function print (data) {
 
 const tcpCommand = async command => {
   try {
-    //console.log(command)
     const response = await fetch(`http://localhost:${PORT}/zoom/command?code=${command}`)
     const data = await response.json()
     return print(data)
@@ -111,7 +110,6 @@ async function getChapters (file, setChapters) {
     setChapters(data?.results ?? [])
   } catch (error) {
     setChapters([])
-    console.error(error)
   }
 }
 
@@ -146,17 +144,38 @@ export default function App ({ halfTime, initTime = 0 }) {
     await tcpCommand('5100 fnPlay')
     const { result: status } = manageResponse(await tcpCommand('1000'))
     const button = document.getElementById('play')
-    button.textContent = status === '3' ? '⏸' : '▶'
-  }, [])
+    if (status === '3') {
+      button.textContent = '⏸'
+      for (const chapter of chapters) {
+        const current = document.getElementById('' + (chapter.time * 1000))
+        current.style.color = 'white'
+      }
+    } else {
+      button.textContent = '▶'
+    }
+  }, [chapters])
   const saveChapter = useCallback(async () => {
     const episodeDescription = document.getElementById('episodeDescription')
     const episode = episodeDescription.value
-    if (!episode) {return}
     const elem = document.getElementById('milliBox')
-    const newChapters = [...chapters, {
-      time: parseFloat(elem.value / 1000),
-      text: episode.trim()
-    }].sort((a, b) => a.time - b.time)
+    const timeValue = parseFloat(elem.value) / 1000
+    const existingChapter = chapters.find(chapter => Math.abs(chapter.time - timeValue) <= tolerance)
+    let newChapters
+    if (episode) {
+      if (existingChapter) {
+        newChapters = chapters.map(chapter => Math.abs(chapter.time - timeValue) <= tolerance ? { time: timeValue, text: episode.trim() } : chapter
+        )
+      } else {
+        newChapters = [...chapters, { time: timeValue, text: episode.trim() }]
+      }
+    } else {
+      if (existingChapter) {
+        newChapters = chapters.filter(chapter => Math.abs(chapter.time - timeValue) > tolerance)
+      } else {
+        return
+      }
+    }
+    newChapters.sort((a, b) => a.time - b.time)
     setChapters(newChapters)
     const response = await tcpCommand('5100 fnAddChapter')
     await tcpCommand('5100 fnSaveChapter')
@@ -226,22 +245,22 @@ export default function App ({ halfTime, initTime = 0 }) {
     const getValue = () => elem.value.trim().replace(/\[.*?]\s*/, '')
     switch (event.key) {
       case 'F1':
-        elem.value = `[SOGL] ${getValue() ? `${getValue()} `: ''}`
+        elem.value = `[SOGL] ${getValue() ? `${getValue()} ` : ''}`
         break
       case 'F2':
-        elem.value = `[TEC] ${getValue() ? `${getValue()} `: ''}`
+        elem.value = `[TEC] ${getValue() ? `${getValue()} ` : ''}`
         break
       case 'F4':
-        elem.value = `[DIS] ${getValue() ? `${getValue()} `: ''}`
+        elem.value = `[DIS] ${getValue() ? `${getValue()} ` : ''}`
         break
       case 'F7':
-        elem.value = `[ATL] ${getValue() ? `${getValue()} `: ''}`
+        elem.value = `[ATL] ${getValue() ? `${getValue()} ` : ''}`
         break
       case 'F8':
-        elem.value = `[TATT] ${getValue() ? `${getValue()} `: ''}`
+        elem.value = `[TATT] ${getValue() ? `${getValue()} ` : ''}`
         break
       case 'F9':
-        elem.value = `[PERS] ${getValue() ? `${getValue()} `: ''}`
+        elem.value = `[PERS] ${getValue() ? `${getValue()} ` : ''}`
         break
       default:
         break
@@ -304,15 +323,32 @@ export default function App ({ halfTime, initTime = 0 }) {
         }
         const button = document.getElementById('play')
         if (status === '3') {
-          button.textContent = '⏸'
-          
+          if (button.textContent !== '⏸') {
+            button.textContent = '⏸'
+          }
         } else {
-          if (command === '1000') {button.textContent = '▶'}
+          if (command === '1000') {
+            if (button.textContent !== '▶') {
+              button.textContent = '▶'
+            } else {
+              const milliBox = document.getElementById('milliBox')
+              const matchTime = parseFloat(milliBox.value)
+              for (const chapter of chapters) {
+                const current = document.getElementById('' + (chapter.time * 1000))
+                const chapterTime = chapter.time * 1000
+                if (Math.abs(chapterTime - matchTime) <= tolerance) {
+                  current.style.color = 'yellow'
+                } else {
+                  current.style.color = 'white'
+                }
+              }
+            }
+          }
         }
       }, 500)
       return () => clearInterval(interval)
     }
-  }, [fullMode, halfTimeEnd, initTimeEnd, message])
+  }, [chapters, fullMode, halfTimeEnd, initTimeEnd, message])
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline/>
@@ -331,7 +367,7 @@ export default function App ({ halfTime, initTime = 0 }) {
               margin: 'auto',
             }}
           >
-            -:--:--
+            --:--
           </Box>
           <Box
             display="none"
@@ -344,7 +380,7 @@ export default function App ({ halfTime, initTime = 0 }) {
               margin: 'auto',
             }}
           >
-            -:--:--
+            --:--
           </Box>
           <Box display="flex"
                sx={{
@@ -420,7 +456,8 @@ export default function App ({ halfTime, initTime = 0 }) {
             </Button>
           </Box>
           <Grid container justifyContent="center">
-            {Boolean(chapters?.length) && <ChaptersList chapters={chapters} halfTimeEnd={halfTimeEnd} goTime={goTime} fullMode={fullMode}/>}
+            {Boolean(chapters?.length) &&
+             <ChaptersList chapters={chapters} halfTimeEnd={halfTimeEnd} goTime={goTime} fullMode={fullMode}/>}
             {match && <MatchInfo match={match} goTime={goTime} chapters={chapters} halfTimeEnd={halfTimeEnd}
                                  fullMode={fullMode}/>}
           </Grid>
