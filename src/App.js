@@ -163,13 +163,24 @@ export default function App ({ halfTime, initTime = 0 }) {
     let newChapters
     if (episode) {
       if (existingChapter) {
-        newChapters = chapters.map(chapter => Math.abs(chapter.time - timeValue) <= tolerance ? { time: timeValue, text: episode.trim() } : chapter
+        newChapters = chapters.map(chapter => Math.abs(chapter.time - timeValue) <= tolerance
+          ?
+          {
+            time: timeValue,
+            text: episode.trim()
+          }
+          :
+          chapter
         )
       } else {
         newChapters = [...chapters, { time: timeValue, text: episode.trim() }]
       }
     } else {
       if (existingChapter) {
+        for (const chapter of chapters) {
+          const current = document.getElementById('' + (chapter.time * 1000))
+          current.style.color = 'white'
+        }
         newChapters = chapters.filter(chapter => Math.abs(chapter.time - timeValue) > tolerance)
       } else {
         return
@@ -230,25 +241,25 @@ export default function App ({ halfTime, initTime = 0 }) {
       switch (event.key) {
         case 'ArrowRight':
           skipForward()
-          break
+          return
         case 'ArrowLeft':
           skipBackward()
-          break
+          return
         case ' ':
           play()
-          break
+          return
         default:
           break
       }
     }
     const elem = document.getElementById('episodeDescription')
     const getValue = () => elem.value.trim().replace(/\[.*?]\s*/, '')
-    switch (event.key) {
+    switch (event.code) {
       case 'F1':
-        elem.value = `[SOGL] ${getValue() ? `${getValue()} ` : ''}`
+        elem.value = `[TEC] ${getValue() ? `${getValue()} ` : ''}`
         break
       case 'F2':
-        elem.value = `[TEC] ${getValue() ? `${getValue()} ` : ''}`
+        elem.value = `[PREV] ${getValue() ? `${getValue()} ` : ''}`
         break
       case 'F4':
         elem.value = `[DIS] ${getValue() ? `${getValue()} ` : ''}`
@@ -262,9 +273,22 @@ export default function App ({ halfTime, initTime = 0 }) {
       case 'F9':
         elem.value = `[PERS] ${getValue() ? `${getValue()} ` : ''}`
         break
+      case 'ScrollLock':
+        elem.value = `[SOGL] ${getValue() ? `${getValue()} ` : ''}`
+        break
+      case 'Pause':
+        elem.value = `[] ${getValue() ? `${getValue()} ` : ''}`
+        break
+      case 'ControlLeft':
+        elem.value = `[AA1] ${getValue() ? `${getValue()} ` : ''}`
+        break
+      case 'ControlRight':
+        elem.value = `[AA2] ${getValue() ? `${getValue()} ` : ''}`
+        break
       default:
         break
     }
+    elem.focus()
   }, [isFocused, skipForward, skipBackward, play])
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress)
