@@ -273,11 +273,8 @@ export default function App ({ halfTime, initTime = 0 }) {
       case 'F9':
         elem.value = `[PERS] ${getValue() ? `${getValue()} ` : ''}`
         break
-      case 'ScrollLock':
-        elem.value = `[SOGL] ${getValue() ? `${getValue()} ` : ''}`
-        break
       case 'Pause':
-        elem.value = `[] ${getValue() ? `${getValue()} ` : ''}`
+        elem.value = `[SOGL] ${getValue() ? `${getValue()} ` : ''}`
         break
       case 'ControlLeft':
         elem.value = `[AA1] ${getValue() ? `${getValue()} ` : ''}`
