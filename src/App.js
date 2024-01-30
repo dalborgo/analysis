@@ -477,10 +477,19 @@ export default function App ({ halfTime, initTime = 0 }) {
             </Button>
           </Box>
           <Grid container justifyContent="center">
-            {Boolean(chapters?.length) &&
-             <ChaptersList chapters={chapters} halfTimeEnd={halfTimeEnd} goTime={goTime} fullMode={fullMode}/>}
-            {match && <MatchInfo match={match} goTime={goTime} chapters={chapters} halfTimeEnd={halfTimeEnd}
-                                 fullMode={fullMode}/>}
+            {
+              Boolean(chapters?.length) &&
+              <ChaptersList chapters={chapters} halfTimeEnd={halfTimeEnd} goTime={goTime} fullMode={fullMode}/>
+            }
+            {
+              match &&
+              <MatchInfo
+                match={match}
+                goTime={goTime}
+                chapters={chapters}
+                halfTimeEnd={halfTimeEnd}
+                fullMode={fullMode}/>
+            }
           </Grid>
         </Box>
         <SeekMinute goTime={goTime} period={2} setFullMode={setFullMode} fullMode={fullMode} halfTimeEnd={halfTimeEnd}/>

@@ -26,7 +26,7 @@ function SeekMinute ({ goTime, period = 1, setFullMode, fullMode, halfTimeEnd })
       >
         {
           (period === 2 && halfTimeEnd) &&
-          <Box mt={1}>
+          <Box mt={1} position={'absolute'} right={50}>
             <IconButton size="small" onClick={()=>setFullMode(!fullMode)}>{fullMode ? '🕐': '🕘'}</IconButton>
           </Box>
         }
