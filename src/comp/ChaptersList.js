@@ -48,6 +48,7 @@ function ChaptersList ({ chapters = [], goTime, halfTimeEnd, fullMode }) {
                     position: 'relative',
                     paddingRight: 1,
                     paddingLeft: 1,
+                    minWidth: isSmall ? 250 : 150
                   }}
                   component="nav"
             >
@@ -106,7 +107,7 @@ function ChaptersList ({ chapters = [], goTime, halfTimeEnd, fullMode }) {
               </CopyToClipboard>
             </List>
             {
-              isSmall &&
+              (isSmall && chapters.find((item) => item.period === 'st')) &&
               <List dense
                     sx={{
                       bgcolor: 'background.paper',
@@ -114,6 +115,7 @@ function ChaptersList ({ chapters = [], goTime, halfTimeEnd, fullMode }) {
                       position: 'relative',
                       paddingRight: 1,
                       paddingLeft: 1,
+                      minWidth: isSmall ? 250 : 150
                     }}
                     component="nav"
               >
