@@ -4,6 +4,24 @@ import Link from '@mui/material/Link'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { Avatar, Tooltip } from '@mui/material'
+import parse from 'html-react-parser'
+
+function createSVGWithHighlightedNumber (players, highlightedNumber) {
+  const svgHeader = `<svg width="220" height="190" xmlns="http://www.w3.org/2000/svg">`
+  let svgContent = ''
+  players.forEach(player => {
+    const { x, y } = player.coordinates
+    const xScaled = x * 2
+    const yScaled = y * 2
+    const fontSize = 20
+    const fontWeight = player.shirtNumber === highlightedNumber ? 'bold' : 'normal'
+    const fillColor = player.shirtNumber === highlightedNumber ? 'red' : 'black'
+    
+    svgContent += `<text x="${xScaled}" y="${yScaled}" font-family="Verdana" font-size="${fontSize}" fill="${fillColor}" font-weight="${fontWeight}">${player.shirtNumber}</text>\n`
+  })
+  const svgFooter = `</svg>`
+  return svgHeader + svgContent + svgFooter
+}
 
 const getEventImageUrl = eventType => {
   switch (eventType) {
@@ -171,16 +189,27 @@ const MatchInfo = ({ match, goTime, fullMode }) => {
                     }
                   </Grid>
                   <Grid item style={{ textAlign: 'right', width: 25 }}>
-                    <Typography
-                      variant="body2"
-                      style={{ cursor: 'pointer', fontWeight: 'bold' }}
-                      onClick={writeBox}
-                      id={player.teamId === match['metadata'].home ?
-                        `#${player.shirtNumber} ${match['metadata'].nameHome} `
+                    <Tooltip
+                      enterDelay={500}
+                      enterNextDelay={500}
+                      title={player.teamId === match['metadata'].home ?
+                        parse(createSVGWithHighlightedNumber(match['metadata'].coordinatesHome, parseInt(player.shirtNumber)))
                         :
-                        `#${player.shirtNumber} ${match['metadata'].nameAway} `}>
-                      {player.shirtNumber}
-                    </Typography>
+                        parse(createSVGWithHighlightedNumber(match['metadata'].coordinatesAway, parseInt(player.shirtNumber)))
+                      }
+                      placement="right"
+                    >
+                      <Typography
+                        variant="body2"
+                        style={{ cursor: 'pointer', fontWeight: 'bold' }}
+                        onClick={writeBox}
+                        id={player.teamId === match['metadata'].home ?
+                          `#${player.shirtNumber} ${match['metadata'].nameHome} `
+                          :
+                          `#${player.shirtNumber} ${match['metadata'].nameAway} `}>
+                        {player.shirtNumber}
+                      </Typography>
+                    </Tooltip>
                   </Grid>
                   <Grid item>
                     <Tooltip

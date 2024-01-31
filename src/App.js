@@ -356,6 +356,7 @@ export default function App ({ halfTime, initTime = 0 }) {
               const matchTime = parseFloat(milliBox.value)
               for (const chapter of chapters) {
                 const current = document.getElementById('' + (chapter.time * 1000))
+                if(!current) {continue}
                 const chapterTime = chapter.time * 1000
                 if (Math.abs(chapterTime - matchTime) <= tolerance) {
                   current.style.color = 'yellow'
