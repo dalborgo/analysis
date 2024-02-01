@@ -346,9 +346,9 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             elemShort.textContent = time.short
             milliBox.value = result
             if (fractionElem && !time.short.startsWith('0')) {
-              setHomeDirEnd(!homeDirEnd)
               const newVal = result > halfTimeEnd ? 'st' : 'pt'
               if (fractionElem.textContent !== newVal) {
+                setHomeDirEnd(!homeDirEnd)
                 fractionElem.textContent = newVal
               }
             }
@@ -382,7 +382,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       }, 500)
       return () => clearInterval(interval)
     }
-  }, [chapters, fullMode, halfTimeEnd, initTimeEnd, message])
+  }, [chapters, fullMode, halfTimeEnd, homeDirEnd, initTimeEnd, message])
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline/>
