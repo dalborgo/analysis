@@ -11,7 +11,6 @@ function createSVGWithHighlightedNumber(players, highlightedNumber, isMirrored =
   const svgHeight = 190;
   const svgHeader = `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">`;
   let svgContent = '';
-  console.log('qua')
   players.forEach(player => {
     let { x, y } = player.coordinates;
     if (isMirrored) {

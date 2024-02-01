@@ -1,5 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Box, Button, createTheme, CssBaseline, Snackbar, TextField, ThemeProvider, } from '@mui/material'
+import {
+  Box,
+  Button,
+  createTheme,
+  CssBaseline,
+  IconButton,
+  InputAdornment,
+  Snackbar,
+  TextField,
+  ThemeProvider,
+} from '@mui/material'
 import MuiAlert from '@mui/material/Alert'
 import { envConfig } from './init'
 import RefereeDisplay from './comp/RefereeDisplay'
@@ -7,6 +17,7 @@ import MatchInfo from './comp/MatchInfo'
 import ChaptersList from './comp/ChaptersList'
 import Grid from '@mui/material/Grid'
 import SeekMinute from './comp/SeekMinute'
+import ClearIcon from '@mui/icons-material/Clear'
 
 const PORT = envConfig['BACKEND_PORT']
 
@@ -240,6 +251,11 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   }, [longPressTriggered])
   const setHomeDir = useCallback(async () => {
     if (!longPressTriggered) {
+      const direction = document.getElementById('direction')
+      direction.textContent = direction.textContent.includes('◀') ?
+        direction.textContent.replace('◀', '▶')
+        :
+        direction.textContent.replace('▶', '◀')
       localStorage.setItem('homeDirEnd', homeDirEnd ? '0' : '1')
       setHomeDirEnd(!homeDirEnd)
     }
@@ -340,16 +356,25 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             const elemLong = document.getElementById('time_long')
             const elemShort = document.getElementById('time_min')
             const fractionElem = document.getElementById('fraction')
+            const direction = document.getElementById('direction')
             const time = convertMilli(parseInt(result), halfTimeEnd, initTimeEnd, fullMode)
             elemEff.textContent = time.effectiveLong
             elemLong.textContent = time.long
             elemShort.textContent = time.short
             milliBox.value = result
             if (fractionElem && !time.short.startsWith('0')) {
-              const newVal = result > halfTimeEnd ? 'st' : 'pt'
-              if (fractionElem.textContent !== newVal) {
-                setHomeDirEnd(!homeDirEnd)
-                fractionElem.textContent = newVal
+              const nextPeriod = result > halfTimeEnd ? 'st' : 'pt'
+              if (fractionElem.textContent !== nextPeriod) {
+                const savedHomeDir = localStorage.getItem('homeDirEnd')
+                const homeDir = savedHomeDir ? Boolean(parseInt(savedHomeDir, 0)) : false
+                if (nextPeriod === 'pt') {
+                  setHomeDirEnd(homeDir)
+                  direction.textContent = homeDir ? '1°◀' : '1°▶'
+                } else {
+                  setHomeDirEnd(!homeDir)
+                  direction.textContent = homeDir ? '2°◀' : '2°▶'
+                }
+                fractionElem.textContent = nextPeriod
               }
             }
           }
@@ -443,6 +468,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
           </Box>
           <Box p={1} justifyContent="center" display="flex" mb={2}>
             <Button
+              id="direction"
               onMouseDown={handleLongPressStart}
               onMouseUp={handleLongPressEnd}
               onMouseLeave={handleLongPressEnd}
@@ -450,7 +476,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
               color="primary"
               onClick={setHomeDir}
             >
-              {Boolean(homeDirEnd) ? '1°◀' : '1°▶'}
+              --
             </Button>&nbsp;
             <Button
               onMouseDown={handleLongPressStart}
@@ -488,6 +514,25 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                     saveChapter()
                     event.preventDefault()
                   }
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="clear text"
+                        onClick={() => {
+                          const elem = document.getElementById('episodeDescription')
+                          elem.value = ''
+                        }}
+                        edge="end"
+                        size="small"
+                        color="primary"
+                        style={{ padding: 2 }}
+                      >
+                        <ClearIcon fontSize="small"/>
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                 }}
               />
             </Box>&nbsp;

@@ -107,7 +107,7 @@ function ChaptersList ({ chapters = [], goTime, halfTimeEnd, fullMode }) {
               </CopyToClipboard>
             </List>
             {
-              (isSmall && chapters.find((item) => item.period === 'st')) &&
+              (isSmall && chapters.find(item => convertMilli(item.time * 1000, halfTimeEnd).period === 'st')) &&
               <List dense
                     sx={{
                       bgcolor: 'background.paper',
