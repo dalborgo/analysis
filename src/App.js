@@ -113,13 +113,14 @@ async function getChapters (file, setChapters) {
   }
 }
 
-export default function App ({ halfTime, initTime = 0 }) {
+export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const [message, setMessage] = useState({ open: false })
   const [match, setMatch] = useState()
   const [chapters, setChapters] = useState([])
   const [halfTimeEnd, setHalfTimeEnd] = useState(halfTime)
   const [initTimeEnd, setInitTimeEnd] = useState(initTime)
   const [fullMode, setFullMode] = useState(false)
+  const [homeDirEnd, setHomeDirEnd] = useState(homeDir)
   const [longPressTimer, setLongPressTimer] = useState(null)
   const [longPressTriggered, setLongPressTriggered] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
@@ -128,8 +129,9 @@ export default function App ({ halfTime, initTime = 0 }) {
     const timer = setTimeout(() => {
       setHalfTimeEnd(0)
       setInitTimeEnd(0)
-      localStorage.setItem('halfTimeEnd', 0)
-      localStorage.setItem('initTimeEnd', 0)
+      localStorage.setItem('halfTimeEnd', '0')
+      localStorage.setItem('initTimeEnd', '0')
+      localStorage.setItem('homeDirEnd', '0')
       setLongPressTriggered(true)
     }, 1000)
     
@@ -148,7 +150,7 @@ export default function App ({ halfTime, initTime = 0 }) {
       button.textContent = '⏸'
       for (const chapter of chapters) {
         const current = document.getElementById('' + (chapter.time * 1000))
-        current.style.color = 'white'
+        if (current) {current.style.color = 'white'}
       }
     } else {
       button.textContent = '▶'
@@ -179,7 +181,7 @@ export default function App ({ halfTime, initTime = 0 }) {
       if (existingChapter) {
         for (const chapter of chapters) {
           const current = document.getElementById('' + (chapter.time * 1000))
-          current.style.color = 'white'
+          if (current) {current.style.color = 'white'}
         }
         newChapters = chapters.filter(chapter => Math.abs(chapter.time - timeValue) > tolerance)
       } else {
@@ -236,6 +238,12 @@ export default function App ({ halfTime, initTime = 0 }) {
       setInitTimeEnd(result)
     }
   }, [longPressTriggered])
+  const setHomeDir = useCallback(async () => {
+    if (!longPressTriggered) {
+      localStorage.setItem('homeDirEnd', homeDirEnd ? '0' : '1')
+      setHomeDirEnd(!homeDirEnd)
+    }
+  }, [homeDirEnd, longPressTriggered])
   const handleKeyPress = useCallback(event => {
     if (!isFocused) {
       switch (event.key) {
@@ -338,7 +346,11 @@ export default function App ({ halfTime, initTime = 0 }) {
             elemShort.textContent = time.short
             milliBox.value = result
             if (fractionElem && !time.short.startsWith('0')) {
-              fractionElem.textContent = result > halfTimeEnd ? 'st' : 'pt'
+              setHomeDirEnd(!homeDirEnd)
+              const newVal = result > halfTimeEnd ? 'st' : 'pt'
+              if (fractionElem.textContent !== newVal) {
+                fractionElem.textContent = newVal
+              }
             }
           }
         }
@@ -356,12 +368,12 @@ export default function App ({ halfTime, initTime = 0 }) {
               const matchTime = parseFloat(milliBox.value)
               for (const chapter of chapters) {
                 const current = document.getElementById('' + (chapter.time * 1000))
-                if(!current) {continue}
+                if (!current) {continue}
                 const chapterTime = chapter.time * 1000
                 if (Math.abs(chapterTime - matchTime) <= tolerance) {
-                  current.style.color = 'yellow'
+                  if (current) {current.style.color = 'yellow'}
                 } else {
-                  current.style.color = 'white'
+                  if (current) {current.style.color = 'white'}
                 }
               }
             }
@@ -375,7 +387,9 @@ export default function App ({ halfTime, initTime = 0 }) {
     <ThemeProvider theme={darkTheme}>
       <CssBaseline/>
       <Box display="flex">
-        <SeekMinute goTime={goTime}/>
+        <SeekMinute
+          goTime={goTime}
+        />
         <Box mb={1} flexGrow={1}>
           <RefereeDisplay match={match}/>
           <input id="milliBox" style={{ display: 'none' }}/>
@@ -428,6 +442,16 @@ export default function App ({ halfTime, initTime = 0 }) {
             </Box>
           </Box>
           <Box p={1} justifyContent="center" display="flex" mb={2}>
+            <Button
+              onMouseDown={handleLongPressStart}
+              onMouseUp={handleLongPressEnd}
+              onMouseLeave={handleLongPressEnd}
+              variant="outlined"
+              color="primary"
+              onClick={setHomeDir}
+            >
+              {Boolean(homeDirEnd) ? '1°◀' : '1°▶'}
+            </Button>&nbsp;
             <Button
               onMouseDown={handleLongPressStart}
               onMouseUp={handleLongPressEnd}
@@ -489,11 +513,19 @@ export default function App ({ halfTime, initTime = 0 }) {
                 goTime={goTime}
                 chapters={chapters}
                 halfTimeEnd={halfTimeEnd}
-                fullMode={fullMode}/>
+                fullMode={fullMode}
+                mirrorMode={homeDirEnd}
+              />
             }
           </Grid>
         </Box>
-        <SeekMinute goTime={goTime} period={2} setFullMode={setFullMode} fullMode={fullMode} halfTimeEnd={halfTimeEnd}/>
+        <SeekMinute
+          goTime={goTime}
+          period={2}
+          fullMode={fullMode}
+          setFullMode={setFullMode}
+          halfTimeEnd={halfTimeEnd}
+        />
       </Box>
       
       <Snackbar

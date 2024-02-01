@@ -6,21 +6,28 @@ import Typography from '@mui/material/Typography'
 import { Avatar, Tooltip } from '@mui/material'
 import parse from 'html-react-parser'
 
-function createSVGWithHighlightedNumber (players, highlightedNumber) {
-  const svgHeader = `<svg width="220" height="190" xmlns="http://www.w3.org/2000/svg">`
-  let svgContent = ''
+function createSVGWithHighlightedNumber(players, highlightedNumber, isMirrored = false) {
+  const svgWidth = 220;
+  const svgHeight = 190;
+  const svgHeader = `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">`;
+  let svgContent = '';
+  console.log('qua')
   players.forEach(player => {
-    const { x, y } = player.coordinates
-    const xScaled = x * 2
-    const yScaled = y * 2
-    const fontSize = 20
-    const fontWeight = player.shirtNumber === highlightedNumber ? 'bold' : 'normal'
-    const fillColor = player.shirtNumber === highlightedNumber ? 'red' : 'black'
+    let { x, y } = player.coordinates;
+    if (isMirrored) {
+      x = svgWidth - (x * 2); // Specchia l'asse x
+    } else {
+      x = x * 2;
+    }
+    const yScaled = y * 2;
+    const fontSize = 20;
+    const fontWeight = player.shirtNumber === highlightedNumber ? 'bold' : 'normal';
+    const fillColor = player.shirtNumber === highlightedNumber ? 'red' : 'black';
     
-    svgContent += `<text x="${xScaled}" y="${yScaled}" font-family="Verdana" font-size="${fontSize}" fill="${fillColor}" font-weight="${fontWeight}">${player.shirtNumber}</text>\n`
-  })
-  const svgFooter = `</svg>`
-  return svgHeader + svgContent + svgFooter
+    svgContent += `<text x="${x}" y="${yScaled}" font-family="Verdana" font-size="${fontSize}" fill="${fillColor}" font-weight="${fontWeight}">${player.shirtNumber}</text>\n`;
+  });
+  const svgFooter = `</svg>`;
+  return svgHeader + svgContent + svgFooter;
 }
 
 const getEventImageUrl = eventType => {
@@ -63,7 +70,7 @@ const writeBox = event => {
   elem.focus()
 }
 
-const MatchInfo = ({ match, goTime, fullMode }) => {
+const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
   const { teamsData } = match['match']
   const players = match['players']
   const events = match['events']
@@ -193,9 +200,9 @@ const MatchInfo = ({ match, goTime, fullMode }) => {
                       enterDelay={500}
                       enterNextDelay={500}
                       title={player.teamId === match['metadata'].home ?
-                        parse(createSVGWithHighlightedNumber(match['metadata'].coordinatesHome, parseInt(player.shirtNumber)))
+                        parse(createSVGWithHighlightedNumber(match['metadata'].coordinatesHome, parseInt(player.shirtNumber), mirrorMode))
                         :
-                        parse(createSVGWithHighlightedNumber(match['metadata'].coordinatesAway, parseInt(player.shirtNumber)))
+                        parse(createSVGWithHighlightedNumber(match['metadata'].coordinatesAway, parseInt(player.shirtNumber), !mirrorMode))
                       }
                       placement="right"
                     >
