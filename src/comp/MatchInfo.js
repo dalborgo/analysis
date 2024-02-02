@@ -6,27 +6,27 @@ import Typography from '@mui/material/Typography'
 import { Avatar, Tooltip } from '@mui/material'
 import parse from 'html-react-parser'
 
-function createSVGWithHighlightedNumber(players, highlightedNumber, isMirrored = false) {
-  const svgWidth = 220;
-  const svgHeight = 190;
-  const svgHeader = `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">`;
-  let svgContent = '';
+function createSVGWithHighlightedNumber (players, highlightedNumber, isMirrored = false) {
+  const svgWidth = 220
+  const svgHeight = 180
+  const svgHeader = `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">`
+  let svgContent = ''
   players.forEach(player => {
-    let { x, y } = player.coordinates;
+    let { x, y } = player.coordinates
     if (isMirrored) {
-      x = svgWidth - (x * 2); // Specchia l'asse x
+      x = svgWidth - (x * 2) // Specchia l'asse x
     } else {
-      x = x * 2;
+      x = x * 2
     }
-    const yScaled = y * 2;
-    const fontSize = 20;
-    const fontWeight = player.shirtNumber === highlightedNumber ? 'bold' : 'normal';
-    const fillColor = player.shirtNumber === highlightedNumber ? 'red' : 'black';
+    const yScaled = y * 2
+    const fontSize = 20
+    const fontWeight = player.shirtNumber === highlightedNumber ? 'bold' : 'normal'
+    const fillColor = player.shirtNumber === highlightedNumber ? 'red' : 'black'
     
-    svgContent += `<text x="${x}" y="${yScaled}" font-family="Verdana" font-size="${fontSize}" fill="${fillColor}" font-weight="${fontWeight}">${player.shirtNumber}</text>\n`;
-  });
-  const svgFooter = `</svg>`;
-  return svgHeader + svgContent + svgFooter;
+    svgContent += `<text x="${x}" y="${yScaled}" font-family="Verdana" font-size="${fontSize}" fill="${fillColor}" font-weight="${fontWeight}">${player.shirtNumber}</text>\n`
+  })
+  const svgFooter = `</svg>`
+  return svgHeader + svgContent + svgFooter
 }
 
 const getEventImageUrl = eventType => {
@@ -147,8 +147,22 @@ const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
             >
               <Typography variant="body1" style={{ cursor: 'help' }}>{getCoachName(team)}</Typography>
             </Tooltip>
-            
-            &nbsp;({match['metadata']['scheme' + (index ? 'Away' : 'Home')]})&nbsp;
+            &nbsp;
+            <Tooltip
+              enterDelay={500}
+              enterNextDelay={500}
+              style={{ cursor: 'help' }}
+              title={
+                index ?
+                  parse(createSVGWithHighlightedNumber(match['metadata'].coordinatesAway, '', !mirrorMode))
+                  :
+                  parse(createSVGWithHighlightedNumber(match['metadata'].coordinatesHome, '', mirrorMode))
+              }
+              placement="top"
+            >
+              ({match['metadata']['scheme' + (index ? 'Away' : 'Home')]})
+            </Tooltip>
+            &nbsp;
             <Tooltip
               title={<img src={match['metadata']['img' + (index ? 'Away' : 'Home')]} alt="img" style={{
                 width: 'auto',

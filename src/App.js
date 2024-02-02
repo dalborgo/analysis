@@ -256,8 +256,13 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
         direction.textContent.replace('◀', '▶')
         :
         direction.textContent.replace('▶', '◀')
-      localStorage.setItem('homeDirEnd', homeDirEnd ? '0' : '1')
-      setHomeDirEnd(!homeDirEnd)
+      if(direction.textContent.startsWith('2')){
+        localStorage.setItem('homeDirEnd', homeDirEnd ? '1' : '0')
+        setHomeDirEnd(!homeDirEnd)
+      } else {
+        localStorage.setItem('homeDirEnd', homeDirEnd ? '0' : '1')
+        setHomeDirEnd(!homeDirEnd)
+      }
     }
   }, [homeDirEnd, longPressTriggered])
   const handleKeyPress = useCallback(event => {
@@ -372,7 +377,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                   direction.textContent = homeDir ? '1°◀' : '1°▶'
                 } else {
                   setHomeDirEnd(!homeDir)
-                  direction.textContent = homeDir ? '2°◀' : '2°▶'
+                  direction.textContent = homeDir ? '2°▶' : '2°◀'
                 }
                 fractionElem.textContent = nextPeriod
               }
