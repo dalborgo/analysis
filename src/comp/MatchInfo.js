@@ -14,7 +14,7 @@ function createSVGWithHighlightedNumber (players, highlightedNumber, isMirrored 
   players.forEach(player => {
     let { x, y } = player.coordinates
     if (isMirrored) {
-      x = svgWidth - (x * 2) // Specchia l'asse x
+      x = svgWidth - (x * 2) - 15 // Specchia l'asse x
     } else {
       x = x * 2
     }
@@ -160,7 +160,9 @@ const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
               }
               placement="top"
             >
-              ({match['metadata']['scheme' + (index ? 'Away' : 'Home')]})
+              <span>
+                ({match['metadata']['scheme' + (index ? 'Away' : 'Home')]})
+              </span>
             </Tooltip>
             &nbsp;
             <Tooltip
