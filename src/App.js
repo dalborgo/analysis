@@ -256,7 +256,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
         direction.textContent.replace('◀', '▶')
         :
         direction.textContent.replace('▶', '◀')
-      if(direction.textContent.startsWith('2')){
+      if (direction.textContent.startsWith('2')) {
         localStorage.setItem('homeDirEnd', homeDirEnd ? '1' : '0')
         setHomeDirEnd(!homeDirEnd)
       } else {
@@ -363,7 +363,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             const fractionElem = document.getElementById('fraction')
             const direction = document.getElementById('direction')
             const time = convertMilli(parseInt(result), halfTimeEnd, initTimeEnd, fullMode)
-            elemEff.textContent = time.effectiveLong
+            if (elemEff) {elemEff.textContent = time.effectiveLong}
             elemLong.textContent = time.long
             elemShort.textContent = time.short
             milliBox.value = result
