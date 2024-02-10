@@ -15,15 +15,15 @@ function createSVGWithHighlightedNumber (players, highlightedNumber, isMirrored 
     let { x, y } = player.coordinates
     if (isMirrored) {
       x = svgWidth - (x * 2) - 15 // Specchia l'asse x
+      y = y * 2
     } else {
       x = x * 2
+      y = svgHeight - (y * 2) + 20
     }
-    const yScaled = y * 2
     const fontSize = 20
     const fontWeight = player.shirtNumber === highlightedNumber ? 'bold' : 'normal'
     const fillColor = player.shirtNumber === highlightedNumber ? 'red' : 'black'
-    
-    svgContent += `<text x="${x}" y="${yScaled}" font-family="Verdana" font-size="${fontSize}" fill="${fillColor}" font-weight="${fontWeight}">${player.shirtNumber}</text>\n`
+    svgContent += `<text x="${x}" y="${y}" font-family="Verdana" font-size="${fontSize}" fill="${fillColor}" font-weight="${fontWeight}">${player.shirtNumber}</text>\n`
   })
   const svgFooter = `</svg>`
   return svgHeader + svgContent + svgFooter
