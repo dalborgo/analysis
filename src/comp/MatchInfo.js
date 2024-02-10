@@ -14,7 +14,7 @@ function createSVGWithHighlightedNumber (players, highlightedNumber, isMirrored 
   players.forEach(player => {
     let { x, y } = player.coordinates
     if (isMirrored) {
-      x = svgWidth - (x * 2) - 15 // Specchia l'asse x
+      x = svgWidth - (x * 2) - 15
       y = y * 2
     } else {
       x = x * 2
