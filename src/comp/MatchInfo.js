@@ -15,10 +15,10 @@ function createSVGWithHighlightedNumber (players, highlightedNumber, isMirrored 
     let { x, y } = player.coordinates
     if (isMirrored) {
       x = svgWidth - (x * 2) - 15
-      y = y * 2
+      y = y * 2 + (player.isDuplicated ? 30 : 0)
     } else {
       x = x * 2
-      y = svgHeight - (y * 2) + 20
+      y = svgHeight - (y * 2) + 20 + (player.isDuplicated ? -30 : 0)
     }
     const fontSize = 20
     const fontWeight = player.shirtNumber === highlightedNumber ? 'bold' : 'normal'
