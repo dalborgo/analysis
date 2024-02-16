@@ -5,6 +5,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { Avatar, Tooltip } from '@mui/material'
 import parse from 'html-react-parser'
+import { getAree } from './helpers'
 
 function createSVGWithHighlightedNumber (players, highlightedNumber, isMirrored = false) {
   const svgWidth = 220
@@ -195,12 +196,22 @@ const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
                     {
                       shouldDisplayAvatar(player.player.thumbId) ?
                         <Tooltip
-                          title={<img src={player.player.thumb.url} alt={player.player.shortName} style={{
-                            width: 'auto',
-                            height: 'auto',
-                            maxWidth: '200px',
-                            maxHeight: '200px'
-                          }}/>}
+                          title={
+                            <>
+                              <img src={player.player.thumb.url} alt={player.player.shortName} style={{
+                                width: 'auto',
+                                height: 'auto',
+                                maxWidth: '200px',
+                                maxHeight: '200px'
+                              }}/>
+                              <div style={{ textAlign: 'center', marginBottom: 5 }}>{player.player.birthDate}</div>
+                              <div style={{ textAlign: 'center' }}>
+                                <img alt="flag" style={{ width: 30 }}
+                                     src={getAree(player.player.birthAreaId).flag_url}/>
+                              </div>
+                              <div style={{ textAlign: 'center' }}>{getAree(player.player.birthAreaId).title}</div>
+                            </>
+                          }
                           placement="left"
                         >
                           <Avatar src={player.player.thumb.url} style={{ width: 18, height: 18, cursor: 'help' }}/>
@@ -234,19 +245,11 @@ const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
                     </Tooltip>
                   </Grid>
                   <Grid item>
-                    <Tooltip
-                      enterDelay={500}
-                      enterNextDelay={500}
-                      title={player.player.birthDate}
-                      placement="right"
+                    <Typography
+                      variant="body2" ml={1}
                     >
-                      <Typography
-                        variant="body2" ml={1}
-                        style={{ cursor: 'help' }}
-                      >
-                        {player.player?.role?.code2}
-                      </Typography>
-                    </Tooltip>
+                      {player.player?.role?.code2}
+                    </Typography>
                   </Grid>
                   <Grid item>
                     <Typography variant="body2" ml={1}>{player.player.shortName}</Typography>
