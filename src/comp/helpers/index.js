@@ -239,6 +239,10 @@ const aree = {
     title: 'Malaysia',
     flag_url: 'https://cdn5.wyscout.com/photos/area4/public/flat/new/Malaysia.png'
   },
+  125: {
+    title: 'Mali',
+    flag_url: 'https://cdn5.wyscout.com/photos/area4/public/flat/new/Mali.png'
+  },
   126: {
     title: 'Malta',
     flag_url: 'https://cdn5.wyscout.com/photos/area4/public/flat/new/Malta.png'
