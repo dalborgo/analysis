@@ -413,4 +413,4 @@ const aree = {
   }
 }
 
-export const getAree = code => aree[code]
+export const getAree = code => aree[code] || {}

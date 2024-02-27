@@ -11,7 +11,13 @@ const RefereeDisplay = ({ match }) => {
       <span key={referee.id}>
         <img src={iconUrl} alt={role} style={{ marginRight: '5px' }}/>
         {fullName}&nbsp;&nbsp;
-        <img src={referee.thumb.url} alt={fullName} style={{ width: 15, height: 15 }} />
+        <img src={referee.thumb.url} alt={fullName}
+             style={{
+               width: 15,
+               height: 15,
+               filter: referee.thumb.url.includes('ndplayer') ? 'brightness(50%)' : undefined,
+             }}
+        />
       </span>
     )
   }

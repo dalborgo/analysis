@@ -193,33 +193,36 @@ const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
                 {player.isSubstituteFirst && <Box mt={2}/>}
                 <Grid container mt={0.6}>
                   <Grid item style={{ textAlign: 'right' }}>
-                    {
-                      shouldDisplayAvatar(player.player.thumbId) ?
-                        <Tooltip
-                          title={
-                            <>
-                              <img src={player.player.thumb.url} alt={player.player.shortName} style={{
-                                width: 'auto',
-                                height: 'auto',
-                                maxWidth: '200px',
-                                maxHeight: '200px'
-                              }}/>
-                              <div style={{ textAlign: 'center', marginBottom: 5 }}>{player.player.birthDate}</div>
-                              <div style={{ textAlign: 'center' }}>
-                                <img alt="flag" style={{ width: 30 }}
-                                     src={getAree(player.player.birthAreaId).flag_url}/>
-                              </div>
-                              <div style={{ textAlign: 'center' }}>{getAree(player.player.birthAreaId).title}</div>
-                            </>
-                          }
-                          placement="left"
-                        >
-                          <Avatar src={player.player.thumb.url} style={{ width: 18, height: 18, cursor: 'help' }}/>
-                        </Tooltip>
-                        :
-                        <Avatar src={player.player.thumb.url}
-                                style={{ width: 18, height: 18, visibility: 'hidden' }}/>
-                    }
+                    
+                    <Tooltip
+                      title={
+                        <>
+                          <img src={player.player.thumb.url} alt={player.player.shortName} style={{
+                            width: 'auto',
+                            height: 'auto',
+                            maxWidth: '200px',
+                            maxHeight: '200px'
+                          }}/>
+                          <div style={{ textAlign: 'center', marginBottom: 5 }}>{player.player.birthDate}</div>
+                          <div style={{ textAlign: 'center' }}>
+                            <img alt={player.player.birthAreaId} style={{ width: 30 }}
+                                 src={getAree(player.player.birthAreaId).flag_url}/>
+                          </div>
+                          <div style={{ textAlign: 'center' }}>{getAree(player.player.birthAreaId).title}</div>
+                        </>
+                      }
+                      placement="left"
+                    >
+                      <Avatar
+                        src={player.player.thumb.url}
+                        style={{
+                          width: 18,
+                          height: 18,
+                          cursor: 'help',
+                          filter: shouldDisplayAvatar(player.player.thumbId) ? undefined : 'brightness(40%)'
+                        }}/>
+                    </Tooltip>
+                  
                   </Grid>
                   <Grid item style={{ textAlign: 'right', width: 25 }}>
                     <Tooltip
