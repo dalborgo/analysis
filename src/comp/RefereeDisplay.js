@@ -1,24 +1,38 @@
 import React from 'react'
-import { Box, Typography } from '@mui/material'
+import { Avatar, Box, Tooltip, Typography } from '@mui/material'
 
 const RefereeDisplay = ({ match }) => {
   const renderReferee = ({ referee, role }) => {
+    console.log('referee:', referee)
     const fullName = `${referee['firstName']} ${referee['middleName']} ${referee['lastName']}`.trim()
     const iconUrl = ['referee', 'fourthOfficial'].includes(role)
       ? '/static/fischietto.png'
       : '/static/bandierina.png'
     return (
-      <span key={referee.id}>
-        <img src={iconUrl} alt={role} style={{ marginRight: '5px' }}/>
+      <Box key={referee.id} display="flex" alignItems="center">
+        <img src={iconUrl} alt={role} style={{ marginRight: 7, height: 15 }}/>
         {fullName}&nbsp;&nbsp;
-        <img src={referee.thumb.url} alt={fullName}
-             style={{
-               width: 15,
-               height: 15,
-               filter: referee.thumb.url.includes('ndplayer') ? 'brightness(50%)' : undefined,
-             }}
-        />
-      </span>
+        <Tooltip
+          title={
+            <img src={referee.thumb.url} alt={fullName} style={{
+              width: 'auto',
+              height: 'auto',
+              maxWidth: '200px',
+              maxHeight: '200px'
+            }}/>
+          }
+          placement="right"
+        >
+          <Avatar src={referee.thumb.url} alt={fullName}
+                  style={{
+                    cursor: 'help',
+                    width: 15,
+                    height: 15,
+                    filter: referee.thumb.url.includes('ndplayer') ? 'brightness(50%)' : undefined,
+                  }}
+          />
+        </Tooltip>
+      </Box>
     )
   }
   

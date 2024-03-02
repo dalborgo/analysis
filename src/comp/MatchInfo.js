@@ -193,7 +193,6 @@ const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
                 {player.isSubstituteFirst && <Box mt={2}/>}
                 <Grid container mt={0.6}>
                   <Grid item style={{ textAlign: 'right' }}>
-                    
                     <Tooltip
                       title={
                         <>

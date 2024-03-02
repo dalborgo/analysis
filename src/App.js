@@ -18,6 +18,8 @@ import ChaptersList from './comp/ChaptersList'
 import Grid from '@mui/material/Grid'
 import SeekMinute from './comp/SeekMinute'
 import ClearIcon from '@mui/icons-material/Clear'
+import TagIcon from '@mui/icons-material/Tag'
+import DataArrayIcon from '@mui/icons-material/DataArray'
 
 const PORT = envConfig['BACKEND_PORT']
 
@@ -524,6 +526,39 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
+                        aria-label="tag text"
+                        onClick={() => {
+                          const elem = document.getElementById('episodeDescription')
+                          elem.value = `${elem.value} #`
+                          elem.focus()
+                        }}
+                        edge="end"
+                        size="small"
+                        color="primary"
+                        style={{ padding: 2 }}
+                        tabIndex="-1"
+                      >
+                        <TagIcon fontSize="small"/>
+                      </IconButton>
+                      <IconButton
+                        aria-label="brackets text"
+                        onClick={() => {
+                          const elem = document.getElementById('episodeDescription')
+                          const getValue = () => elem.value.trim().replace(/\[.*?]\s*/, '')
+                          elem.value = `[] ${getValue() ? `${getValue()} ` : ''}`
+                          elem.focus()
+                          const cursorPosition = 1
+                          elem.setSelectionRange(cursorPosition, cursorPosition)
+                        }}
+                        edge="end"
+                        size="small"
+                        color="primary"
+                        style={{ padding: 2 }}
+                        tabIndex="-1"
+                      >
+                        <DataArrayIcon fontSize="small"/>
+                      </IconButton>
+                      <IconButton
                         aria-label="clear text"
                         onClick={() => {
                           const elem = document.getElementById('episodeDescription')
@@ -533,6 +568,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                         size="small"
                         color="primary"
                         style={{ padding: 2 }}
+                        tabIndex="-1"
                       >
                         <ClearIcon fontSize="small"/>
                       </IconButton>
@@ -541,13 +577,13 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                 }}
               />
             </Box>&nbsp;
-            <Button variant="outlined" color="primary" onClick={skipForward}>
+            <Button variant="outlined" color="primary" onClick={skipForward} tabIndex="-1">
               <span style={{ fontSize: '1rem' }}>{'->'}</span>
             </Button>&nbsp;
-            <Button variant="outlined" color="primary" onClick={saveChapter}>
+            <Button variant="outlined" color="primary" onClick={saveChapter} tabIndex="-1">
               SALVA
             </Button>&nbsp;
-            <Button variant="outlined" color="primary" onClick={play}>
+            <Button variant="outlined" color="primary" onClick={play} tabIndex="-1">
               <span id="play" style={{ fontSize: '1rem' }}>⧗</span>
             </Button>
           </Box>
