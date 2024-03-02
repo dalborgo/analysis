@@ -3,7 +3,6 @@ import { Avatar, Box, Tooltip, Typography } from '@mui/material'
 
 const RefereeDisplay = ({ match }) => {
   const renderReferee = ({ referee, role }) => {
-    console.log('referee:', referee)
     const fullName = `${referee['firstName']} ${referee['middleName']} ${referee['lastName']}`.trim()
     const iconUrl = ['referee', 'fourthOfficial'].includes(role)
       ? '/static/fischietto.png'
