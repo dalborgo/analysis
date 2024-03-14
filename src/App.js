@@ -529,7 +529,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                         aria-label="tag text"
                         onClick={() => {
                           const elem = document.getElementById('episodeDescription')
-                          elem.value = `${elem.value} #`
+                          elem.value = `${elem.value}#`
                           elem.focus()
                         }}
                         edge="end"
