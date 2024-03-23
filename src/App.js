@@ -36,6 +36,16 @@ function extractID (path) {
   return match ? match[1] : null
 }
 
+function isIntegerOrStringInteger(value) {
+  if (Number.isInteger(value)) {
+    return true
+  } else if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = parseInt(value, 10)
+    return parsed.toString() === value.trim()
+  }
+  return false
+}
+
 const tolerance = 1
 export const convertMilli = (millisecondi, halfTimeEnd = 0, initTimeEnd = 0, fullMode) => {
   if (millisecondi < initTimeEnd) { return { long: '00:00', effectiveLong: '00:00', short: '0′' }}
@@ -240,15 +250,23 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const setHalfTime = useCallback(async () => {
     if (!longPressTriggered) {
       const { result } = manageResponse(await tcpCommand('1120'))
-      localStorage.setItem('halfTimeEnd', result.toString())
-      setHalfTimeEnd(result)
+      if(isIntegerOrStringInteger(result)) {
+        localStorage.setItem('halfTimeEnd', result.toString())
+        setHalfTimeEnd(result)
+      } else {
+        setHalfTimeEnd('Error')
+      }
     }
   }, [longPressTriggered])
   const setInitTime = useCallback(async () => {
     if (!longPressTriggered) {
       const { result } = manageResponse(await tcpCommand('1120'))
-      localStorage.setItem('initTimeEnd', result.toString())
-      setInitTimeEnd(result)
+      if(isIntegerOrStringInteger(result)) {
+        localStorage.setItem('initTimeEnd', result.toString())
+        setHalfTimeEnd(result)
+      } else {
+        setHalfTimeEnd('Error')
+      }
     }
   }, [longPressTriggered])
   const setHomeDir = useCallback(async () => {
