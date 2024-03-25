@@ -388,7 +388,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             elemShort.textContent = time.short
             milliBox.value = result
             if (fractionElem && !time.short.startsWith('0')) {
-              const nextPeriod = result > halfTimeEnd ? 'st' : 'pt'
+              const nextPeriod = parseInt(result) > parseInt(halfTimeEnd) ? 'st' : 'pt'
               if (fractionElem.textContent !== nextPeriod) {
                 const savedHomeDir = localStorage.getItem('homeDirEnd')
                 const homeDir = savedHomeDir ? Boolean(parseInt(savedHomeDir, 0)) : false
@@ -554,7 +554,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                         size="small"
                         color="primary"
                         style={{ padding: 2 }}
-                        tabIndex="-1"
+                        tabIndex={-1}
                       >
                         <TagIcon fontSize="small"/>
                       </IconButton>
@@ -572,7 +572,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                         size="small"
                         color="primary"
                         style={{ padding: 2 }}
-                        tabIndex="-1"
+                        tabIndex={-1}
                       >
                         <DataArrayIcon fontSize="small"/>
                       </IconButton>
@@ -586,7 +586,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                         size="small"
                         color="primary"
                         style={{ padding: 2 }}
-                        tabIndex="-1"
+                        tabIndex={-1}
                       >
                         <ClearIcon fontSize="small"/>
                       </IconButton>
@@ -595,13 +595,13 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                 }}
               />
             </Box>&nbsp;
-            <Button variant="outlined" color="primary" onClick={skipForward} tabIndex="-1">
+            <Button variant="outlined" color="primary" onClick={skipForward} tabIndex={-1}>
               <span style={{ fontSize: '1rem' }}>{'->'}</span>
             </Button>&nbsp;
-            <Button variant="outlined" color="primary" onClick={saveChapter} tabIndex="-1">
+            <Button variant="outlined" color="primary" onClick={saveChapter} tabIndex={-1}>
               SALVA
             </Button>&nbsp;
-            <Button variant="outlined" color="primary" onClick={play} tabIndex="-1">
+            <Button variant="outlined" color="primary" onClick={play} tabIndex={-1}>
               <span id="play" style={{ fontSize: '1rem' }}>⧗</span>
             </Button>
           </Box>
