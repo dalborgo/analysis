@@ -263,9 +263,9 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       const { result } = manageResponse(await tcpCommand('1120'))
       if(isIntegerOrStringInteger(result)) {
         localStorage.setItem('initTimeEnd', result.toString())
-        setHalfTimeEnd(result)
+        setInitTimeEnd(result)
       } else {
-        setHalfTimeEnd('Error')
+        setInitTimeEnd('Error')
       }
     }
   }, [longPressTriggered])
