@@ -71,7 +71,7 @@ function ChaptersList ({ chapters = [], goTime, halfTimeEnd, fullMode }) {
                         </ListItemIcon>
                         <ListItemText
                           id={'' + (item.time * 1000)}
-                          primary={`${fullMode ? parseInt(time.short) + 45 + '′' : time.short}${time.period}: ${item.text}`}
+                          primary={`${fullMode ? parseInt(time.short) + (time.period === 'st' ? 45 : 0) + '′' : time.short}${time.period}: ${item.text}`}
                           style={{ margin: 0 }}
                         />
                       </ListItemButton>
