@@ -639,7 +639,6 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
           halfTimeEnd={halfTimeEnd}
         />
       </Box>
-      
       <Snackbar
         open={message.open}
         onClose={handleClose}

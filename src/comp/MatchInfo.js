@@ -74,6 +74,8 @@ const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
   const { teamsData } = match['match']
   const players = match['players']
   const events = match['events']
+  const direction = document.getElementById('direction')
+  const homeDir = direction ? direction.textContent[direction.textContent.length - 1] : ''
   const sortedTeams = Object.values(teamsData).sort((a, b) => {
     if (a.side === 'home') return -1
     if (b.side === 'home') return 1
@@ -186,6 +188,7 @@ const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
                 style={{ width: 18, height: 18, cursor: 'pointer', marginTop: 3 }}
               />
             </Tooltip>
+            {homeDir ? <span style={{ marginLeft: 5 }}>{index ? homeDir === '▶' ? '◀' : '▶' : homeDir}</span> : ''}
           </Box>
           <Box>
             {getTeamPlayers(team.teamId).map((player, index) => (
