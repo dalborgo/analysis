@@ -36,7 +36,7 @@ function extractID (path) {
   return match ? match[1] : null
 }
 
-function isIntegerOrStringInteger(value) {
+function isIntegerOrStringInteger (value) {
   if (Number.isInteger(value)) {
     return true
   } else if (typeof value === 'string' && value.trim() !== '') {
@@ -250,7 +250,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const setHalfTime = useCallback(async () => {
     if (!longPressTriggered) {
       const { result } = manageResponse(await tcpCommand('1120'))
-      if(isIntegerOrStringInteger(result)) {
+      if (isIntegerOrStringInteger(result)) {
         localStorage.setItem('halfTimeEnd', result.toString())
         setHalfTimeEnd(result)
       } else {
@@ -261,7 +261,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const setInitTime = useCallback(async () => {
     if (!longPressTriggered) {
       const { result } = manageResponse(await tcpCommand('1120'))
-      if(isIntegerOrStringInteger(result)) {
+      if (isIntegerOrStringInteger(result)) {
         localStorage.setItem('initTimeEnd', result.toString())
         setInitTimeEnd(result)
       } else {
@@ -534,6 +534,12 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                 focused
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
+                onWheel={event => {
+                  if (event.deltaY < 0) {
+                    const elem = document.getElementById('addTagButton')
+                    elem.click()
+                  }
+                }}
                 onKeyPress={(event) => {
                   if (event.key === 'Enter') {
                     saveChapter()
@@ -551,6 +557,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                           elem.focus()
                         }}
                         edge="end"
+                        id="addTagButton"
                         size="small"
                         color="primary"
                         style={{ padding: 2 }}
@@ -569,6 +576,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                           elem.setSelectionRange(cursorPosition, cursorPosition)
                         }}
                         edge="end"
+                        id="addBracketsButton"
                         size="small"
                         color="primary"
                         style={{ padding: 2 }}
