@@ -322,6 +322,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       case 'F9':
         elem.value = `[PERS] ${getValue() ? `${getValue()} ` : ''}`
         break
+      case 'F6':
       case 'Pause':
         elem.value = `[SOGL] ${getValue() ? `${getValue()} ` : ''}`
         break
@@ -441,6 +442,43 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
           goTime={goTime}
         />
         <Box mb={1} flexGrow={1}>
+          <Box width={70} display="flex" flexDirection="column" position="absolute" pt={1}>
+            <Button
+              color="primary"
+              id="direction"
+              onClick={setHomeDir}
+              onMouseDown={handleLongPressStart}
+              onMouseLeave={handleLongPressEnd}
+              onMouseUp={handleLongPressEnd}
+              style={{ marginBottom: 4 }}
+              variant="outlined"
+            >
+              --
+            </Button>
+            <Button
+              color="primary"
+              onClick={setInitTime}
+              onMouseDown={handleLongPressStart}
+              onMouseLeave={handleLongPressEnd}
+              onMouseUp={handleLongPressEnd}
+              style={{ marginBottom: 4 }}
+              variant="outlined"
+            >
+              {initTimeEnd || 0}
+            </Button>
+            <Button
+              color="primary"
+              onClick={setHalfTime}
+              onMouseDown={handleLongPressStart}
+              onMouseLeave={handleLongPressEnd}
+              onMouseUp={handleLongPressEnd}
+              variant="outlined"
+            >
+              <span style={{fontSize: 'small'}}>
+                {halfTimeEnd || 0}
+              </span>
+            </Button>
+          </Box>
           <RefereeDisplay match={match}/>
           <input id="milliBox" style={{ display: 'none' }}/>
           <Box
@@ -492,39 +530,10 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             </Box>
           </Box>
           <Box p={1} justifyContent="center" display="flex" mb={2}>
-            <Button
-              id="direction"
-              onMouseDown={handleLongPressStart}
-              onMouseUp={handleLongPressEnd}
-              onMouseLeave={handleLongPressEnd}
-              variant="outlined"
-              color="primary"
-              onClick={setHomeDir}
-            >
-              --
-            </Button>&nbsp;
-            <Button
-              onMouseDown={handleLongPressStart}
-              onMouseUp={handleLongPressEnd}
-              onMouseLeave={handleLongPressEnd}
-              variant="outlined"
-              color="primary"
-              onClick={setInitTime}>
-              {initTimeEnd}
-            </Button>&nbsp;
-            <Button
-              onMouseDown={handleLongPressStart}
-              onMouseUp={handleLongPressEnd}
-              onMouseLeave={handleLongPressEnd}
-              variant="outlined"
-              color="primary"
-              onClick={setHalfTime}>
-              {halfTimeEnd}
-            </Button>&nbsp;
             <Button variant="outlined" color="primary" onClick={skipBackward}>
               <span style={{ fontSize: '1rem' }}>{'<-'}</span>
             </Button>&nbsp;
-            <Box width={'40%'}>
+            <Box width={'60%'}>
               <TextField
                 id="episodeDescription"
                 fullWidth
