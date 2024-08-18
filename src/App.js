@@ -314,7 +314,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
         elem.value = `[DIS] ${getValue() ? `${getValue()} ` : ''}`
         break
       case 'F7':
-        elem.value = `[ATL] ${getValue() ? `${getValue()} ` : ''}`
+        elem.value = `[COLL] ${getValue() ? `${getValue()} ` : ''}`
         break
       case 'F8':
         elem.value = `[TATT] ${getValue() ? `${getValue()} ` : ''}`
