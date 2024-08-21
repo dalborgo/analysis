@@ -121,6 +121,7 @@ async function getMatch (id, setMatch) {
   try {
     const response = await fetch(`http://localhost:${PORT}/wyscout/match/${id}`)
     const data = await response.json()
+    console.log('response:', data?.results)
     setMatch(data?.results)
   } catch (error) {
     console.error(error)
@@ -130,7 +131,6 @@ async function getMatch (id, setMatch) {
 async function getHudl (id, setHudl) {
   try {
     const response = await fetch(`http://localhost:${PORT}/hudl/match/${id}`)
-    console.log('response:', response)
     const data = await response.json()
     setHudl(data?.results)
   } catch (error) {
