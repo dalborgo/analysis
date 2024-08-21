@@ -20,6 +20,7 @@ import SeekMinute from './comp/SeekMinute'
 import ClearIcon from '@mui/icons-material/Clear'
 import TagIcon from '@mui/icons-material/Tag'
 import DataArrayIcon from '@mui/icons-material/DataArray'
+import Hudl from './comp/Hudl'
 
 const PORT = envConfig['BACKEND_PORT']
 
@@ -126,6 +127,17 @@ async function getMatch (id, setMatch) {
   }
 }
 
+async function getHudl (id, setHudl) {
+  try {
+    const response = await fetch(`http://localhost:${PORT}/hudl/match/${id}`)
+    console.log('response:', response)
+    const data = await response.json()
+    setHudl(data?.results)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 async function getChapters (file, setChapters) {
   try {
     const response = await fetch(`http://localhost:${PORT}/zoom/chapters?file=${file}`)
@@ -137,8 +149,12 @@ async function getChapters (file, setChapters) {
 }
 
 export default function App ({ halfTime, initTime = 0, homeDir = false }) {
+  const queryParams = new URLSearchParams(window.location.search)
+  const hudlId = queryParams.get('hudl')
   const [message, setMessage] = useState({ open: false })
   const [match, setMatch] = useState()
+  const [hudl, setHudl] = useState()
+  const [wyView, setWyView] = useState(false)
   const [chapters, setChapters] = useState([])
   const [halfTimeEnd, setHalfTimeEnd] = useState(halfTime)
   const [initTimeEnd, setInitTimeEnd] = useState(initTime)
@@ -343,11 +359,13 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       window.removeEventListener('keydown', handleKeyPress)
     }
   }, [handleKeyPress])
-  
   useEffect(() => {
     if (!renderedRef.current) {
       (async () => {
         await connect(setMessage)
+        if (hudlId) {
+          await getHudl(hudlId, setHudl)
+        }
       })()
       renderedRef.current = true
     }
@@ -433,7 +451,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       }, 500)
       return () => clearInterval(interval)
     }
-  }, [chapters, fullMode, halfTimeEnd, homeDirEnd, initTimeEnd, message])
+  }, [chapters, fullMode, halfTimeEnd, homeDirEnd, hudlId, initTimeEnd, message])
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline/>
@@ -474,7 +492,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
               onMouseUp={handleLongPressEnd}
               variant="outlined"
             >
-              <span style={{fontSize: 'small'}}>
+              <span style={{ fontSize: 'small' }}>
                 {halfTimeEnd || 0}
               </span>
             </Button>
@@ -628,7 +646,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
               <ChaptersList chapters={chapters} halfTimeEnd={halfTimeEnd} goTime={goTime} fullMode={fullMode}/>
             }
             {
-              match &&
+              (match && wyView) &&
               <MatchInfo
                 match={match}
                 goTime={goTime}
@@ -638,14 +656,23 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                 mirrorMode={homeDirEnd}
               />
             }
+            {
+              (hudl && !wyView) &&
+              <Hudl
+                hudl={hudl}
+                goTime={goTime}
+              />
+            }
           </Grid>
         </Box>
         <SeekMinute
-          goTime={goTime}
-          period={2}
           fullMode={fullMode}
-          setFullMode={setFullMode}
+          goTime={goTime}
           halfTimeEnd={halfTimeEnd}
+          period={2}
+          setFullMode={setFullMode}
+          setWyView={setWyView}
+          wyView={wyView}
         />
       </Box>
       <Snackbar
