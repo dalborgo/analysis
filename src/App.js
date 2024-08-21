@@ -121,7 +121,6 @@ async function getMatch (id, setMatch) {
   try {
     const response = await fetch(`http://localhost:${PORT}/wyscout/match/${id}`)
     const data = await response.json()
-    console.log('response:', data?.results)
     setMatch(data?.results)
   } catch (error) {
     console.error(error)
@@ -154,7 +153,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const [message, setMessage] = useState({ open: false })
   const [match, setMatch] = useState()
   const [hudl, setHudl] = useState()
-  const [wyView, setWyView] = useState(false)
+  const [wyView, setWyView] = useState(true)
   const [chapters, setChapters] = useState([])
   const [halfTimeEnd, setHalfTimeEnd] = useState(halfTime)
   const [initTimeEnd, setInitTimeEnd] = useState(initTime)

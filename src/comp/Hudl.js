@@ -56,7 +56,7 @@ const Hudl = ({ hudl, goTime }) => {
       </Box>
       {
         hudl &&
-        <Box mt={1}>
+        <Box mt={1} ml={2} mr={2}>
           {
             (hudl || []).map(({ tags, startTimeMs }, index) => {
               function getElement (key) {
