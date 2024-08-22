@@ -224,7 +224,6 @@ const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
                           filter: shouldDisplayAvatar(player.player.thumbId) ? undefined : 'brightness(40%)'
                         }}/>
                     </Tooltip>
-                  
                   </Grid>
                   <Grid item style={{ textAlign: 'right', width: 25 }}>
                     <Tooltip

@@ -658,6 +658,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             {
               (hudl && !wyView) &&
               <Hudl
+                halfTimeEnd={halfTimeEnd}
                 hudl={hudl}
                 goTime={goTime}
               />

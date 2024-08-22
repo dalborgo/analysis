@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Box, Typography } from '@mui/material'
 import Link from '@mui/material/Link'
+import { convertMilli } from '../App'
 
 const renderTitle = title => {
   const parts = title.split('-')
@@ -38,7 +39,7 @@ const renderDay = date => {
   const parts = date.split('/')
   return parts.pop()
 }
-const Hudl = ({ hudl, goTime }) => {
+const Hudl = ({ hudl, goTime, halfTimeEnd }) => {
   const [lastClicked, setLastClicked] = useState(-1)
   return (
     <>
@@ -63,8 +64,29 @@ const Hudl = ({ hudl, goTime }) => {
                 const tag = tags.find(tag => tag.key === key)
                 return tag ? tag.values[0] : '--'
               }
-              
+              const time = convertMilli(startTimeMs, halfTimeEnd)
+              const LineData = <Link
+                onClick={
+                  () => {
+                    goTime(startTimeMs / 1000, true)
+                    setLastClicked(index)
+                  }
+                }
+                style={{
+                  textDecoration: lastClicked === index ? 'underline' : 'none',
+                  color: 'inherit',
+                  cursor: 'pointer'
+                }}
+                variant="body2"
+              >
+                <Typography variant="body1">{renderTitle(getElement('HUDL_CODE'))}</Typography>
+                <p align="justify" style={{ marginTop: 2 }}>
+                  {renderAssessment(getElement('POS/NEG'))} ({time.short}{time.period} {time.long}):&nbsp;
+                  {getElement('HUDL_FREETEXT')}
+                </p>
+              </Link>
               if (index === 0) {
+                console.log('time:', time)
                 return (
                   <Box>
                     <Typography variant="body2" display="inline">
@@ -77,53 +99,11 @@ const Hudl = ({ hudl, goTime }) => {
                     <Typography variant="body2" display="inline">OT: {getElement('O.T.')}</Typography>&nbsp;&nbsp;
                     <Typography variant="body2" display="inline">VAR: {getElement('VAR')}</Typography>&nbsp;&nbsp;
                     <Typography variant="body2" display="inline">AVAR: {getElement('AVAR')}</Typography>
-                    <Link
-                      onClick={
-                        () => {
-                          goTime(startTimeMs / 1000, true)
-                          setLastClicked(index)
-                        }
-                      }
-                      style={{
-                        textDecoration: lastClicked === index ? 'underline' : 'none',
-                        color: 'inherit',
-                        cursor: 'pointer'
-                      }}
-                      variant="body2"
-                    >
-                      <Typography variant="body1" style={{ marginTop: 4 }}>
-                        {renderTitle(getElement('HUDL_CODE'))}
-                      </Typography>
-                      <p align="justify" style={{ marginTop: 2 }}>
-                        {renderAssessment(getElement('POS/NEG'))}:&nbsp;
-                        {getElement('HUDL_FREETEXT')}
-                      </p>
-                    </Link>
+                    {LineData}
                   </Box>
                 )
               } else {
-                return (
-                  <Link
-                    onClick={
-                      () => {
-                        goTime(startTimeMs / 1000, true)
-                        setLastClicked(index)
-                      }
-                    }
-                    style={{
-                      textDecoration: lastClicked === index ? 'underline' : 'none',
-                      color: 'inherit',
-                      cursor: 'pointer'
-                    }}
-                    variant="body2"
-                  >
-                    <Typography variant="body1">{renderTitle(getElement('HUDL_CODE'))}</Typography>
-                    <p align="justify" style={{ marginTop: 2 }}>
-                      {renderAssessment(getElement('POS/NEG'))}:&nbsp;
-                      {getElement('HUDL_FREETEXT')}
-                    </p>
-                  </Link>
-                )
+                return LineData
               }
             })
           }
