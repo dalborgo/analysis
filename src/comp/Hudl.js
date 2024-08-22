@@ -86,7 +86,6 @@ const Hudl = ({ hudl, goTime, halfTimeEnd }) => {
                 </p>
               </Link>
               if (index === 0) {
-                console.log('time:', time)
                 return (
                   <Box>
                     <Typography variant="body2" display="inline">
