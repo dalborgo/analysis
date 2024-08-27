@@ -165,9 +165,9 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const handleLongPressStart = () => {
     setLongPressTriggered(false)
     const timer = setTimeout(() => {
-      setHalfTimeEnd(3000000)
+      setHalfTimeEnd(6000000)
       setInitTimeEnd(0)
-      localStorage.setItem('halfTimeEnd', '3000000')
+      localStorage.setItem('halfTimeEnd', '6000000')
       localStorage.setItem('initTimeEnd', '0')
       localStorage.setItem('homeDirEnd', '0')
       setLongPressTriggered(true)
