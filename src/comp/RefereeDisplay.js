@@ -57,7 +57,7 @@ const RefereeDisplay = ({ match }) => {
       </Box>
       {
         match &&
-        <Box style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }} mt={1}>
+        <Box style={{ display: 'flex', justifyContent: 'center' }} mt={1} gap={5}>
           {
             match.match['referees']?.elements
               .sort((a, b) => {
