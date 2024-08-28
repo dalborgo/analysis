@@ -3,9 +3,10 @@ import Box from '@mui/material/Box'
 import Link from '@mui/material/Link'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { Avatar, Tooltip } from '@mui/material'
+import { Avatar, IconButton, Tooltip } from '@mui/material'
 import parse from 'html-react-parser'
 import { getAree } from './helpers'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 function createSVGWithHighlightedNumber (players, highlightedNumber, isMirrored = false) {
   const svgWidth = 220
@@ -69,6 +70,32 @@ const writeBox = event => {
   elem.value = `${elem.value.trim() ? `${elem.value.trim()} ${text}` : text}`
   elem.focus()
 }
+const ROLES = {
+  'GK': 'Portiere',
+  'DF': 'Difensore',
+  'MD': 'Centrocampista',
+  'AT': 'Attaccante'
+}
+
+const filterByTeam = (players, teamId) => {
+  return players.filter(player => player.teamId === teamId)
+}
+
+const comparePlayers = (a, b, roleOrder) => {
+  if (a.code === 'L' && b.code !== 'L') return -1
+  if (b.code === 'L' && a.code !== 'L') return 1
+  if (a.code === 'SUB' && b.code !== 'SUB') return -1
+  if (b.code === 'SUB' && a.code !== 'SUB') return 1
+  const roleIndexA = roleOrder.indexOf(a.player?.role?.code2)
+  const roleIndexB = roleOrder.indexOf(b.player?.role?.code2)
+  if (roleIndexA !== roleIndexB) return roleIndexA - roleIndexB
+  return a.shirtNumber - b.shirtNumber
+}
+
+const getSortedPlayerList = (players, teamId, roleOrder) => {
+  const filteredPlayers = filterByTeam(players, teamId)
+  return filteredPlayers.sort((a, b) => comparePlayers(a, b, roleOrder))
+}
 
 const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
   const { teamsData } = match['match']
@@ -81,21 +108,21 @@ const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
     if (b.side === 'home') return 1
     return 0
   })
+  console.log('sortedTeams:', sortedTeams)
+  const copyTeam = teamId => () => {
+    const roleOrder = ['GK', 'DF', 'MD', 'AT']
+    let toCopy = ''
+    const list = getSortedPlayerList(players, teamId, roleOrder)
+    for (let single of list) {
+      toCopy += `${single.shirtNumber}\n${single.player?.lastName}\n${ROLES[single.player?.role?.code2]}\n\n`
+    }
+    toCopy += sortedTeams.find(row => row.teamId === teamId)['coach'].lastName + '\nAllenatore\n\n'
+    return toCopy
+  }
   const getTeamPlayers = teamId => {
     let lastCode = null
     const roleOrder = ['GK', 'DF', 'MD', 'AT']
-    return players
-      .filter(player => player.teamId === teamId)
-      .sort((a, b) => {
-        if (a.code === 'L' && b.code !== 'L') return -1
-        if (b.code === 'L' && a.code !== 'L') return 1
-        if (a.code === 'SUB' && b.code !== 'SUB') return -1
-        if (b.code === 'SUB' && a.code !== 'SUB') return 1
-        const roleIndexA = roleOrder.indexOf(a.player?.role?.code2)
-        const roleIndexB = roleOrder.indexOf(b.player?.role?.code2)
-        if (roleIndexA !== roleIndexB) {return roleIndexA - roleIndexB}
-        return a.shirtNumber - b.shirtNumber
-      })
+    return getSortedPlayerList(players, teamId, roleOrder)
       .map(player => {
         const isSubstitute = player.code === 'SUB'
         if (isSubstitute && lastCode !== 'SUB') {
@@ -143,6 +170,7 @@ const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
                 </Tooltip>&nbsp;
               </>
             }&nbsp;
+           
             <Typography variant="body1">All:&nbsp;</Typography>
             <Tooltip
               title={getCoachInfo(team)}
@@ -166,7 +194,17 @@ const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
               <span>
                 ({match['metadata']['scheme' + (index ? 'Away' : 'Home')]})
               </span>
-            </Tooltip>
+            </Tooltip>&nbsp;
+            <CopyToClipboard
+              text={copyTeam(team.teamId)()}
+            >
+              <IconButton
+                size="small"
+                style={{ cursor: 'hand', padding: 0}}
+              >
+                <span style={{ fontSize: 'small', marginTop: -2 }}>📋</span>
+              </IconButton>
+            </CopyToClipboard>
             &nbsp;
             <Tooltip
               title={<img src={match['metadata']['img' + (index ? 'Away' : 'Home')]} alt="img" style={{

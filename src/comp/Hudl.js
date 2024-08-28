@@ -31,8 +31,10 @@ const renderAssessment = value => {
       return <span style={{ color: '#3fc520', fontWeight: 'bold' }}>POS</span>
     case 'NEG':
       return <span style={{ color: 'red', fontWeight: 'bold' }}>NEG</span>
-    default:
+    case 'POS/NEG':
       return <span style={{ color: 'orange', fontWeight: 'bold' }}>POS/NEG</span>
+    default:
+      return <span style={{ color: 'orange', fontWeight: 'bold' }}>NEG/POS</span>
   }
 }
 const renderDay = date => {
@@ -96,6 +98,10 @@ const Hudl = ({ hudl, goTime, halfTimeEnd }) => {
                     </Typography>&nbsp;&nbsp;
                     <Typography variant="body2" display="inline">OA: {getElement('O.A.')}</Typography>&nbsp;&nbsp;
                     <Typography variant="body2" display="inline">OT: {getElement('O.T.')}</Typography>&nbsp;&nbsp;
+                    <Typography variant="body2" display="inline">AE: {getElement('ARBITRO')}</Typography>&nbsp;&nbsp;
+                    <Typography variant="body2" display="inline">AA1: {getElement('A.A. 1')}</Typography>&nbsp;&nbsp;
+                    <Typography variant="body2" display="inline">AA2: {getElement('A.A. 2')}</Typography>&nbsp;&nbsp;
+                    <Typography variant="body2" display="inline">IV: {getElement('IV UDG')}</Typography>&nbsp;&nbsp;
                     <Typography variant="body2" display="inline">VAR: {getElement('VAR')}</Typography>&nbsp;&nbsp;
                     <Typography variant="body2" display="inline">AVAR: {getElement('AVAR')}</Typography>
                     {LineData}
