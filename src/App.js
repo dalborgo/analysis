@@ -30,6 +30,10 @@ const darkTheme = createTheme({
   },
 })
 
+function sleep (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 function extractID (path) {
   const fileName = path.split('\\').pop()
   const pattern = /g(\d+)[^0-9]*/
@@ -256,6 +260,17 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     const to = period === 2 && halfTimeEnd ? minute * 60000 + parseInt(halfTimeEnd) : (minute * 60000) + parseInt(initTimeEnd)
     await tcpCommand(`5000 ${(to - 59000) / 1000}`) // 59 per arrotondamento
   }, [halfTimeEnd, initTimeEnd])
+  const goToEndTime = useCallback(async () => {
+    await tcpCommand('5100 fnReloadCurrent')
+    let endTime
+    do {
+      const { result } = manageResponse(await tcpCommand('1110'))
+      endTime = Number(result)
+      if (Number.isInteger(endTime) && endTime > 100) {break}
+      await sleep(300)
+    } while (true)
+    await goTime(endTime / 1000 - 8, true)
+  }, [goTime])
   const seekMinute = useCallback(async dir => {
     const elem = document.getElementById('time_min')
     const fraction = document.getElementById('fraction')
@@ -547,10 +562,13 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             </Box>
           </Box>
           <Box p={1} justifyContent="center" display="flex" mb={2}>
+            <Button variant="outlined" color="secondary" onClick={goToEndTime} tabIndex={-1} size="small">
+              <span style={{ fontSize: '1rem' }}>{'LIVE'}</span>
+            </Button>&nbsp;
             <Button variant="outlined" color="primary" onClick={skipBackward}>
               <span style={{ fontSize: '1rem' }}>{'<-'}</span>
             </Button>&nbsp;
-            <Box width={'60%'}>
+            <Box width="60%">
               <TextField
                 id="episodeDescription"
                 fullWidth
