@@ -18,7 +18,7 @@ const getListText = (chapters, halfTimeEnd, fullMode) => {
   return output.join('\n')
 }
 
-function ChaptersList ({ chapters = [], goTime, halfTimeEnd, fullMode }) {
+function ChaptersList ({ chapters = [], goTime, initTimeEnd, halfTimeEnd, fullMode }) {
   const [copied, setCopied] = useState('')
   const theme = useTheme()
   const isSmall = useMediaQuery(theme.breakpoints.down('xl'))
@@ -54,7 +54,8 @@ function ChaptersList ({ chapters = [], goTime, halfTimeEnd, fullMode }) {
             >
               {
                 chapters.map((item, index) => {
-                  const time = convertMilli(item.time * 1000, halfTimeEnd)
+                  const time = convertMilli(item.time * 1000, halfTimeEnd, initTimeEnd)
+                  console.log('time:', time)
                   if (isSmall && time.period === 'st') {return null}
                   return (
                     <ListItem

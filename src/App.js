@@ -660,7 +660,13 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
           <Grid container justifyContent="center">
             {
               Boolean(chapters?.length) &&
-              <ChaptersList chapters={chapters} halfTimeEnd={halfTimeEnd} goTime={goTime} fullMode={fullMode}/>
+              <ChaptersList
+                chapters={chapters}
+                fullMode={fullMode}
+                goTime={goTime}
+                halfTimeEnd={halfTimeEnd}
+                initTimeEnd={initTimeEnd}
+              />
             }
             {
               (match && wyView) &&
