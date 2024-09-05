@@ -52,7 +52,7 @@ const renderDay = date => {
   const parts = date.split('/')
   return parts.pop()
 }
-const Hudl = ({ hudl, goTime, halfTimeEnd }) => {
+const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd }) => {
   const [lastClicked, setLastClicked] = useState(-1)
   return (
     <>
@@ -77,11 +77,10 @@ const Hudl = ({ hudl, goTime, halfTimeEnd }) => {
                 const tag = tags.find(tag => tag.key === key)
                 return tag ? tag.values[0] : '--'
               }
-              
-              const time = convertMilli(startTimeMs, halfTimeEnd)
+              const time = convertMilli(startTimeMs, halfTimeEnd, initTimeEnd)
               const [title, rawTitle] = renderTitle(getElement('HUDL_CODE'))
               const [assessments, rawAssessment_] = renderAssessment(getElement('POS/NEG'))
-              const rawAssessment = `${rawAssessment_} (${time.short}${time.period} ${time.long})`
+              const rawAssessment = `${rawAssessment_} (${initTimeEnd ? time.short: ''}${initTimeEnd ? `${time.period} ` : ''}${time.long})`
               const text = getElement('HUDL_FREETEXT')
               const LineData = <Box>
                 <CopyToClipboard
@@ -110,7 +109,7 @@ const Hudl = ({ hudl, goTime, halfTimeEnd }) => {
                 >
                   <Typography variant="body1">{title}</Typography>
                   <p align="justify" style={{ marginTop: 2 }}>
-                    {assessments} ({time.short}{time.period} {time.long}):&nbsp;
+                    {assessments} ({initTimeEnd ? time.short: ''}{initTimeEnd ? `${time.period} ` : ''}{time.long}):&nbsp;
                     {text}
                   </p>
                 </Link>

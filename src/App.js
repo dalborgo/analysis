@@ -684,6 +684,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
               <Hudl
                 halfTimeEnd={halfTimeEnd}
                 hudl={hudl}
+                initTimeEnd={initTimeEnd}
                 goTime={goTime}
               />
             }
