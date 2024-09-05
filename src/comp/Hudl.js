@@ -1,40 +1,51 @@
 import React, { useState } from 'react'
-import { Box, Typography } from '@mui/material'
+import { Box, IconButton, Typography } from '@mui/material'
 import Link from '@mui/material/Link'
 import { convertMilli } from '../App'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 const renderTitle = title => {
   const parts = title.split('-')
   const filtered = parts.filter((_, index) => index !== 1 && index !== 2)
-  return filtered.map((chunk, index) => {
-    switch (index) {
-      case 0:
-        return <span>[{chunk}]</span>
-      case 1:
-        return <span style={{ marginLeft: chunk ? 8 : 0, color: '#90CAF9' }}>{chunk}</span>
-      case 2:
-        return <span style={{ marginLeft: chunk ? 10 : 0, color: '#a2f890' }}>{chunk}</span>
-      case 3:
-        return <span style={{ marginLeft: chunk ? 10 : 0, color: '#f5afef' }}>{chunk}</span>
-      case 4:
-        return <span style={{ marginLeft: chunk ? 10 : 0, color: '#f9fd9c' }}>{chunk}</span>
-      case 5:
-        return <span style={{ marginLeft: chunk ? 10 : 0, color: '#E1BA75' }}>{chunk}</span>
-      default:
-        return chunk
-    }
-  })
+  return [
+    filtered.map((chunk, index) => {
+      switch (index) {
+        case 0:
+          return <span>[{chunk}]</span>
+        case 1:
+          return <span style={{ marginLeft: chunk ? 8 : 0, color: '#90CAF9' }}>{chunk}</span>
+        case 2:
+          return <span style={{ marginLeft: chunk ? 10 : 0, color: '#a2f890' }}>{chunk}</span>
+        case 3:
+          return <span style={{ marginLeft: chunk ? 10 : 0, color: '#f5afef' }}>{chunk}</span>
+        case 4:
+          return <span style={{ marginLeft: chunk ? 10 : 0, color: '#f9fd9c' }}>{chunk}</span>
+        case 5:
+          return <span style={{ marginLeft: chunk ? 10 : 0, color: '#E1BA75' }}>{chunk}</span>
+        default:
+          return chunk
+      }
+    }),
+    filtered.map((chunk, index) => {
+      switch (index) {
+        case 0:
+          return `[${chunk}]`
+        default:
+          return chunk
+      }
+    })
+  ]
 }
 const renderAssessment = value => {
   switch (value) {
     case 'POS':
-      return <span style={{ color: '#3fc520', fontWeight: 'bold' }}>POS</span>
+      return [<span style={{ color: '#3fc520', fontWeight: 'bold' }}>POS</span>, 'POS']
     case 'NEG':
-      return <span style={{ color: 'red', fontWeight: 'bold' }}>NEG</span>
+      return [<span style={{ color: 'red', fontWeight: 'bold' }}>NEG</span>, 'NEG']
     case 'POS/NEG':
-      return <span style={{ color: 'orange', fontWeight: 'bold' }}>POS/NEG</span>
+      return [<span style={{ color: 'orange', fontWeight: 'bold' }}>POS/NEG</span>, 'POS/NEG']
     default:
-      return <span style={{ color: 'orange', fontWeight: 'bold' }}>NEG/POS</span>
+      return [<span style={{ color: 'orange', fontWeight: 'bold' }}>NEG/POS</span>, 'NEG/POS']
   }
 }
 const renderDay = date => {
@@ -66,27 +77,44 @@ const Hudl = ({ hudl, goTime, halfTimeEnd }) => {
                 const tag = tags.find(tag => tag.key === key)
                 return tag ? tag.values[0] : '--'
               }
+              
               const time = convertMilli(startTimeMs, halfTimeEnd)
-              const LineData = <Link
-                onClick={
-                  () => {
-                    goTime(startTimeMs / 1000, true)
-                    setLastClicked(index)
+              const [title, rawTitle] = renderTitle(getElement('HUDL_CODE'))
+              const [assessments, rawAssessment_] = renderAssessment(getElement('POS/NEG'))
+              const rawAssessment = `${rawAssessment_} (${time.short}${time.period} ${time.long})`
+              const text = getElement('HUDL_FREETEXT')
+              const LineData = <Box>
+                <CopyToClipboard
+                  text={rawTitle.join(' ') + '\n' + rawAssessment + ' ' + text}
+                >
+                  <IconButton
+                    size="small"
+                    style={{ cursor: 'hand', padding: 0, float: 'left', marginTop: 4, marginRight: 2 }}
+                  >
+                    <span style={{ fontSize: 'small', marginTop: -2 }}>📋</span>
+                  </IconButton>
+                </CopyToClipboard>
+                <Link
+                  onClick={
+                    () => {
+                      goTime(startTimeMs / 1000, true)
+                      setLastClicked(index)
+                    }
                   }
-                }
-                style={{
-                  textDecoration: lastClicked === index ? 'underline' : 'none',
-                  color: 'inherit',
-                  cursor: 'pointer'
-                }}
-                variant="body2"
-              >
-                <Typography variant="body1">{renderTitle(getElement('HUDL_CODE'))}</Typography>
-                <p align="justify" style={{ marginTop: 2 }}>
-                  {renderAssessment(getElement('POS/NEG'))} ({time.short}{time.period} {time.long}):&nbsp;
-                  {getElement('HUDL_FREETEXT')}
-                </p>
-              </Link>
+                  style={{
+                    textDecoration: lastClicked === index ? 'underline' : 'none',
+                    color: 'inherit',
+                    cursor: 'pointer',
+                  }}
+                  variant="body2"
+                >
+                  <Typography variant="body1">{title}</Typography>
+                  <p align="justify" style={{ marginTop: 2 }}>
+                    {assessments} ({time.short}{time.period} {time.long}):&nbsp;
+                    {text}
+                  </p>
+                </Link>
+              </Box>
               if (index === 0) {
                 return (
                   <Box>
