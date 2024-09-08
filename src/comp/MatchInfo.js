@@ -116,7 +116,7 @@ const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
     for (let single of list) {
       toCopy += `${single.shirtNumber}\n${single.player?.lastName}\n${ROLES[single.player?.role?.code2]}\n\n`
     }
-    toCopy += sortedTeams.find(row => row.teamId === teamId)['coach'].lastName + '\nAllenatore\n\n'
+    toCopy += sortedTeams.find(row => row.teamId === teamId)?.['coach']?.lastName + '\nAllenatore\n\n'
     return toCopy
   }
   const getTeamPlayers = teamId => {
