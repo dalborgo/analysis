@@ -154,6 +154,7 @@ async function getChapters (file, setChapters) {
 export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const queryParams = new URLSearchParams(window.location.search)
   const hudlId = queryParams.get('hudl')
+  const [showLong, setShowLong] = useState(false)
   const [message, setMessage] = useState({ open: false })
   const [match, setMatch] = useState()
   const [hudl, setHudl] = useState()
@@ -416,6 +417,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             const fractionElem = document.getElementById('fraction')
             const direction = document.getElementById('direction')
             const time = convertMilli(parseInt(result), halfTimeEnd, initTimeEnd, fullMode)
+            console.log('time:', time)
             if (elemEff) {elemEff.textContent = time.effectiveLong}
             elemLong.textContent = time.long
             elemShort.textContent = time.short
@@ -515,8 +517,10 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
           <input id="milliBox" style={{ display: 'none' }}/>
           <Box
             id="time"
+            onClick={() => setShowLong(!showLong)}
             p={0}
             sx={{
+              cursor: 'pointer',
               fontSize: '2rem',
               textAlign: 'center',
               width: '100%',
@@ -526,11 +530,11 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             --:--
           </Box>
           <Box
-            display="none"
+            display={showLong ? undefined : 'none'}
             id="time_long"
             p={0}
             sx={{
-              fontSize: '0.8rem',
+              fontSize: '1rem',
               textAlign: 'center',
               width: '100%',
               margin: 'auto',
