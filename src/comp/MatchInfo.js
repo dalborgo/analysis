@@ -108,7 +108,6 @@ const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
     if (b.side === 'home') return 1
     return 0
   })
-  console.log('sortedTeams:', sortedTeams)
   const copyTeam = teamId => () => {
     const roleOrder = ['GK', 'DF', 'MD', 'AT']
     let toCopy = ''

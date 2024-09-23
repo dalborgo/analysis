@@ -55,7 +55,6 @@ function ChaptersList ({ chapters = [], goTime, initTimeEnd, halfTimeEnd, fullMo
               {
                 chapters.map((item, index) => {
                   const time = convertMilli(item.time * 1000, halfTimeEnd, initTimeEnd)
-                  console.log('time:', time)
                   if (isSmall && time.period === 'st') {return null}
                   return (
                     <ListItem

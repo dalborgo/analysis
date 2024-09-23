@@ -264,6 +264,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const goToEndTime = useCallback(async () => {
     await tcpCommand('5100 fnReloadCurrent')
     let endTime
+    await sleep(1000)
     do {
       const { result } = manageResponse(await tcpCommand('1110'))
       endTime = Number(result)
@@ -417,7 +418,6 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             const fractionElem = document.getElementById('fraction')
             const direction = document.getElementById('direction')
             const time = convertMilli(parseInt(result), halfTimeEnd, initTimeEnd, fullMode)
-            console.log('time:', time)
             if (elemEff) {elemEff.textContent = time.effectiveLong}
             elemLong.textContent = time.long
             elemShort.textContent = time.short
