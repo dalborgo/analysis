@@ -255,6 +255,12 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const skipBackward = useCallback(async () => {
     await tcpCommand('5100 fnSkipBackward')
   }, [])
+  const prevFrame = useCallback(async () => {
+    await tcpCommand('5100 fnPrevFrame')
+  }, [])
+  const nextFrame = useCallback(async () => {
+    await tcpCommand('5100 fnNextFrame')
+  }, [])
   const goTime = useCallback(async (eventTime, direct = false) => {
     if (direct) {return tcpCommand(`5000 ${eventTime}`)}
     const { minute, period } = eventTime || {}
@@ -321,12 +327,23 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     if (!isFocused) {
       switch (event.key) {
         case 'ArrowRight':
+          event.preventDefault()
           skipForward()
           return
         case 'ArrowLeft':
+          event.preventDefault()
           skipBackward()
           return
+        case 'ArrowUp':
+          event.preventDefault()
+          nextFrame()
+          return
+        case 'ArrowDown':
+          event.preventDefault()
+          prevFrame()
+          return
         case ' ':
+          event.preventDefault()
           play()
           return
         default:
@@ -368,7 +385,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
         break
     }
     elem.focus()
-  }, [isFocused, skipForward, skipBackward, play])
+  }, [isFocused, skipForward, skipBackward, prevFrame, nextFrame, play])
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress)
     return () => {
