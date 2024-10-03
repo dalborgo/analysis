@@ -43,6 +43,8 @@ const getEventImageUrl = eventType => {
       return '/static/gr.svg'
     case 'RED_CARD':
       return '/static/rosso.svg'
+    case 'GOAL_OWN':
+      return '/static/own.svg'
     case 'GOAL':
       return '/static/goal.svg'
     case 'GOAL_PENALTY':

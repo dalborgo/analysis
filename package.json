@@ -19,7 +19,7 @@
   "scripts": {
     "start": "set PORT=3005&&react-scripts start",
     "build": "react-scripts build",
-    "postbuild": "copy D:\\proj\\analysis\\server.js D:\\proj\\analysis\\build\\server.js"
+    "postbuild": "copy E:\\proj\\analysis\\server.js E:\\proj\\analysis\\build\\server.js"
   },
   "eslintConfig": {
     "extends": [
