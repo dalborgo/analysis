@@ -84,7 +84,7 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd }) => {
               const text = getElement('HUDL_FREETEXT')
               const LineData = <Box>
                 <CopyToClipboard
-                  text={rawTitle.join(' ') + '\n' + rawAssessment + ' ' + text}
+                  text={rawTitle.join(' ') + ' [OA ' + getElement('O.A.') + ']\n' + rawAssessment + ' ' + text}
                 >
                   <IconButton
                     size="small"
