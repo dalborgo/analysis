@@ -274,7 +274,11 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     const { result } = manageResponse(await tcpCommand('1110'))
     endTime = Number(result)
     if (Number.isInteger(endTime) && endTime > 100) {
-      setMessage({ open: true, text: 'Perfect!', severity: 'success' })
+      const text = 'Perfect!'
+      setMessage({ open: true, text, severity: 'success' })
+      setTimeout(() => {
+        setMessage({ ...message, text, open: false })
+      }, 1000)
     }
     /*do {
       const { result } = manageResponse(await tcpCommand('1110'))
@@ -283,7 +287,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       await sleep(300)
     } while (true)*/
     await goTime(endTime / 1000 - 8, true)
-  }, [goTime])
+  }, [goTime, message])
   const seekMinute = useCallback(async dir => {
     const elem = document.getElementById('time_min')
     const fraction = document.getElementById('fraction')
