@@ -270,13 +270,18 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const goToEndTime = useCallback(async () => {
     await tcpCommand('5100 fnReloadCurrent')
     let endTime
-    await sleep(1000)
-    do {
+    await sleep(2000)
+    const { result } = manageResponse(await tcpCommand('1110'))
+    endTime = Number(result)
+    if (Number.isInteger(endTime) && endTime > 100) {
+      setMessage({ open: true, text: 'Perfect!', severity: 'success' })
+    }
+    /*do {
       const { result } = manageResponse(await tcpCommand('1110'))
       endTime = Number(result)
       if (Number.isInteger(endTime) && endTime > 100) {break}
       await sleep(300)
-    } while (true)
+    } while (true)*/
     await goTime(endTime / 1000 - 8, true)
   }, [goTime])
   const seekMinute = useCallback(async dir => {
@@ -584,7 +589,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
           </Box>
           <Box p={1} justifyContent="center" display="flex" mb={2}>
             <Button variant="outlined" color="secondary" onClick={goToEndTime} tabIndex={-1} size="small">
-              <span style={{ fontSize: '1rem' }}>{'LIVE'}</span>
+              <span style={{ fontSize: '1rem' }}>LIVE</span>
             </Button>&nbsp;
             <Button variant="outlined" color="primary" onClick={skipBackward}>
               <span style={{ fontSize: '1rem' }}>{'<-'}</span>
