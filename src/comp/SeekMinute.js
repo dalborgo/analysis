@@ -72,7 +72,6 @@ function SeekMinute ({ goTime, period = 1, setFullMode, fullMode, halfTimeEnd, w
             </List>&nbsp;&nbsp;
           </Box>
         </Box>
-      
       </ThemeProvider>
     </Box>
   )
