@@ -23,7 +23,7 @@ import DataArrayIcon from '@mui/icons-material/DataArray'
 import Hudl from './comp/Hudl'
 
 const PORT = envConfig['BACKEND_PORT']
-const system = 'zoom'
+const player = 'zoom'
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
@@ -92,7 +92,7 @@ function print (data) {
 
 const tcpCommand = async command => {
   try {
-    const response = await fetch(`http://localhost:${PORT}/${system}/command?code=${command}`)
+    const response = await fetch(`http://localhost:${PORT}/${player}/command?code=${command}`)
     const data = await response.json()
     return print(data)
   } catch (error) {
@@ -112,7 +112,7 @@ function manageResponse ({ text }) {
 
 async function connect (setMessage) {
   try {
-    const response = await fetch(`http://localhost:${PORT}/${system}/connect`)
+    const response = await fetch(`http://localhost:${PORT}/${player}/connect`)
     const data = await response.json()
     setMessage(print(data))
   } catch (error) {
@@ -143,7 +143,7 @@ async function getHudl (id, setHudl) {
 
 async function getChapters (file, setChapters) {
   try {
-    const response = await fetch(`http://localhost:${PORT}/${system}/chapters?file=${file}`)
+    const response = await fetch(`http://localhost:${PORT}/${player}/chapters?file=${file}`)
     const data = await response.json()
     setChapters(data?.results ?? [])
   } catch (error) {
@@ -236,7 +236,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     const response = await tcpCommand('5100 fnAddChapter')
     await tcpCommand('5100 fnSaveChapter')
     const { result: file } = manageResponse(await tcpCommand('1800'))
-    await fetch(`http://localhost:${PORT}/${system}/write-bookmark`, {
+    await fetch(`http://localhost:${PORT}/${player}/write-bookmark`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
