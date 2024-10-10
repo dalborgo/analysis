@@ -22,8 +22,10 @@ import TagIcon from '@mui/icons-material/Tag'
 import DataArrayIcon from '@mui/icons-material/DataArray'
 import Hudl from './comp/Hudl'
 
+const queryParams = new URLSearchParams(window.location.search)
+const hudlId = queryParams.get('hudl')
+const player = queryParams.get('p') || 'zoom'
 const PORT = envConfig['BACKEND_PORT']
-const player = 'zoom'
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
@@ -143,7 +145,7 @@ async function getHudl (id, setHudl) {
 
 async function getChapters (file, setChapters) {
   try {
-    const response = await fetch(`http://localhost:${PORT}/${player}/chapters?file=${file}`)
+    const response = await fetch(`http://localhost:${PORT}/zoom/chapters?file=${file}`)
     const data = await response.json()
     setChapters(data?.results ?? [])
   } catch (error) {
@@ -152,8 +154,6 @@ async function getChapters (file, setChapters) {
 }
 
 export default function App ({ halfTime, initTime = 0, homeDir = false }) {
-  const queryParams = new URLSearchParams(window.location.search)
-  const hudlId = queryParams.get('hudl')
   const [showLong, setShowLong] = useState(false)
   const [message, setMessage] = useState({ open: false })
   const [match, setMatch] = useState()
@@ -256,9 +256,21 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     await tcpCommand('5100 fnSkipBackward')
   }, [])
   const prevFrame = useCallback(async () => {
+    if (player === 'vlc') {
+      const button = document.getElementById('play')
+      if (button.textContent === '⏸') {
+        button.click()
+      }
+    }
     await tcpCommand('5100 fnPrevFrame')
   }, [])
   const nextFrame = useCallback(async () => {
+    if (player === 'vlc') {
+      const button = document.getElementById('play')
+      if (button.textContent === '⏸') {
+        button.click()
+      }
+    }
     await tcpCommand('5100 fnNextFrame')
   }, [])
   const goTime = useCallback(async (eventTime, direct = false) => {
@@ -416,7 +428,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
         const { result: file } = manageResponse(await tcpCommand('1800'))
         const title = document.getElementById('title')
         const filePattern = /^[a-zA-Z]:\\(?:[^\\:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]+\.[a-zA-Z0-9]+$/
-        if (filePattern.test(file)) {
+        if (filePattern.test(file) || (player === 'vlc' && file !== 'from VLC Player')) {
           if (title.textContent !== file) {
             const id = extractID(file)
             if (id) {
@@ -444,9 +456,9 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             const fractionElem = document.getElementById('fraction')
             const direction = document.getElementById('direction')
             const time = convertMilli(parseInt(result), halfTimeEnd, initTimeEnd, fullMode)
-            if (elemEff) {elemEff.textContent = time.effectiveLong}
-            elemLong.textContent = time.long
-            elemShort.textContent = time.short
+            if (elemEff) {elemEff.textContent = time.effectiveLong === 'NaN:NaN' ? '--:--' : time.effectiveLong}
+            elemLong.textContent = time.long === 'NaN:NaN:NaN' ? '--:--' : time.long
+            elemShort.textContent = time.short === 'NaN′' ? '--' : time.short
             milliBox.value = result
             if (fractionElem && !time.short.startsWith('0')) {
               const nextPeriod = parseInt(result) > parseInt(halfTimeEnd) ? 'st' : 'pt'
@@ -493,7 +505,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       }, 500)
       return () => clearInterval(interval)
     }
-  }, [chapters, fullMode, halfTimeEnd, homeDirEnd, hudlId, initTimeEnd, message])
+  }, [chapters, fullMode, halfTimeEnd, homeDirEnd, initTimeEnd, message])
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline/>
