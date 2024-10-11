@@ -153,6 +153,19 @@ async function getChapters (file, setChapters) {
   }
 }
 
+const switchPlayer = () => {
+  const newPlayer = player === 'zoom' ? 'vlc' : 'zoom'
+  const url = new URL(window.location.href)
+  
+  url.searchParams.set('p', newPlayer)
+  
+  if (hudlId) {
+    url.searchParams.set('hudl', hudlId)
+  }
+  
+  window.location.href = url.toString()
+}
+
 export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const [showLong, setShowLong] = useState(false)
   const [message, setMessage] = useState({ open: false })
@@ -281,16 +294,25 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   }, [halfTimeEnd, initTimeEnd])
   const goToEndTime = useCallback(async () => {
     await tcpCommand('5100 fnReloadCurrent')
-    let endTime
-    await sleep(2000)
-    const { result } = manageResponse(await tcpCommand('1110'))
-    endTime = Number(result)
-    if (Number.isInteger(endTime) && endTime > 100) {
+    if (player === 'vlc') {
       const text = 'Perfect!'
       setMessage({ open: true, text, severity: 'success' })
       setTimeout(() => {
         setMessage({ ...message, text, open: false })
       }, 1000)
+    } else {
+      let endTime
+      await sleep(2000)
+      const { result } = manageResponse(await tcpCommand('1110'))
+      endTime = Number(result)
+      if (Number.isInteger(endTime) && endTime > 100) {
+        const text = 'Perfect!'
+        setMessage({ open: true, text, severity: 'success' })
+        setTimeout(() => {
+          setMessage({ ...message, text, open: false })
+        }, 1000)
+      }
+      await goTime(endTime / 1000 - 8, true)
     }
     /*do {
       const { result } = manageResponse(await tcpCommand('1110'))
@@ -298,7 +320,6 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       if (Number.isInteger(endTime) && endTime > 100) {break}
       await sleep(300)
     } while (true)*/
-    await goTime(endTime / 1000 - 8, true)
   }, [goTime, message])
   const seekMinute = useCallback(async dir => {
     const elem = document.getElementById('time_min')
@@ -697,6 +718,10 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             </Button>&nbsp;
             <Button variant="outlined" color="primary" onClick={play} tabIndex={-1}>
               <span id="play" style={{ fontSize: '1rem' }}>⧗</span>
+            </Button>&nbsp;
+            <Button variant="outlined" color={player === 'zoom' ? 'primary' : 'secondary'} onClick={switchPlayer}
+                    tabIndex={-1}>
+              <span style={{ fontSize: '1rem' }}>{player === 'zoom' ? 'Z' : 'V'}</span>
             </Button>
           </Box>
           <Grid container justifyContent="center">
