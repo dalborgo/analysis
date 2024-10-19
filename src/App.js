@@ -213,6 +213,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     }
   }, [chapters])
   const saveChapter = useCallback(async () => {
+    if (player === 'vlc') {return}
     const episodeDescription = document.getElementById('episodeDescription')
     const episode = episodeDescription.value
     const elem = document.getElementById('milliBox')
