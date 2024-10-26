@@ -197,7 +197,9 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     clearTimeout(longPressTimer)
   }
   const renderedRef = useRef(false)
-  const handleClose = () => setMessage({ ...message, open: false })
+  const handleClose = useCallback(() => {
+    setMessage({ ...message, open: false })
+  }, [message])
   const play = useCallback(async () => {
     await tcpCommand('5100 fnPlay')
     const { result: status } = manageResponse(await tcpCommand('1000'))
@@ -295,23 +297,15 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   }, [halfTimeEnd, initTimeEnd])
   const goToEndTime = useCallback(async () => {
     await tcpCommand('5100 fnReloadCurrent')
+    const text = 'Perfect!'
     if (player === 'vlc') {
-      const text = 'Perfect!'
       setMessage({ open: true, text, severity: 'success' })
-      setTimeout(() => {
-        setMessage({ ...message, text, open: false })
-      }, 1000)
     } else {
-      let endTime
       await sleep(2000)
       const { result } = manageResponse(await tcpCommand('1110'))
-      endTime = Number(result)
+      const endTime = Number(result)
       if (Number.isInteger(endTime) && endTime > 100) {
-        const text = 'Perfect!'
         setMessage({ open: true, text, severity: 'success' })
-        setTimeout(() => {
-          setMessage({ ...message, text, open: false })
-        }, 1000)
       }
       await goTime(endTime / 1000 - 8, true)
     }
@@ -321,7 +315,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       if (Number.isInteger(endTime) && endTime > 100) {break}
       await sleep(300)
     } while (true)*/
-  }, [goTime, message])
+  }, [goTime])
   const seekMinute = useCallback(async dir => {
     const elem = document.getElementById('time_min')
     const fraction = document.getElementById('fraction')
@@ -427,7 +421,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       default:
         break
     }
-    elem.focus()
+    if (!(player === 'vlc' && event.code === 'Enter')) {elem.focus()}
   }, [isFocused, skipForward, skipBackward, prevFrame, nextFrame, play])
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress)
@@ -435,6 +429,14 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       window.removeEventListener('keydown', handleKeyPress)
     }
   }, [handleKeyPress])
+  useEffect(() => {
+    if (message.open && message.severity === 'success') {
+      const timer = setTimeout(() => {
+        handleClose()
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [message, handleClose])
   useEffect(() => {
     if (!renderedRef.current) {
       (async () => {
@@ -650,7 +652,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                 }}
                 onKeyPress={(event) => {
                   if (event.key === 'Enter') {
-                    saveChapter()
+                    player === 'zoom' && saveChapter()
                     event.preventDefault()
                   }
                 }}
@@ -714,9 +716,14 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             <Button variant="outlined" color="primary" onClick={skipForward} tabIndex={-1}>
               <span style={{ fontSize: '1rem' }}>{'->'}</span>
             </Button>&nbsp;
-            <Button variant="outlined" color="primary" onClick={saveChapter} tabIndex={-1}>
-              SALVA
-            </Button>&nbsp;
+            {
+              player === 'zoom' &&
+              <>
+                <Button variant="outlined" color="primary" onClick={saveChapter} tabIndex={-1}>
+                  SALVA
+                </Button>&nbsp;
+              </>
+            }
             <Button variant="outlined" color="primary" onClick={play} tabIndex={-1}>
               <span id="play" style={{ fontSize: '1rem' }}>⧗</span>
             </Button>&nbsp;
