@@ -421,7 +421,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       default:
         break
     }
-    if (!(player === 'vlc' && event.code === 'Enter')) {elem.focus()}
+    elem.focus()
   }, [isFocused, skipForward, skipBackward, prevFrame, nextFrame, play])
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress)
