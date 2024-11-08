@@ -734,7 +734,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
           </Box>
           <Grid container justifyContent="center">
             {
-              Boolean(chapters?.length) &&
+              (Boolean(chapters?.length) && wyView) &&
               <ChaptersList
                 chapters={chapters}
                 fullMode={fullMode}
