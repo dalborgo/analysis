@@ -214,6 +214,9 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       button.textContent = '▶'
     }
   }, [chapters])
+  const showBar = useCallback(async () => {
+    await tcpCommand('5100 fnBar')
+  }, [])
   const saveChapter = useCallback(async () => {
     if (player === 'vlc') {return}
     const episodeDescription = document.getElementById('episodeDescription')
@@ -379,6 +382,10 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
           event.preventDefault()
           prevFrame()
           return
+        case 'Backspace':
+          event.preventDefault()
+          showBar()
+          return
         case ' ':
           event.preventDefault()
           play()
@@ -422,7 +429,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
         break
     }
     elem.focus()
-  }, [isFocused, skipForward, skipBackward, prevFrame, nextFrame, play])
+  }, [isFocused, skipForward, skipBackward, nextFrame, prevFrame, showBar, play])
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress)
     return () => {
