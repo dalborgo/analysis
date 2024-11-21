@@ -52,6 +52,12 @@ const renderDay = date => {
   const parts = date.split('/')
   return parts.pop()
 }
+const predefinedStrings = ['Espulsione', 'DOGSO', 'RIGORE', 'Seconda Ammonizione', 'Grave Fallo di Gioco', 'Condotta Violenta', 'Reta Annullata', 'Fattuale']
+
+function containsAny (targetString) {
+  return predefinedStrings.some(str => targetString.includes(str) && !targetString.includes('OK'))
+}
+
 const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd }) => {
   const [lastClicked, setLastClicked] = useState(-1)
   return (
@@ -77,11 +83,19 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd }) => {
                 const tag = tags.find(tag => tag.key === key)
                 return tag ? tag.values[0] : '--'
               }
+  
               const time = convertMilli(startTimeMs, halfTimeEnd, initTimeEnd)
               const [title, rawTitle] = renderTitle(getElement('HUDL_CODE'))
               const [assessments, rawAssessment_] = renderAssessment(getElement('POS/NEG'))
-              const rawAssessment = `${rawAssessment_} (${initTimeEnd ? time.short: ''}${initTimeEnd ? `${time.period} ` : ''}${time.long})`
-              const text = getElement('HUDL_FREETEXT')
+              const rawAssessment = `${rawAssessment_} (${initTimeEnd ? time.short : ''}${initTimeEnd ? `${time.period} ` : ''}${time.long})`
+              const hasNegative = ['NEG', 'POS/NEG', 'NEG/POS'].includes(getElement('POS/NEG')) ? 1 : 0
+              const highlightNeg = hasNegative === 1 && Boolean(containsAny(getElement('HUDL_CODE')))
+              const text = highlightNeg ?
+                getElement('POS/NEG') === 'NEG' ?
+                  <span style={{ color: 'red' }}>{getElement('HUDL_FREETEXT')}</span>
+                  :
+                  <span style={{ color: 'orange' }}>{getElement('HUDL_FREETEXT')}</span>
+                : getElement('HUDL_FREETEXT')
               const LineData = <Box>
                 <CopyToClipboard
                   text={rawTitle.join(' ') + ' [OA ' + getElement('O.A.') + ']\n' + rawAssessment + ' ' + text}
@@ -109,7 +123,7 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd }) => {
                 >
                   <Typography variant="body1">{title}</Typography>
                   <p align="justify" style={{ marginTop: 2 }}>
-                    {assessments} ({initTimeEnd ? time.short: ''}{initTimeEnd ? `${time.period} ` : ''}{time.long}):&nbsp;
+                    {assessments} ({initTimeEnd ? time.short : ''}{initTimeEnd ? `${time.period} ` : ''}{time.long}):&nbsp;
                     {text}
                   </p>
                 </Link>
