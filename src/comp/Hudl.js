@@ -83,22 +83,22 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd }) => {
                 const tag = tags.find(tag => tag.key === key)
                 return tag ? tag.values[0] : '--'
               }
-  
               const time = convertMilli(startTimeMs, halfTimeEnd, initTimeEnd)
               const [title, rawTitle] = renderTitle(getElement('HUDL_CODE'))
               const [assessments, rawAssessment_] = renderAssessment(getElement('POS/NEG'))
               const rawAssessment = `${rawAssessment_} (${initTimeEnd ? time.short : ''}${initTimeEnd ? `${time.period} ` : ''}${time.long})`
               const hasNegative = ['NEG', 'POS/NEG', 'NEG/POS'].includes(getElement('POS/NEG')) ? 1 : 0
               const highlightNeg = hasNegative === 1 && Boolean(containsAny(getElement('HUDL_CODE')))
+              const toCopyText = getElement('HUDL_FREETEXT')
               const text = highlightNeg ?
                 getElement('POS/NEG') === 'NEG' ?
-                  <span style={{ color: 'red' }}>{getElement('HUDL_FREETEXT')}</span>
+                  <span style={{ color: 'red' }}>{toCopyText}</span>
                   :
-                  <span style={{ color: 'orange' }}>{getElement('HUDL_FREETEXT')}</span>
-                : getElement('HUDL_FREETEXT')
+                  <span style={{ color: 'orange' }}>{toCopyText}</span>
+                : toCopyText
               const LineData = <Box>
                 <CopyToClipboard
-                  text={rawTitle.join(' ') + ' [OA ' + getElement('O.A.') + ']\n' + rawAssessment + ' ' + text}
+                  text={rawTitle.join(' ') + ' [OA ' + getElement('O.A.') + ']\n' + rawAssessment + ' ' + toCopyText}
                 >
                   <IconButton
                     size="small"
