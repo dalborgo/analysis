@@ -217,6 +217,9 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const showBar = useCallback(async () => {
     await tcpCommand('5100 fnBar')
   }, [])
+  const minimize = useCallback(async () => {
+    await tcpCommand('5100 fnMinimize')
+  }, [])
   const saveChapter = useCallback(async () => {
     if (player === 'vlc') {return}
     const episodeDescription = document.getElementById('episodeDescription')
@@ -385,6 +388,10 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
         case 'Backspace':
           event.preventDefault()
           showBar()
+          return
+        case 'End':
+          event.preventDefault()
+          minimize()
           return
         case ' ':
           event.preventDefault()
