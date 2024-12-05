@@ -55,7 +55,7 @@ const renderDay = date => {
 const predefinedStrings = ['Espulsione', 'DOGSO', 'RIGORE', 'Seconda Ammonizione', 'Grave Fallo di Gioco', 'Condotta Violenta', 'Reta Annullata', 'Fattuale']
 
 function containsAny (targetString) {
-  return predefinedStrings.some(str => targetString.includes(str) && !targetString.includes('OK'))
+  return predefinedStrings.some(str => targetString.includes(str) && !targetString.includes('Non Concesso OK'))
 }
 
 const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd }) => {
