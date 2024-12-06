@@ -436,7 +436,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
         break
     }
     elem.focus()
-  }, [isFocused, skipForward, skipBackward, nextFrame, prevFrame, showBar, play])
+  }, [isFocused, skipForward, skipBackward, nextFrame, prevFrame, showBar, minimize, play])
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress)
     return () => {
