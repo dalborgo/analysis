@@ -495,9 +495,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             const direction = document.getElementById('direction')
             const time = convertMilli(parseInt(result), halfTimeEnd, initTimeEnd, fullMode)
             if (elemEff) {elemEff.textContent = time.effectiveLong === 'NaN:NaN' ? '--:--' : time.effectiveLong}
-            if (elemLong) {
-              elemLong.textContent = time.long === 'NaN:NaN:NaN' ? '--:--' : time.long
-            }
+            if (elemLong) {elemLong.textContent = time.long === 'NaN:NaN:NaN' ? '--:--' : time.long}
             elemShort.textContent = time.short === 'NaN′' ? '--' : time.short
             milliBox.value = result
             if (fractionElem && !time.short.startsWith('0')) {
