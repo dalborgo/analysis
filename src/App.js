@@ -220,6 +220,12 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const minimize = useCallback(async () => {
     await tcpCommand('5100 fnMinimize')
   }, [])
+  const seekLongAhead = useCallback(async () => {
+    await tcpCommand('5100 fnSeekForward')
+  }, [])
+  const seekLongBack = useCallback(async () => {
+    await tcpCommand('5100 fnSeekBackward')
+  }, [])
   const saveChapter = useCallback(async () => {
     if (player === 'vlc') {return}
     const episodeDescription = document.getElementById('episodeDescription')
@@ -393,6 +399,14 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
           event.preventDefault()
           minimize()
           return
+        case 'Home':
+          event.preventDefault()
+          seekLongAhead()
+          return
+        case 'Insert':
+          event.preventDefault()
+          seekLongBack()
+          return
         case ' ':
           event.preventDefault()
           play()
@@ -436,7 +450,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
         break
     }
     elem.focus()
-  }, [isFocused, skipForward, skipBackward, nextFrame, prevFrame, showBar, minimize, play])
+  }, [isFocused, seekLongAhead, seekLongBack, skipForward, skipBackward, nextFrame, prevFrame, showBar, minimize, play])
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress)
     return () => {
