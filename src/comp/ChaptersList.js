@@ -18,8 +18,33 @@ const getListText = (chapters, halfTimeEnd, fullMode) => {
   return output.join('\n')
 }
 
-function ChaptersList ({ chapters = [], goTime, initTimeEnd, halfTimeEnd, fullMode }) {
+const replaceChunks = (text, replacements, byNumber = true) => {
+  if (byNumber) {return text}
+  const regex = /#\d{1,2} [A-Z]{3}/g
+  return text.replace(regex, match => {
+    if (replacements[match]) {
+      return `<span style="color: ${replacements[match].isHome ? '#90C6EA' : '#CE93C4'};">${replacements[match].lastName}</span>`
+    }
+    return match
+  })
+}
+
+function ChaptersList ({ chapters = [], goTime, initTimeEnd, halfTimeEnd, fullMode, match }) {
   const [copied, setCopied] = useState('')
+  const [byNumber, setByNumber] = useState(true)
+  const [replacements] = useState(() => {
+    const output = {}
+    const metadata = match['metadata']
+    const players = match['players']
+    for (let player of players) {
+      const isHome = player.teamId === metadata.home
+      output[`#${player.shirtNumber} ${isHome ? metadata.nameHome : metadata.nameAway}`] = {
+        lastName: player['player'].lastName,
+        isHome
+      }
+    }
+    return output
+  })
   const theme = useTheme()
   const isSmall = useMediaQuery(theme.breakpoints.down('xl'))
   return (
@@ -71,13 +96,26 @@ function ChaptersList ({ chapters = [], goTime, initTimeEnd, halfTimeEnd, fullMo
                         </ListItemIcon>
                         <ListItemText
                           id={'' + (item.time * 1000)}
-                          primary={`${fullMode ? parseInt(time.short) + (time.period === 'st' ? 45 : 0) + '′' : time.short}${time.period}: ${item.text}`}
+                          primary={
+                            <span
+                              dangerouslySetInnerHTML={{
+                                __html: `${fullMode ? parseInt(time.short) + (time.period === 'st' ? 45 : 0) + '′' : time.short}${time.period}: ${replaceChunks(item.text, replacements, byNumber)}`
+                              }}
+                            />
+                          }
                           style={{ margin: 0 }}
                         />
                       </ListItemButton>
                     </ListItem>
                   )
                 })}
+              <IconButton
+                size="small"
+                style={{ cursor: 'hand', position: 'absolute', right: 22, top: 4, padding: 0 }}
+                onClick={() => setByNumber(!byNumber)}
+              >
+                <span style={{ fontSize: 'small' }}>📒</span>
+              </IconButton>
               <CopyToClipboard
                 onCopy={() => setCopied('Copiato!')}
                 text={getListText(chapters, halfTimeEnd, fullMode)}
@@ -138,7 +176,13 @@ function ChaptersList ({ chapters = [], goTime, initTimeEnd, halfTimeEnd, fullMo
                           </ListItemIcon>
                           <ListItemText
                             id={'' + (item.time * 1000)}
-                            primary={`${fullMode ? parseInt(time.short) + 45 + '′' : time.short}${time.period}: ${item.text}`}
+                            primary={
+                              <span
+                                dangerouslySetInnerHTML={{
+                                  __html: `${fullMode ? parseInt(time.short) + 45 + '′' : time.short}${time.period}: ${replaceChunks(item.text, replacements, byNumber)}`
+                                }}
+                              />
+                            }
                             style={{ margin: 0 }}
                           />
                         </ListItemButton>

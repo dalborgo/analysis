@@ -755,6 +755,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                 goTime={goTime}
                 halfTimeEnd={halfTimeEnd}
                 initTimeEnd={initTimeEnd}
+                match={match}
               />
             }
             {
