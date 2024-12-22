@@ -29,13 +29,13 @@ const replaceChunks = (text, replacements, byNumber = true) => {
   })
 }
 
-function ChaptersList ({ chapters = [], goTime, initTimeEnd, halfTimeEnd, fullMode, match }) {
+function ChaptersList ({ chapters = [], goTime, initTimeEnd, halfTimeEnd, fullMode, match = {} }) {
   const [copied, setCopied] = useState('')
   const [byNumber, setByNumber] = useState(true)
   const [replacements] = useState(() => {
     const output = {}
-    const metadata = match['metadata']
-    const players = match['players']
+    const metadata = match['metadata'] || {}
+    const players = match['players'] || []
     for (let player of players) {
       const isHome = player.teamId === metadata.home
       output[`#${player.shirtNumber} ${isHome ? metadata.nameHome : metadata.nameAway}`] = {
