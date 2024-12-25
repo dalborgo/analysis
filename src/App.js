@@ -193,6 +193,16 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     
     setLongPressTimer(timer)
   }
+  const handleLongPressGo = event => {
+    const time = event.target.id === 'skipBackward' ? initTimeEnd : halfTimeEnd
+    setLongPressTriggered(false)
+    const timer = setTimeout(async () => {
+      await goTime(time / 1000, true)
+      setLongPressTriggered(true)
+    }, 1000)
+    
+    setLongPressTimer(timer)
+  }
   const handleLongPressEnd = () => {
     clearTimeout(longPressTimer)
   }
@@ -278,11 +288,15 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     setMessage(response)
   }, [chapters])
   const skipForward = useCallback(async () => {
-    await tcpCommand('5100 fnSkipForward')
-  }, [])
+    if (!longPressTriggered) {
+      await tcpCommand('5100 fnSkipForward')
+    }
+  }, [longPressTriggered])
   const skipBackward = useCallback(async () => {
-    await tcpCommand('5100 fnSkipBackward')
-  }, [])
+    if (!longPressTriggered) {
+      await tcpCommand('5100 fnSkipBackward')
+    }
+  }, [longPressTriggered])
   const prevFrame = useCallback(async () => {
     if (player === 'vlc') {
       const button = document.getElementById('play')
@@ -336,6 +350,9 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   }, [fullMode, goTime])
   const setHalfTime = useCallback(async () => {
     if (!longPressTriggered) {
+      if (halfTimeEnd === 6000000) {
+        await goTime(match['metadata'].halfTime, true)
+      }
       const { result } = manageResponse(await tcpCommand('1120'))
       if (isIntegerOrStringInteger(result)) {
         localStorage.setItem('halfTimeEnd', result.toString())
@@ -344,7 +361,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
         setHalfTimeEnd('Error')
       }
     }
-  }, [longPressTriggered])
+  }, [goTime, halfTimeEnd, longPressTriggered, match])
   const setInitTime = useCallback(async () => {
     if (!longPressTriggered) {
       const { result } = manageResponse(await tcpCommand('1120'))
@@ -659,8 +676,18 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             <Button variant="outlined" color="secondary" onClick={goToEndTime} tabIndex={-1} size="small">
               <span style={{ fontSize: '1rem' }}>LIVE</span>
             </Button>&nbsp;
-            <Button variant="outlined" color="primary" onClick={skipBackward}>
-              <span style={{ fontSize: '1rem' }}>{'<-'}</span>
+            <Button
+              id="skipBackward"
+              variant="outlined"
+              color="primary"
+              onClick={skipBackward}
+              onMouseDown={handleLongPressGo}
+              onMouseLeave={handleLongPressEnd}
+              onMouseUp={handleLongPressEnd}
+              style={{ fontSize: '1rem' }}
+              tabIndex={-1}
+            >
+              {'<-'}
             </Button>&nbsp;
             <Box width="60%">
               <TextField
@@ -741,8 +768,18 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                 }}
               />
             </Box>&nbsp;
-            <Button variant="outlined" color="primary" onClick={skipForward} tabIndex={-1}>
-              <span style={{ fontSize: '1rem' }}>{'->'}</span>
+            <Button
+              id="skipForward"
+              variant="outlined"
+              color="primary"
+              onClick={skipForward}
+              onMouseDown={handleLongPressGo}
+              onMouseLeave={handleLongPressEnd}
+              onMouseUp={handleLongPressEnd}
+              style={{ fontSize: '1rem' }}
+              tabIndex={-1}
+            >
+              {'->'}
             </Button>&nbsp;
             {
               player === 'zoom' &&
