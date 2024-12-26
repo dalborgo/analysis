@@ -449,6 +449,10 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       case 'F4':
         elem.value = `[DIS] ${getValue() ? `${getValue()} ` : ''}`
         break
+      case 'F6':
+        event.preventDefault()
+        elem.value = `${elem.value}#`
+        break
       case 'F7':
         elem.value = `[COLL] ${getValue() ? `${getValue()} ` : ''}`
         break
@@ -702,12 +706,6 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                 focused
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
-                onWheel={event => {
-                  if (event.deltaY < 0) {
-                    const elem = document.getElementById('addTagButton')
-                    elem.click()
-                  }
-                }}
                 onKeyPress={(event) => {
                   if (event.key === 'Enter') {
                     player === 'zoom' && saveChapter()
