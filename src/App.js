@@ -434,11 +434,16 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     }
     const elem = document.getElementById('episodeDescription')
     const getValue = () => elem.value.trim().replace(/\[.*?]\s*/, '')
+    console.log('event.code:', event.code)
     switch (event.code) {
       case 'F1':
         elem.value = `[TEC] ${getValue() ? `${getValue()} ` : ''}`
         break
       case 'F2':
+        elem.value = `[SOGL] ${getValue() ? `${getValue()} ` : ''}`
+        break
+      case 'F3':
+        event.preventDefault()
         elem.value = `[PREV] ${getValue() ? `${getValue()} ` : ''}`
         break
       case 'F4':
@@ -453,14 +458,12 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       case 'F9':
         elem.value = `[PERS] ${getValue() ? `${getValue()} ` : ''}`
         break
-      case 'F6':
-      case 'Pause':
-        elem.value = `[SOGL] ${getValue() ? `${getValue()} ` : ''}`
-        break
-      case 'ControlLeft':
+      case 'F10':
+        event.preventDefault()
         elem.value = `[AA1] ${getValue() ? `${getValue()} ` : ''}`
         break
-      case 'ControlRight':
+      case 'F11':
+        event.preventDefault()
         elem.value = `[AA2] ${getValue() ? `${getValue()} ` : ''}`
         break
       default:
