@@ -351,7 +351,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const setHalfTime = useCallback(async () => {
     if (!longPressTriggered) {
       if (halfTimeEnd === 6000000) {
-        await goTime(match['metadata'].halfTime, true)
+        await goTime(match?.['metadata'].halfTime, true)
       }
       const { result } = manageResponse(await tcpCommand('1120'))
       if (isIntegerOrStringInteger(result)) {
