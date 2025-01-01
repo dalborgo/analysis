@@ -434,7 +434,6 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     }
     const elem = document.getElementById('episodeDescription')
     const getValue = () => elem.value.trim().replace(/\[.*?]\s*/, '')
-    console.log('event.code:', event.code)
     switch (event.code) {
       case 'F1':
         elem.value = `[TEC] ${getValue() ? `${getValue()} ` : ''}`
