@@ -52,7 +52,7 @@ const renderDay = date => {
   const parts = date.split('/')
   return parts.pop()
 }
-const predefinedStrings = ['Espulsione', 'DOGSO', 'RIGORE', 'Seconda Ammonizione', 'Grave Fallo di Gioco', 'Condotta Violenta', 'Reta Annullata', 'Fattuale']
+const predefinedStrings = ['Espulsione', 'DOGSO', 'RIGORE', 'Seconda Ammonizione', 'Grave Fallo di Gioco', 'Condotta Violenta', 'Reta Annullata', 'Fattuale', '(VAR) Rigore', '(VAR) Rete', '(VAR) Scambio Persona', '(VAR) Espulsione']
 
 function containsAny (targetString) {
   return predefinedStrings.some(str => targetString.includes(str) && !targetString.includes('Non Concesso OK'))
