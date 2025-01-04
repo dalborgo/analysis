@@ -331,7 +331,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     if (player === 'vlc') {
       setMessage({ open: true, text, severity: 'success' })
     } else {
-      await sleep(2000)
+      await sleep(3000)
       const { result } = manageResponse(await tcpCommand('1110'))
       const endTime = Number(result)
       if (Number.isInteger(endTime) && endTime > 100) {
