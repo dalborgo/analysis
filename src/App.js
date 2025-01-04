@@ -204,7 +204,11 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     setLongPressTimer(timer)
   }
   const handleLongPressEnd = () => {
-    clearTimeout(longPressTimer)
+    if (longPressTimer) {
+      clearTimeout(longPressTimer)
+      setLongPressTimer(null)
+    }
+    setTimeout(() => setLongPressTriggered(false), 0)
   }
   const renderedRef = useRef(false)
   const handleClose = useCallback(() => {
