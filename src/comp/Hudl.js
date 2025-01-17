@@ -52,10 +52,14 @@ const renderDay = date => {
   const parts = date.split('/')
   return parts.pop()
 }
-const predefinedStrings = ['Espulsione', 'DOGSO', 'RIGORE', 'Seconda Ammonizione', 'Grave Fallo di Gioco', 'Condotta Violenta', 'Reta Annullata', 'Fattuale', '(VAR) Rigore', '(VAR) Rete', '(VAR) Scambio Persona', '(VAR) Espulsione']
+const predefinedStrings = ['Espulsione', 'DOGSO', 'RIGORE', 'Rigore', 'Seconda Ammonizione', 'Grave Fallo di Gioco', 'Condotta Violenta', 'Rete', 'Fattuale', 'Scambio Persona']
 
-function containsAny (targetString) {
+function containsAnyNeg (targetString) {
   return predefinedStrings.some(str => targetString.includes(str) && !targetString.includes('Non Concesso OK'))
+}
+
+function containsAnyPos (targetString) {
+  return predefinedStrings.some(str => targetString.includes(str))
 }
 
 const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd }) => {
@@ -83,19 +87,22 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd }) => {
                 const tag = tags.find(tag => tag.key === key)
                 return tag ? tag.values[0] : '--'
               }
+  
               const time = convertMilli(startTimeMs, halfTimeEnd, initTimeEnd)
               const [title, rawTitle] = renderTitle(getElement('HUDL_CODE'))
               const [assessments, rawAssessment_] = renderAssessment(getElement('POS/NEG'))
               const rawAssessment = `${rawAssessment_} (${initTimeEnd ? time.short : ''}${initTimeEnd ? `${time.period} ` : ''}${time.long})`
               const hasNegative = ['NEG', 'POS/NEG', 'NEG/POS'].includes(getElement('POS/NEG')) ? 1 : 0
-              const highlightNeg = hasNegative === 1 && Boolean(containsAny(getElement('HUDL_CODE')))
+              const hasPositive = ['POS'].includes(getElement('POS/NEG')) || (getElement('HUDL_CODE').includes('Non Concesso OK') && ['POS/NEG', 'NEG/POS'].includes(getElement('POS/NEG'))) ? 1 : 0
+              const highlightNeg = hasNegative === 1 && Boolean(containsAnyNeg(getElement('HUDL_CODE')))
+              const highlightPos = hasPositive === 1 && Boolean(containsAnyPos(getElement('HUDL_CODE')))
               const toCopyText = getElement('HUDL_FREETEXT')
               const text = highlightNeg ?
                 getElement('POS/NEG') === 'NEG' ?
                   <span style={{ color: 'red' }}>{toCopyText}</span>
                   :
                   <span style={{ color: 'orange' }}>{toCopyText}</span>
-                : toCopyText
+                : highlightPos ? <span style={{ color: '#3FC520' }}>{toCopyText}</span> : toCopyText
               const LineData = <Box>
                 <CopyToClipboard
                   text={rawTitle.join(' ') + ' [OA ' + getElement('O.A.') + ']\n' + rawAssessment + ' ' + toCopyText}
