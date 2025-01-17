@@ -848,7 +848,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       <Snackbar
         open={message.open}
         onClose={handleClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: wyView ? 'bottom' : 'top', horizontal: 'center' }}
       >
         <Alert onClose={handleClose} severity={message.severity}>
           {message.text}
