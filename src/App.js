@@ -80,8 +80,9 @@ export const convertMilli = (millisecondi, halfTimeEnd = 0, initTimeEnd = 0, ful
   }
   
   const effectiveLong = getTime(Math.floor((halfTimeEnd && millisecondi > halfTimeEnd ? minute45 + (millisecondi - halfTimeEnd) : millisecondi - initTimeEnd) / 1000))
+  const effectiveLongSimple = `${getTime(secondi)} `
   const long = getTimeLong(Math.floor(millisecondi / 1000))
-  return { long, effectiveLong, short: `${short + 1}′`, period: millisecondi > halfTimeEnd ? 'st' : 'pt' }
+  return { long, effectiveLong, effectiveLongSimple, short: `${short + 1}′`, period: millisecondi > halfTimeEnd ? 'st' : 'pt' }
 }
 
 function print (data) {
@@ -168,6 +169,7 @@ const switchPlayer = () => {
 
 export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const [showLong, setShowLong] = useState(false)
+  const [showSTDetail, setShowSTDetail] = useState(false)
   const [message, setMessage] = useState({ open: false })
   const [match, setMatch] = useState()
   const [hudl, setHudl] = useState()
@@ -532,12 +534,14 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             const elemEff = document.getElementById('time')
             const elemLong = document.getElementById('time_long')
             const elemShort = document.getElementById('time_min')
+            const elemDetail = document.getElementById('time_min_detail')
             const fractionElem = document.getElementById('fraction')
             const direction = document.getElementById('direction')
             const time = convertMilli(parseInt(result), halfTimeEnd, initTimeEnd, fullMode)
             if (elemEff) {elemEff.textContent = time.effectiveLong === 'NaN:NaN' ? '--:--' : time.effectiveLong}
             if (elemLong) {elemLong.textContent = time.long === 'NaN:NaN:NaN' ? '--:--' : time.long}
             elemShort.textContent = time.short === 'NaN′' ? '--' : time.short
+            elemDetail.textContent = time.short === 'NaN′' ? '--' : time.effectiveLongSimple
             milliBox.value = result
             if (fractionElem && !time.short.startsWith('0')) {
               const nextPeriod = parseInt(result) > parseInt(halfTimeEnd) ? 'st' : 'pt'
@@ -672,8 +676,10 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                 -
               </Button>
             </Box>
-            <Box display="flex" p={0}>
-              <Box id="time_min">--</Box>{Boolean(halfTimeEnd) && <Box id="fraction">&nbsp;</Box>}
+            <Box display="flex" p={0} onClick={() => setShowSTDetail(!showSTDetail)}>
+              <Box id="time_min" style={{display: showSTDetail ? 'none' : 'block' }}>--</Box>
+              <Box id="time_min_detail" style={{display: !showSTDetail ? 'none' : 'block' }}>--</Box>
+              {Boolean(halfTimeEnd) && <Box id="fraction">&nbsp;</Box>}
             </Box>
             <Box>
               <Button onClick={() => seekMinute('+')} variant="outlined"
