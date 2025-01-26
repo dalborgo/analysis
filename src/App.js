@@ -80,7 +80,7 @@ export const convertMilli = (millisecondi, halfTimeEnd = 0, initTimeEnd = 0, ful
   }
   
   const effectiveLong = getTime(Math.floor((halfTimeEnd && millisecondi > halfTimeEnd ? minute45 + (millisecondi - halfTimeEnd) : millisecondi - initTimeEnd) / 1000))
-  const effectiveLongSimple = `${getTime(secondi)} `
+  const effectiveLongSimple = getTime(secondi)
   const long = getTimeLong(Math.floor(millisecondi / 1000))
   return { long, effectiveLong, effectiveLongSimple, short: `${short + 1}′`, period: millisecondi > halfTimeEnd ? 'st' : 'pt' }
 }
@@ -676,10 +676,10 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                 -
               </Button>
             </Box>
-            <Box display="flex" p={0} onClick={() => setShowSTDetail(!showSTDetail)}>
+            <Box display="flex" p={0} onClick={() => setShowSTDetail(!showSTDetail)} sx={{ cursor: 'pointer' }}>
               <Box id="time_min" style={{display: showSTDetail ? 'none' : 'block' }}>--</Box>
               <Box id="time_min_detail" style={{display: !showSTDetail ? 'none' : 'block' }}>--</Box>
-              {Boolean(halfTimeEnd) && <Box id="fraction">&nbsp;</Box>}
+              {Boolean(halfTimeEnd) && <Box id="fraction" sx={{marginLeft: showSTDetail ? 1 : 0}}>&nbsp;</Box>}
             </Box>
             <Box>
               <Button onClick={() => seekMinute('+')} variant="outlined"
