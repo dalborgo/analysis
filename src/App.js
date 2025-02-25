@@ -53,6 +53,24 @@ function isIntegerOrStringInteger (value) {
   return false
 }
 
+const convertToMilliseconds = (minuteSeconds, gap = 0) => {
+  const num = parseInt(minuteSeconds, 10)
+  if (isNaN(num)) return NaN
+  const str = num.toString().padStart(2, '0')
+  const seconds = parseInt(str.slice(-2), 10)
+  const minutes = parseInt(str.slice(0, -2) || '0', 10)
+  return (minutes * 60000) + (seconds * 1000) + parseInt(gap, 10)
+}
+
+const formatTime = (timeStr, isSecondHalf = false) => {
+  const num = parseInt(timeStr, 10)
+  if (isNaN(num)) return '00:00'
+  const minutes = Math.floor(num / 100)
+  const seconds = num % 100
+  const finalMinutes = isSecondHalf ? minutes + 45 : minutes
+  return `${String(finalMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+}
+
 const tolerance = 1
 export const convertMilli = (millisecondi, halfTimeEnd = 0, initTimeEnd = 0, fullMode) => {
   if (millisecondi < initTimeEnd) { return { long: '00:00', effectiveLong: '00:00', short: '0′' }}
@@ -82,7 +100,13 @@ export const convertMilli = (millisecondi, halfTimeEnd = 0, initTimeEnd = 0, ful
   const effectiveLong = getTime(Math.floor((halfTimeEnd && millisecondi > halfTimeEnd ? minute45 + (millisecondi - halfTimeEnd) : millisecondi - initTimeEnd) / 1000))
   const effectiveLongSimple = getTime(secondi)
   const long = getTimeLong(Math.floor(millisecondi / 1000))
-  return { long, effectiveLong, effectiveLongSimple, short: `${short + 1}′`, period: millisecondi > halfTimeEnd ? 'st' : 'pt' }
+  return {
+    long,
+    effectiveLong,
+    effectiveLongSimple,
+    short: `${short + 1}′`,
+    period: millisecondi > halfTimeEnd ? 'st' : 'pt'
+  }
 }
 
 function print (data) {
@@ -245,9 +269,16 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const saveChapter = useCallback(async () => {
     if (player === 'vlc') {return}
     const episodeDescription = document.getElementById('episodeDescription')
-    const episode = episodeDescription.value
     const elem = document.getElementById('milliBox')
-    const timeValue = parseFloat(elem.value) / 1000
+    const episodeRaw = episodeDescription.value
+    const fastMode = /^\d+$/.test(episodeRaw?.trim())
+    const isSecondHalf = elem.value > halfTimeEnd
+    const episode = fastMode ? isSecondHalf ? `${formatTime(episodeRaw)} / ${formatTime(episodeRaw, true)}` : formatTime(episodeRaw) : episodeRaw
+    const timeValue = fastMode
+      ?
+      isSecondHalf && halfTimeEnd ? convertToMilliseconds(episodeRaw, halfTimeEnd) : convertToMilliseconds(episodeRaw, initTimeEnd) / 1000
+      :
+      parseFloat(elem.value) / 1000
     const existingChapter = chapters.find(chapter => Math.abs(chapter.time - timeValue) <= tolerance)
     let newChapters
     if (episode) {
@@ -292,7 +323,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     })
     episodeDescription.value = ''
     setMessage(response)
-  }, [chapters])
+  }, [chapters, halfTimeEnd, initTimeEnd])
   const skipForward = useCallback(async () => {
     if (!longPressTriggered) {
       await tcpCommand('5100 fnSkipForward')
@@ -324,7 +355,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const goTime = useCallback(async (eventTime, direct = false) => {
     if (direct) {return tcpCommand(`5000 ${eventTime}`)}
     const { minute, period } = eventTime || {}
-    const to = period === 2 && halfTimeEnd ? minute * 60000 + parseInt(halfTimeEnd) : (minute * 60000) + parseInt(initTimeEnd)
+    const to = period === 2 && halfTimeEnd ? minute * 60000 + parseInt(halfTimeEnd) : minute * 60000 + parseInt(initTimeEnd)
     await tcpCommand(`5000 ${(to - 59000) / 1000}`) // 59 per arrotondamento
   }, [halfTimeEnd, initTimeEnd])
   const goToEndTime = useCallback(async () => {
@@ -677,9 +708,9 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
               </Button>
             </Box>
             <Box display="flex" p={0} onClick={() => setShowSTDetail(!showSTDetail)} sx={{ cursor: 'pointer' }}>
-              <Box id="time_min" style={{display: showSTDetail ? 'none' : 'block' }}>--</Box>
-              <Box id="time_min_detail" style={{display: !showSTDetail ? 'none' : 'block' }}>--</Box>
-              {Boolean(halfTimeEnd) && <Box id="fraction" sx={{marginLeft: showSTDetail ? 1 : 0}}>&nbsp;</Box>}
+              <Box id="time_min" style={{ display: showSTDetail ? 'none' : 'block' }}>--</Box>
+              <Box id="time_min_detail" style={{ display: !showSTDetail ? 'none' : 'block' }}>--</Box>
+              {Boolean(halfTimeEnd) && <Box id="fraction" sx={{ marginLeft: showSTDetail ? 1 : 0 }}>&nbsp;</Box>}
             </Box>
             <Box>
               <Button onClick={() => seekMinute('+')} variant="outlined"
