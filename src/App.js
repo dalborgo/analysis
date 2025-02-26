@@ -21,6 +21,7 @@ import ClearIcon from '@mui/icons-material/Clear'
 import TagIcon from '@mui/icons-material/Tag'
 import DataArrayIcon from '@mui/icons-material/DataArray'
 import Hudl from './comp/Hudl'
+import Dialer from './comp/Dialer'
 
 const queryParams = new URLSearchParams(window.location.search)
 const hudlId = queryParams.get('hudl')
@@ -276,7 +277,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     const episode = fastMode ? isSecondHalf ? `${formatTime(episodeRaw)} / ${formatTime(episodeRaw, true)}` : formatTime(episodeRaw) : episodeRaw
     const timeValue = fastMode
       ?
-      isSecondHalf && halfTimeEnd ? convertToMilliseconds(episodeRaw, halfTimeEnd) : convertToMilliseconds(episodeRaw, initTimeEnd) / 1000
+      isSecondHalf && halfTimeEnd ? convertToMilliseconds(episodeRaw, halfTimeEnd) / 1000 : convertToMilliseconds(episodeRaw, initTimeEnd) / 1000
       :
       parseFloat(elem.value) / 1000
     const existingChapter = chapters.find(chapter => Math.abs(chapter.time - timeValue) <= tolerance)
@@ -860,6 +861,10 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                 fullMode={fullMode}
                 mirrorMode={homeDirEnd}
               />
+            }
+            {
+              true &&
+              <Dialer saveChapter={saveChapter}/>
             }
             {
               (hudl && !wyView) &&
