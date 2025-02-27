@@ -231,7 +231,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const [longPressTimer, setLongPressTimer] = useState(null)
   const [longPressTriggered, setLongPressTriggered] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
-  const [hasDialer] = useState(true)
+  const [hasDialer] = useState(false)
   const handleLongPressStart = () => {
     setLongPressTriggered(false)
     const timer = setTimeout(() => {
