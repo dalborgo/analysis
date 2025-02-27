@@ -17,17 +17,17 @@ function Dialer ({ saveChapter }) {
   }, [saveChapter])
   
   return (
-    <Box mt={3}>
-      <Grid container spacing={2} maxWidth={400}>
+    <Box pl={3} pr={3}>
+      <Grid container spacing={1} maxWidth={300}>
         <Grid item xs={9}>
-          <Grid container spacing={2}>
-            {[7, 8, 9, 4, 5, 6, 1, 2, 3].map((key) => (
+          <Grid container spacing={1}>
+            {[7, 8, 9, 4, 5, 6, 1, 2, 3].map(key => (
               <Grid item xs={4} key={key}>
                 <Button
                   id={`dialer-${key}`}
                   variant="outlined"
                   fullWidth
-                  sx={{ fontSize: '2rem', height: '80px' }}
+                  sx={{ fontSize: '1.5rem', height: '40px' }}
                   color="primary"
                   onClick={handleButtonClick}
                 >
@@ -40,7 +40,7 @@ function Dialer ({ saveChapter }) {
                 id="dialer-0"
                 variant="outlined"
                 fullWidth
-                sx={{ fontSize: '2rem', height: '80px' }}
+                sx={{ fontSize: '1.5rem', height: '40px' }}
                 color="primary"
                 onClick={handleButtonClick}
               >
@@ -50,9 +50,9 @@ function Dialer ({ saveChapter }) {
             <Grid item xs={4}>
               <Button
                 id="dialer-C"
-                variant="outlined"
+                variant="contained"
                 fullWidth
-                sx={{ fontSize: '2rem', height: '80px' }}
+                sx={{ fontSize: '1.5rem', height: '40px' }}
                 color="inherit"
                 onClick={handleButtonClick}
               >
@@ -61,19 +61,18 @@ function Dialer ({ saveChapter }) {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={2}>
           <Button
             id="dialer-invio"
-            variant="outlined"
+            variant="contained"
             fullWidth
-            sx={{ fontSize: '5rem', height: '100%', minHeight: '340px' }}
+            sx={{ fontSize: '3.5rem', height: '100%', minHeight: '180px' }}
             color="secondary"
             onClick={handleButtonClick}
           >
             ↵
           </Button>
         </Grid>
-      
       </Grid>
     </Box>
   )

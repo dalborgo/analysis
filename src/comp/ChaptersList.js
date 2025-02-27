@@ -29,7 +29,7 @@ const replaceChunks = (text, replacements, byNumber = true) => {
   })
 }
 
-function ChaptersList ({ chapters = [], goTime, initTimeEnd, halfTimeEnd, fullMode, match = {} }) {
+function ChaptersList ({ chapters = [], goTime, initTimeEnd, halfTimeEnd, fullMode, match = {}, hasDialer }) {
   const [copied, setCopied] = useState('')
   const [byNumber, setByNumber] = useState(true)
   const [replacements] = useState(() => {
@@ -195,7 +195,7 @@ function ChaptersList ({ chapters = [], goTime, initTimeEnd, halfTimeEnd, fullMo
         </ThemeProvider>
       </Grid>
       {
-        isSmall &&
+        (isSmall && !hasDialer) &&
         <Box width="100%" mb={1}/>
       }
     </>
