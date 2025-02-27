@@ -46,7 +46,7 @@ function ChaptersList ({ chapters = [], goTime, initTimeEnd, halfTimeEnd, fullMo
     return output
   })
   const theme = useTheme()
-  const isSmall = useMediaQuery(theme.breakpoints.down('xl'))
+  const isSmall = useMediaQuery(theme.breakpoints.down('xl')) || Object.keys(match).length === 0
   return (
     <>
       <Grid item style={{ marginRight: isSmall ? '0%' : '3%' }}>

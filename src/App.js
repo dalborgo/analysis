@@ -55,19 +55,43 @@ function isIntegerOrStringInteger (value) {
 }
 
 const convertToMilliseconds = (minuteSeconds, gap = 0) => {
+  if (!/^\d+$/.test(minuteSeconds)) {return NaN}
+  if (minuteSeconds.startsWith('0')) {
+    let seconds = parseInt(minuteSeconds, 10)
+    return (seconds * 1000) + parseInt(gap, 10)
+  }
   const num = parseInt(minuteSeconds, 10)
-  if (isNaN(num)) return NaN
-  const str = num.toString().padStart(2, '0')
-  const seconds = parseInt(str.slice(-2), 10)
-  const minutes = parseInt(str.slice(0, -2) || '0', 10)
+  const str = num.toString()
+  let minutes, seconds
+  
+  if (str.length <= 2) {
+    minutes = num
+    seconds = 0
+  } else {
+    seconds = parseInt(str.slice(-2), 10)
+    minutes = parseInt(str.slice(0, -2) || '0', 10)
+  }
+  
   return (minutes * 60000) + (seconds * 1000) + parseInt(gap, 10)
 }
 
 const formatTime = (timeStr, isSecondHalf = false) => {
+  if (!/^\d+$/.test(timeStr)) {return '00:00'}
+  if (timeStr.startsWith('0')) {
+    let seconds = parseInt(timeStr, 10)
+    return `00:${String(seconds).padStart(2, '0')}`
+  }
   const num = parseInt(timeStr, 10)
-  if (isNaN(num)) return '00:00'
-  const minutes = Math.floor(num / 100)
-  const seconds = num % 100
+  const str = num.toString()
+  let minutes, seconds
+  
+  if (str.length <= 2) {
+    minutes = num
+    seconds = 0
+  } else {
+    seconds = parseInt(str.slice(-2), 10)
+    minutes = parseInt(str.slice(0, -2) || '0', 10)
+  }
   const finalMinutes = isSecondHalf ? minutes + 45 : minutes
   return `${String(finalMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }
