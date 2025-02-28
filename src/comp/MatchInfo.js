@@ -171,7 +171,6 @@ const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
                 </Tooltip>&nbsp;
               </>
             }&nbsp;
-           
             <Typography variant="body1">All:&nbsp;</Typography>
             <Tooltip
               title={getCoachInfo(team)}
