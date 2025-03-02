@@ -54,7 +54,7 @@ function isIntegerOrStringInteger (value) {
   return false
 }
 
-const convertToMilliseconds = (minuteSeconds, gap = 0) => {
+const convertToMilliseconds = (minuteSeconds, gap = 0, fullMode = false, isSecondHalf = false ) => {
   if (!/^\d+$/.test(minuteSeconds)) {return NaN}
   if (minuteSeconds.startsWith('0')) {
     let seconds = parseInt(minuteSeconds, 10)
@@ -71,11 +71,11 @@ const convertToMilliseconds = (minuteSeconds, gap = 0) => {
     seconds = parseInt(str.slice(-2), 10)
     minutes = parseInt(str.slice(0, -2) || '0', 10)
   }
-  
+  if (isSecondHalf && (minutes > 50 || fullMode)) {minutes = Math.max(0, minutes - 45)}
   return (minutes * 60000) + (seconds * 1000) + parseInt(gap, 10)
 }
 
-const formatTime = (timeStr, isSecondHalf = false) => {
+const formatTime = (timeStr, fullMode = false, isSecondHalf = false, secondTime = false) => {
   if (!/^\d+$/.test(timeStr)) {return '00:00'}
   if (timeStr.startsWith('0')) {
     let seconds = parseInt(timeStr, 10)
@@ -92,7 +92,8 @@ const formatTime = (timeStr, isSecondHalf = false) => {
     seconds = parseInt(str.slice(-2), 10)
     minutes = parseInt(str.slice(0, -2) || '0', 10)
   }
-  const finalMinutes = isSecondHalf ? minutes + 45 : minutes
+  if (isSecondHalf && (minutes > 50 || fullMode)) {minutes = Math.max(0, minutes - 45)}
+  const finalMinutes = secondTime ? minutes + 45 : minutes
   return `${String(finalMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }
 
@@ -299,10 +300,19 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     const episodeRaw = episodeDescription.value
     const fastMode = /^\d+$/.test(episodeRaw?.trim())
     const isSecondHalf = elem.value > halfTimeEnd
-    const episode = fastMode ? isSecondHalf ? `${formatTime(episodeRaw)} / ${formatTime(episodeRaw, true)}` : formatTime(episodeRaw) : episodeRaw
+    const episode = fastMode ?
+      isSecondHalf ?
+        `${formatTime(episodeRaw, fullMode, isSecondHalf)} / ${formatTime(episodeRaw, fullMode, isSecondHalf, true)}`
+        :
+        formatTime(episodeRaw, fullMode)
+      :
+      episodeRaw
     const timeValue = fastMode
       ?
-      isSecondHalf && halfTimeEnd ? convertToMilliseconds(episodeRaw, halfTimeEnd) / 1000 : convertToMilliseconds(episodeRaw, initTimeEnd) / 1000
+      isSecondHalf && halfTimeEnd ?
+        convertToMilliseconds(episodeRaw, halfTimeEnd, fullMode, isSecondHalf) / 1000
+        :
+        convertToMilliseconds(episodeRaw, initTimeEnd, fullMode, isSecondHalf) / 1000
       :
       parseFloat(elem.value) / 1000
     const existingChapter = chapters.find(chapter => Math.abs(chapter.time - timeValue) <= tolerance)
@@ -349,7 +359,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     })
     episodeDescription.value = ''
     setMessage(response)
-  }, [chapters, halfTimeEnd, initTimeEnd])
+  }, [chapters, fullMode, halfTimeEnd, initTimeEnd])
   const skipForward = useCallback(async () => {
     if (!longPressTriggered) {
       await tcpCommand('5100 fnSkipForward')
