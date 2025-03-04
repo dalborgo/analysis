@@ -29,7 +29,16 @@ const replaceChunks = (text, replacements, byNumber = true) => {
   })
 }
 
-function ChaptersList ({ chapters = [], goTime, initTimeEnd, halfTimeEnd, fullMode, match = {}, hasDialer }) {
+function ChaptersList ({
+  chapters = [],
+  goTime,
+  initTimeEnd,
+  halfTimeEnd,
+  fullMode,
+  match = {},
+  hasDialer,
+  lastTime = 0
+}) {
   const [copied, setCopied] = useState('')
   const [byNumber, setByNumber] = useState(true)
   const [replacements] = useState(() => {
@@ -103,7 +112,7 @@ function ChaptersList ({ chapters = [], goTime, initTimeEnd, halfTimeEnd, fullMo
                               }}
                             />
                           }
-                          style={{ margin: 0 }}
+                          style={{ margin: 0, textDecoration: item.time === lastTime ? 'underline' : 'none' }}
                         />
                       </ListItemButton>
                     </ListItem>
@@ -183,7 +192,7 @@ function ChaptersList ({ chapters = [], goTime, initTimeEnd, halfTimeEnd, fullMo
                                 }}
                               />
                             }
-                            style={{ margin: 0 }}
+                            style={{ margin: 0, textDecoration: item.time === lastTime ? 'underline' : 'none' }}
                           />
                         </ListItemButton>
                       </ListItem>

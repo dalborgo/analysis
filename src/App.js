@@ -81,7 +81,7 @@ const convertToMilliseconds = (minuteSeconds, initTimeEnd, halfTimeEnd, fullMode
   return (minutes * 60000) + (seconds * 1000) + parseInt(gap, 10)
 }
 
-const formatTime = (timeStr, fullMode = false, isSecondHalf = false, secondTime = false) => {
+const formatTime = (timeStr, fullMode = false, isSecondHalf = false) => {
   if (!/^\d+$/.test(timeStr)) {return '00:00'}
   if (timeStr.startsWith('0')) {
     let seconds = parseInt(timeStr, 10)
@@ -98,11 +98,16 @@ const formatTime = (timeStr, fullMode = false, isSecondHalf = false, secondTime 
     seconds = parseInt(str.slice(-2), 10)
     minutes = parseInt(str.slice(0, -2) || '0', 10)
   }
+  const origMinutes = minutes
   if (fullMode && isSecondHalf && minutes < 45) {return}
   if (isSecondHalf && (minutes > 50 || fullMode)) {minutes = Math.max(0, minutes - 45)}
   if (!isSecondHalf && minutes > 50) {minutes = Math.max(0, minutes - 45)}
-  const finalMinutes = secondTime ? minutes + 45 : minutes
-  return `${String(finalMinutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+  const output = []
+  output.push(`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`)
+  if (isSecondHalf || (!isSecondHalf && origMinutes > 50)) {
+    output.push(`${String(minutes + 45).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`)
+  }
+  return output.length > 1 ? output.join(' / ') : output[0]
 }
 
 const tolerance = 1
@@ -233,6 +238,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const [hudl, setHudl] = useState()
   const [wyView, setWyView] = useState(!hudlId)
   const [chapters, setChapters] = useState([])
+  const [lastTime, setLastTime] = useState(0)
   const [halfTimeEnd, setHalfTimeEnd] = useState(halfTime)
   const [initTimeEnd, setInitTimeEnd] = useState(initTime)
   const [fullMode, setFullMode] = useState(false)
@@ -308,12 +314,8 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     const episodeRaw = episodeDescription.value
     const fastMode = /^\d+$/.test(episodeRaw?.trim())
     const isSecondHalf = elem.value > halfTimeEnd
-    console.log('episodeRaw:', episodeRaw)
     const episode = fastMode ?
-      isSecondHalf ?
-        `${formatTime(episodeRaw, fullMode, isSecondHalf)} / ${formatTime(episodeRaw, fullMode, isSecondHalf, true)}`
-        :
-        formatTime(episodeRaw, fullMode)
+      formatTime(episodeRaw, fullMode, isSecondHalf)
       :
       episodeRaw
     const timeValue = fastMode
@@ -336,6 +338,11 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
           chapter
         )
       } else {
+        setLastTime(timeValue)
+        for (const chapter of chapters) {
+          const current = document.getElementById('' + (chapter.time * 1000))
+          if (current) {current.style.color = 'white'}
+        }
         newChapters = [...chapters, { time: timeValue, text: episode.trim() }]
       }
     } else {
@@ -662,7 +669,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       }, 500)
       return () => clearInterval(interval)
     }
-  }, [chapters, fullMode, halfTimeEnd, homeDirEnd, initTimeEnd, message])
+  }, [chapters, fullMode, halfTimeEnd, homeDirEnd, initTimeEnd, lastTime, message])
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline/>
@@ -891,6 +898,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                 halfTimeEnd={halfTimeEnd}
                 hasDialer={hasDialer}
                 initTimeEnd={initTimeEnd}
+                lastTime={lastTime}
                 match={match}
               />
             }
