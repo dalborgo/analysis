@@ -230,6 +230,13 @@ const switchPlayer = () => {
   window.location.href = url.toString()
 }
 
+function vBlank (chapters) {
+  for (const chapter of chapters) {
+    const current = document.getElementById('' + (chapter.time * 1000))
+    if (current) {current.style.color = 'white'}
+  }
+}
+
 export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const [showLong, setShowLong] = useState(false)
   const [showSTDetail, setShowSTDetail] = useState(false)
@@ -287,10 +294,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     const button = document.getElementById('play')
     if (status === '3') {
       button.textContent = '⏸'
-      for (const chapter of chapters) {
-        const current = document.getElementById('' + (chapter.time * 1000))
-        if (current) {current.style.color = 'white'}
-      }
+      vBlank(chapters)
     } else {
       button.textContent = '▶'
     }
@@ -339,18 +343,12 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
         )
       } else {
         setLastTime(timeValue)
-        for (const chapter of chapters) {
-          const current = document.getElementById('' + (chapter.time * 1000))
-          if (current) {current.style.color = 'white'}
-        }
+        vBlank(chapters)
         newChapters = [...chapters, { time: timeValue, text: episode.trim() }]
       }
     } else {
       if (existingChapter) {
-        for (const chapter of chapters) {
-          const current = document.getElementById('' + (chapter.time * 1000))
-          if (current) {current.style.color = 'white'}
-        }
+        vBlank(chapters)
         newChapters = chapters.filter(chapter => Math.abs(chapter.time - timeValue) > tolerance)
       } else {
         return
