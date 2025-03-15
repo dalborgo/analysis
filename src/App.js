@@ -648,6 +648,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
           if (command === '1000') {
             if (button.textContent !== '▶') {
               button.textContent = '▶'
+              vBlank(chapters)
             } else {
               const milliBox = document.getElementById('milliBox')
               const matchTime = parseFloat(milliBox.value)
