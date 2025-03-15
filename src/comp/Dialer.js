@@ -1,7 +1,8 @@
 import React, { useCallback } from 'react'
 import { Box, Button, Grid } from '@mui/material'
+import Typography from '@mui/material/Typography'
 
-function Dialer ({ saveChapter }) {
+function Dialer ({ fullMode, saveChapter }) {
   
   const handleButtonClick = useCallback(async event => {
     const value = event.currentTarget.id.replace('dialer-', '')
@@ -70,7 +71,7 @@ function Dialer ({ saveChapter }) {
             color="secondary"
             onClick={handleButtonClick}
           >
-            ↵
+            ↵<Typography variant="caption">{fullMode ? 'F' : ''}</Typography>
           </Button>
         </Grid>
       </Grid>

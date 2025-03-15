@@ -902,7 +902,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             }
             {
               (hasDialer && !match) &&
-              <Dialer saveChapter={saveChapter}/>
+              <Dialer fullMode={fullMode} saveChapter={saveChapter}/>
             }
             {
               (match && wyView) &&
