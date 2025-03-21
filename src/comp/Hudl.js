@@ -87,7 +87,6 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd }) => {
                 const tag = tags.find(tag => tag.key === key)
                 return tag ? tag.values[0] : '--'
               }
-  
               const time = convertMilli(startTimeMs, halfTimeEnd, initTimeEnd)
               const [title, rawTitle] = renderTitle(getElement('HUDL_CODE'))
               const [assessments, rawAssessment_] = renderAssessment(getElement('POS/NEG'))
