@@ -45,7 +45,7 @@ const RefereeDisplay = ({ match }) => {
       }
       <Box
         id="title"
-        p={0}
+        p={match ? 0 : 1}
         sx={{
           fontSize: '1rem',
           textAlign: 'center',
