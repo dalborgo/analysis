@@ -101,14 +101,14 @@ function ChaptersList ({
                           const elem = document.getElementById('episodeDescription')
                           elem.value = item.text
                         }}>
-                          <span style={{ fontSize: 'small' }}>📋</span>
+                          <span style={{ fontSize: 'small', backgroundColor: '#2e2d2d' }}>&nbsp;⬆&nbsp;</span>
                         </ListItemIcon>
                         <ListItemText
                           id={'' + (item.time * 1000)}
                           primary={
                             <span
                               dangerouslySetInnerHTML={{
-                                __html: `${fullMode ? parseInt(time.short) + (time.period === 'st' ? 45 : 0) + '′' : time.short}${time.period}: ${replaceChunks(item.text, replacements, byNumber)}`
+                                __html: `${fullMode ? parseInt(time.short) + (time.period === 'st' ? 45 : 0) + '′' : time.short}${time.period}: ${replaceChunks(item.text, replacements, byNumber)}${chapters.length === index + 1 ? ` [${index + 1}]` : ''}`
                               }}
                             />
                           }
@@ -181,14 +181,14 @@ function ChaptersList ({
                             const elem = document.getElementById('episodeDescription')
                             elem.value = item.text
                           }}>
-                            <span style={{ fontSize: 'small' }}>📋</span>
+                            <span style={{ fontSize: 'small', backgroundColor: '#2e2d2d' }}>&nbsp;⬆&nbsp;</span>
                           </ListItemIcon>
                           <ListItemText
                             id={'' + (item.time * 1000)}
                             primary={
                               <span
                                 dangerouslySetInnerHTML={{
-                                  __html: `${fullMode ? parseInt(time.short) + 45 + '′' : time.short}${time.period}: ${replaceChunks(item.text, replacements, byNumber)}`
+                                  __html: `${fullMode ? parseInt(time.short) + 45 + '′' : time.short}${time.period}: ${replaceChunks(item.text, replacements, byNumber)}${chapters.length === index + 1 ? ` [${index + 1}]` : ''}`
                                 }}
                               />
                             }
