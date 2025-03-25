@@ -19,6 +19,7 @@ import Grid from '@mui/material/Grid'
 import SeekMinute from './comp/SeekMinute'
 import ClearIcon from '@mui/icons-material/Clear'
 import TagIcon from '@mui/icons-material/Tag'
+import CallMissedOutgoingIcon from '@mui/icons-material/CallMissedOutgoing'
 import DataArrayIcon from '@mui/icons-material/DataArray'
 import Hudl from './comp/Hudl'
 import Dialer from './comp/Dialer'
@@ -311,11 +312,22 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const seekLongBack = useCallback(async () => {
     await tcpCommand('5100 fnSeekBackward')
   }, [])
-  const saveChapter = useCallback(async () => {
+  const goTime = useCallback(async (eventTime, direct = false) => {
+    if (direct) {return tcpCommand(`5000 ${eventTime}`)}
+    const { minute, period } = eventTime || {}
+    const to = period === 2 && halfTimeEnd ? minute * 60000 + parseInt(halfTimeEnd) : minute * 60000 + parseInt(initTimeEnd)
+    await tcpCommand(`5000 ${(to - 59000) / 1000}`) // 59 per arrotondamento
+  }, [halfTimeEnd, initTimeEnd])
+  const saveChapter = useCallback(async event => {
     if (player === 'vlc') {return}
     const episodeDescription = document.getElementById('episodeDescription')
     const elem = document.getElementById('milliBox')
-    const episodeRaw = episodeDescription.value
+    const isGoButton = event.currentTarget.id === 'goTagButton'
+    let episodeRaw = episodeDescription.value
+    if (!episodeRaw && isGoButton) {
+      const elemEff = document.getElementById('time')
+      episodeRaw = elemEff.textContent.replace(':', '')
+    }
     const fastMode = /^\d+$/.test(episodeRaw?.trim())
     const isSecondHalf = elem.value > halfTimeEnd
     const episode = fastMode ?
@@ -327,6 +339,11 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       convertToMilliseconds(episodeRaw, initTimeEnd, halfTimeEnd, fullMode, isSecondHalf) / 1000
       :
       parseFloat(elem.value) / 1000
+    if (fastMode && isGoButton) {
+      await goTime(timeValue, true)
+      episodeDescription.value = ''
+      return
+    }
     if (timeValue === 0) {return episodeDescription.value = ''}
     const existingChapter = chapters.find(chapter => Math.abs(chapter.time - timeValue) <= tolerance)
     let newChapters
@@ -371,7 +388,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     })
     episodeDescription.value = ''
     setMessage(response)
-  }, [chapters, fullMode, halfTimeEnd, initTimeEnd])
+  }, [chapters, fullMode, goTime, halfTimeEnd, initTimeEnd])
   const skipForward = useCallback(async () => {
     if (!longPressTriggered) {
       await tcpCommand('5100 fnSkipForward')
@@ -400,32 +417,36 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     }
     await tcpCommand('5100 fnNextFrame')
   }, [])
-  const goTime = useCallback(async (eventTime, direct = false) => {
-    if (direct) {return tcpCommand(`5000 ${eventTime}`)}
-    const { minute, period } = eventTime || {}
-    const to = period === 2 && halfTimeEnd ? minute * 60000 + parseInt(halfTimeEnd) : minute * 60000 + parseInt(initTimeEnd)
-    await tcpCommand(`5000 ${(to - 59000) / 1000}`) // 59 per arrotondamento
-  }, [halfTimeEnd, initTimeEnd])
   const goToEndTime = useCallback(async () => {
     await tcpCommand('5100 fnReloadCurrent')
     const text = 'Perfect!'
     if (player === 'vlc') {
       setMessage({ open: true, text, severity: 'success' })
     } else {
-      await sleep(3000)
+      /*await sleep(500)
       const { result } = manageResponse(await tcpCommand('1110'))
       const endTime = Number(result)
       if (Number.isInteger(endTime) && endTime > 100) {
         setMessage({ open: true, text, severity: 'success' })
-      }
-      await goTime(endTime / 1000 - 8, true)
+        await goTime(endTime / 1000 - 8, true)
+      } else {
+        setMessage({ open: true, text: `endTime: ${endTime}`, severity: 'error' })
+      }*/
+      await sleep(500)
+      let attempts = 0
+      do {
+        const { result } = manageResponse(await tcpCommand('1110'))
+        const endTime = Number(result)
+        if (Number.isInteger(endTime) && endTime > 100) {
+          setMessage({ open: true, text: `endTime: ${endTime}`, severity: 'success' })
+          await goTime(endTime / 1000 - 8, true)
+          break
+        }
+        setMessage({ open: true, text: `attempt: ${attempts} - endTime: ${endTime}`, severity: 'error' })
+        await sleep(300)
+        attempts++
+      } while (attempts < 20)
     }
-    /*do {
-      const { result } = manageResponse(await tcpCommand('1110'))
-      endTime = Number(result)
-      if (Number.isInteger(endTime) && endTime > 100) {break}
-      await sleep(300)
-    } while (true)*/
   }, [goTime])
   const seekMinute = useCallback(async dir => {
     const elem = document.getElementById('time_min')
@@ -804,6 +825,18 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
+                      <IconButton
+                        aria-label="tag text"
+                        onClick={saveChapter}
+                        edge="end"
+                        id="goTagButton"
+                        size="small"
+                        color="primary"
+                        style={{ padding: 2, marginRight: 5 }}
+                        tabIndex={-1}
+                      >
+                        <CallMissedOutgoingIcon fontSize="small"/>
+                      </IconButton>
                       <IconButton
                         aria-label="tag text"
                         onClick={() => {
