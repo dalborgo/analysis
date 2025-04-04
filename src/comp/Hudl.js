@@ -3,6 +3,9 @@ import { Box, IconButton, Typography } from '@mui/material'
 import Link from '@mui/material/Link'
 import { convertMilli } from '../App'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { envConfig } from '../init'
+
+const PORT = envConfig['BACKEND_PORT']
 
 const renderTitle = title => {
   const parts = title.split('-')
@@ -112,7 +115,6 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd, matchId }) => {
                 const tag = tags.find(tag => tag.key === key)
                 return tag ? tag.values[0] : '--'
               }
-    
               const clipInSeconds = getClipInSeconds(startTimeMs, endTimeMs)
               const time = convertMilli(startTimeMs, halfTimeEnd, initTimeEnd)
               const [title, rawTitle] = renderTitle(getElement('HUDL_CODE'))
