@@ -953,10 +953,11 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             {
               (hudl && !wyView) &&
               <Hudl
+                goTime={goTime}
                 halfTimeEnd={halfTimeEnd}
                 hudl={hudl}
                 initTimeEnd={initTimeEnd}
-                goTime={goTime}
+                matchId={match?.['matchId']}
               />
             }
           </Grid>

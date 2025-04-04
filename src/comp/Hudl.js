@@ -62,7 +62,32 @@ function containsAnyPos (targetString) {
   return predefinedStrings.some(str => targetString.includes(str))
 }
 
-const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd }) => {
+async function generateClip (matchId, { duration, start }) {
+  try {
+    const response = await fetch(`http://localhost:${PORT}/hudl/generate-clip/${matchId}?duration=${duration}&start=${start}`)
+    const data = await response.json()
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const getClipInSeconds = (startTimeMs, endTimeMs) => {
+  const isValid = Number.isFinite(startTimeMs) && Number.isFinite(endTimeMs) && endTimeMs >= startTimeMs
+  
+  if (!isValid) {
+    return { start: 0, duration: 0 }
+  }
+  
+  const start = Math.round(startTimeMs / 1000)
+  const duration = Math.round((endTimeMs - startTimeMs) / 1000)
+  
+  return {
+    start,
+    duration
+  }
+}
+
+const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd, matchId }) => {
   const [lastClicked, setLastClicked] = useState(-1)
   return (
     <>
@@ -82,11 +107,13 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd }) => {
         hudl &&
         <Box mt={1} ml={2} mr={2}>
           {
-            (hudl || []).map(({ tags, startTimeMs }, index) => {
+            (hudl || []).map(({ tags, startTimeMs, endTimeMs }, index) => {
               function getElement (key) {
                 const tag = tags.find(tag => tag.key === key)
                 return tag ? tag.values[0] : '--'
               }
+    
+              const clipInSeconds = getClipInSeconds(startTimeMs, endTimeMs)
               const time = convertMilli(startTimeMs, halfTimeEnd, initTimeEnd)
               const [title, rawTitle] = renderTitle(getElement('HUDL_CODE'))
               const [assessments, rawAssessment_] = renderAssessment(getElement('POS/NEG'))
@@ -113,6 +140,18 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd }) => {
                     <span style={{ fontSize: 'small', marginTop: -2 }}>📋</span>
                   </IconButton>
                 </CopyToClipboard>
+                {
+                  (matchId && clipInSeconds['duration']) &&
+                  <IconButton
+                    size="small"
+                    style={{ cursor: 'hand', padding: 0, float: 'left', marginTop: 4, marginRight: 4 }}
+                    onClick={async () => {
+                      await generateClip(matchId, clipInSeconds)
+                    }}
+                  >
+                    <span style={{ fontSize: 'small', marginTop: -2 }}>📩</span>
+                  </IconButton>
+                }
                 <Link
                   onClick={
                     () => {
