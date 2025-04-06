@@ -65,10 +65,33 @@ function containsAnyPos (targetString) {
   return predefinedStrings.some(str => targetString.includes(str))
 }
 
-async function generateClip (matchId, { duration, start }) {
+const parseValue = value => {
+  const regex = /^g(\d{7})-(\w{40})$/
+  const match = value.match(regex)
+  if (match) {
+    return {
+      matchId: match[1],
+      dtk: match[2]
+    }
+  }
+  return {
+    matchId: '',
+    dtk: value
+  }
+}
+
+async function generateClip (matchId, { end, start }) {
   try {
-    const response = await fetch(`http://localhost:${PORT}/hudl/generate-clip/${matchId}?duration=${duration}&start=${start}`)
+    const elem = document.getElementById('episodeDescription')
+    const value = elem?.value
+    if (!value) {return elem.focus()}
+    const obj = parseValue(value)
+    const response = await fetch(`http://localhost:${PORT}/wyscout/generate-clip/${obj['matchId'] || matchId}?end=${end}&start=${start}&dtk=${obj['dtk']}`)
     const data = await response.json()
+    if (data.ok) {
+      const link = data.results
+      window.open(link, '_blank')
+    }
   } catch (error) {
     console.error(error)
   }
@@ -78,15 +101,17 @@ const getClipInSeconds = (startTimeMs, endTimeMs) => {
   const isValid = Number.isFinite(startTimeMs) && Number.isFinite(endTimeMs) && endTimeMs >= startTimeMs
   
   if (!isValid) {
-    return { start: 0, duration: 0 }
+    return { start: 0, duration: 0, end: 0 }
   }
   
   const start = Math.round(startTimeMs / 1000)
-  const duration = Math.round((endTimeMs - startTimeMs) / 1000)
+  const end = Math.round(endTimeMs / 1000)
+  const duration = end - start
   
   return {
     start,
-    duration
+    duration,
+    end
   }
 }
 
