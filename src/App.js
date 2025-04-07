@@ -876,7 +876,6 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                 variant="outlined"
                 size="small"
                 focused
-                defaultValue={'8d5c919663183af16052713fd488d00b0c9c26c9'}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 onKeyPress={event => {
