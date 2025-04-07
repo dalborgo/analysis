@@ -21,7 +21,7 @@ import ClearIcon from '@mui/icons-material/Clear'
 import TagIcon from '@mui/icons-material/Tag'
 import CallMissedOutgoingIcon from '@mui/icons-material/CallMissedOutgoing'
 import DataArrayIcon from '@mui/icons-material/DataArray'
-import Hudl from './comp/Hudl'
+import Hudl, { generateClip, parseAuthValue } from './comp/Hudl'
 import Dialer from './comp/Dialer'
 
 const queryParams = new URLSearchParams(window.location.search)
@@ -237,6 +237,59 @@ function vBlank (chapters) {
     if (current) {current.style.color = 'white'}
   }
 }
+
+const parseTimeToSeconds = timeStr => {
+  if (!timeStr) return null
+  const parts = timeStr.split(':').map(Number)
+  if (parts.length === 3) {
+    const [hours, minutes, seconds] = parts
+    return hours * 3600 + minutes * 60 + seconds
+  }
+  return null
+}
+
+function RecButton ({ matchId }) {
+  const [isRecording, setIsRecording] = useState(false)
+  const [startData, setStartData] = useState(null)
+  const [isGenerating, setIsGenerating] = useState(false)
+  
+  const toggleRecording = async () => {
+    const currentTime = document.getElementById('time_long')?.textContent || null
+    const elem = document.getElementById('episodeDescription')
+    const value = elem?.value
+    if (!value) {
+      return elem.focus()
+    }
+    const obj = parseAuthValue(value)
+    if (!isRecording) {
+      setStartData(currentTime)
+    } else {
+      const toRecordClip = {
+        start: parseTimeToSeconds(startData),
+        end: parseTimeToSeconds(currentTime),
+      }
+      setIsGenerating(true)
+      if(toRecordClip.end - toRecordClip.start > 5) {
+        await generateClip(obj['matchId'] || matchId, toRecordClip, true)
+      }
+      setIsGenerating(false)
+    }
+    
+    setIsRecording(!isRecording)
+  }
+  return (
+    <Button
+      onClick={toggleRecording}
+      color={isRecording ? 'secondary' : 'primary'}
+      tabIndex={-1}
+      disabled={isGenerating}
+      variant="outlined"
+    >
+      <span>⏺ REC</span>
+    </Button>
+  )
+}
+
 
 export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const [showLong, setShowLong] = useState(false)
@@ -699,41 +752,50 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
         />
         <Box mb={1} flexGrow={1}>
           <Box width={70} display="flex" flexDirection="column" position="absolute" pt={1}>
-            <Button
-              color="primary"
-              id="direction"
-              onClick={setHomeDir}
-              onMouseDown={handleLongPressStart}
-              onMouseLeave={handleLongPressEnd}
-              onMouseUp={handleLongPressEnd}
-              style={{ marginBottom: 4 }}
-              variant="outlined"
-            >
-              --
-            </Button>
-            <Button
-              color="primary"
-              onClick={setInitTime}
-              onMouseDown={handleLongPressStart}
-              onMouseLeave={handleLongPressEnd}
-              onMouseUp={handleLongPressEnd}
-              style={{ marginBottom: 4 }}
-              variant="outlined"
-            >
-              {initTimeEnd || 0}
-            </Button>
-            <Button
-              color="primary"
-              onClick={setHalfTime}
-              onMouseDown={handleLongPressStart}
-              onMouseLeave={handleLongPressEnd}
-              onMouseUp={handleLongPressEnd}
-              variant="outlined"
-            >
+            <Box display="flex">
+              <Button
+                id="direction"
+                onClick={setHomeDir}
+                onMouseDown={handleLongPressStart}
+                onMouseLeave={handleLongPressEnd}
+                onMouseUp={handleLongPressEnd}
+                variant="outlined"
+              >
+                --
+              </Button>&nbsp;
+              <Button
+                variant="outlined"
+                color={player === 'zoom' ? 'primary' : 'secondary'}
+                onClick={switchPlayer}
+              >
+              <span style={{ fontSize: 'small' }}>
+                {player === 'zoom' ? 'Z' : 'V'}
+              </span>
+              </Button>
+            </Box>
+            <Box display="flex" style={{ marginTop: 4 }}>
+              <Button
+                onClick={setInitTime}
+                onMouseDown={handleLongPressStart}
+                onMouseLeave={handleLongPressEnd}
+                onMouseUp={handleLongPressEnd}
+                variant="outlined"
+              >
+                {initTimeEnd || 0}
+              </Button>&nbsp;
+              <Button
+                onClick={setHalfTime}
+                onMouseDown={handleLongPressStart}
+                onMouseLeave={handleLongPressEnd}
+                onMouseUp={handleLongPressEnd}
+                variant="outlined"
+              >
               <span style={{ fontSize: 'small' }}>
                 {halfTimeEnd || 0}
               </span>
-            </Button>
+              </Button>
+            </Box>
+          
           </Box>
           <RefereeDisplay match={match}/>
           <input id="milliBox" style={{ display: 'none' }}/>
@@ -814,11 +876,11 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                 variant="outlined"
                 size="small"
                 focused
+                defaultValue={'8d5c919663183af16052713fd488d00b0c9c26c9'}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 onKeyPress={event => {
                   if (event.key === 'Enter') {
-                    console.log('QUA')
                     player === 'zoom' && saveChapter()
                     event.preventDefault()
                   }
@@ -916,10 +978,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             <Button variant="outlined" color="primary" onClick={play} tabIndex={-1}>
               <span id="play" style={{ fontSize: '1rem' }}>⧗</span>
             </Button>&nbsp;
-            <Button variant="outlined" color={player === 'zoom' ? 'primary' : 'secondary'} onClick={switchPlayer}
-                    tabIndex={-1}>
-              <span style={{ fontSize: '1rem' }}>{player === 'zoom' ? 'Z' : 'V'}</span>
-            </Button>
+            <RecButton matchId={match?.['matchId']}/>
           </Box>
           <Grid container justifyContent="center">
             {

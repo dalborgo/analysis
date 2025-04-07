@@ -65,7 +65,7 @@ function containsAnyPos (targetString) {
   return predefinedStrings.some(str => targetString.includes(str))
 }
 
-const parseValue = value => {
+export const parseAuthValue = value => {
   const regex = /^g(\d{7})-(\w{40})$/
   const match = value.match(regex)
   if (match) {
@@ -80,18 +80,30 @@ const parseValue = value => {
   }
 }
 
-async function generateClip (matchId, { end, start }) {
+export async function generateClip (matchId, { end, start }, forceDownload = false) {
   try {
     const elem = document.getElementById('episodeDescription')
     const value = elem?.value
     if (!value) {return elem.focus()}
-    const obj = parseValue(value)
-    const response = await fetch(`http://localhost:${PORT}/wyscout/generate-clip/${obj['matchId'] || matchId}?end=${end}&start=${start}&dtk=${obj['dtk']}`)
-    const data = await response.json()
-    if (data.ok) {
-      const link = data.results
-      window.open(link, '_blank')
+    const obj = parseAuthValue(value)
+    const response = await fetch(`http://localhost:${PORT}/wyscout/generate-clip/${obj['matchId'] || matchId}?end=${end}&start=${start}&dtk=${obj['dtk']}&asBlob=${forceDownload ? 'true' : ''}`)
+    if (forceDownload) {
+      const blob = await response.blob()
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = `${start}.mp4`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(a.href)
+    } else {
+      const data = await response.json()
+      if (data.ok) {
+        const link = data.results
+        window.open(link, '_blank')
+      }
     }
+    
   } catch (error) {
     console.error(error)
   }
@@ -140,6 +152,7 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd, matchId }) => {
                 const tag = tags.find(tag => tag.key === key)
                 return tag ? tag.values[0] : '--'
               }
+              
               const clipInSeconds = getClipInSeconds(startTimeMs, endTimeMs)
               const time = convertMilli(startTimeMs, halfTimeEnd, initTimeEnd)
               const [title, rawTitle] = renderTitle(getElement('HUDL_CODE'))
