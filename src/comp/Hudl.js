@@ -181,7 +181,7 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd, matchId }) => {
                   </IconButton>
                 </CopyToClipboard>
                 {
-                  (matchId && clipInSeconds['duration']) &&
+                  Boolean(clipInSeconds['duration']) &&
                   <IconButton
                     size="small"
                     style={{ cursor: 'hand', padding: 0, float: 'left', marginTop: 4, marginRight: 4 }}
