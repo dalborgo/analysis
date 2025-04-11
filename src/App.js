@@ -711,7 +711,9 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
               console.log('file:', file)
               if (file?.split(/[/\\]/).pop().length > 20) {
                 const id = await getIdByDay(file)
-                await getMatch(id, setMatch)
+                if (id) {
+                  await getMatch(id, setMatch)
+                }
               }
             }
             await getChapters(file, setChapters)
