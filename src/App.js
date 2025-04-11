@@ -198,6 +198,42 @@ async function getMatch (id, setMatch) {
   }
 }
 
+const findObjIdByFilename = (matches, file) => {
+  const matchData = file.match(/(\d{4}-\d{2}-\d{2}) (.+?) - (.+?) \d - \d/)
+  if (!matchData) return null
+  
+  const [, dateStr, teamA, teamB] = matchData
+  
+  const inputDate = new Date(dateStr)
+  
+  const normalized = str => str.toLowerCase().replace(/[^a-z]/g, '')
+  
+  const matched = matches.find(m => {
+    const matchDateParts = m.data.split(' ')[0].split('/')
+    const matchDate = new Date(`${matchDateParts[2]}-${matchDateParts[1]}-${matchDateParts[0]}`)
+    return (
+      Math.abs(matchDate - inputDate) <= 24 * 3600 * 1000 &&
+      (
+        (normalized(m.teamAName).includes(normalized(teamA)) && normalized(m.teamBName).includes(normalized(teamB))) ||
+        (normalized(m.teamAName).includes(normalized(teamB)) && normalized(m.teamBName).includes(normalized(teamA)))
+      )
+    )
+  })
+  
+  return matched ? matched.objId : null
+}
+
+async function getIdByDay (file) {
+  if (!file) {return}
+  try {
+    const response = await fetch(`http://localhost:${PORT}/wyscout/calendar-ids/0`)
+    const data = await response.json()
+    return findObjIdByFilename(data['results'], file)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 async function getHudl (id, setHudl) {
   try {
     const response = await fetch(`http://localhost:${PORT}/hudl/match/${id}`)
@@ -269,7 +305,7 @@ function RecButton ({ matchId }) {
         end: parseTimeToSeconds(currentTime),
       }
       setIsGenerating(true)
-      if(toRecordClip.end - toRecordClip.start > 5) {
+      if (toRecordClip.end - toRecordClip.start > 5) {
         await generateClip(obj['matchId'] || matchId, toRecordClip, true)
       }
       setIsGenerating(false)
@@ -289,7 +325,6 @@ function RecButton ({ matchId }) {
     </Button>
   )
 }
-
 
 export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const [showLong, setShowLong] = useState(false)
@@ -666,6 +701,9 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
           if (title.textContent !== file) {
             const id = extractID(file)
             if (id) {
+              await getMatch(id, setMatch)
+            } else {
+              const id = await getIdByDay(file)
               await getMatch(id, setMatch)
             }
             await getChapters(file, setChapters)
