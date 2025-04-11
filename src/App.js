@@ -708,7 +708,6 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             if (id) {
               await getMatch(id, setMatch)
             } else {
-              console.log('file:', file)
               if (file?.split(/[/\\]/).pop().length > 20) {
                 const id = await getIdByDay(file)
                 if (id) {
