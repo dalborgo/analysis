@@ -199,27 +199,32 @@ async function getMatch (id, setMatch) {
 }
 
 const findObjIdByFilename = (matches, file) => {
-  const matchData = file.match(/(\d{4}-\d{2}-\d{2}) (.+?) - (.+?) \d - \d/)
-  if (!matchData) return null
+  let matchData = file.match(/(\d{4}-\d{2}-\d{2}) (.+?) - (.+?) \d - \d/)
+  
+  if (!matchData) {
+    matchData = file.match(/(\d{4})(\d{2})(\d{2})_(.+?)vs(.+?)_/)
+    if (!matchData) {return null}
+    const [, year, month, day, teamA, teamB] = matchData
+    matchData = ['', `${year}-${month}-${day}`, teamA, teamB]
+  }
   
   const [, dateStr, teamA, teamB] = matchData
-  
   const inputDate = new Date(dateStr)
   
   const normalized = str => str.toLowerCase().replace(/[^a-z]/g, '')
-  
   const matched = matches.find(m => {
     const matchDateParts = m.data.split(' ')[0].split('/')
     const matchDate = new Date(`${matchDateParts[2]}-${matchDateParts[1]}-${matchDateParts[0]}`)
     return (
       Math.abs(matchDate - inputDate) <= 24 * 3600 * 1000 &&
       (
-        (normalized(m.teamAName).includes(normalized(teamA)) && normalized(m.teamBName).includes(normalized(teamB))) ||
-        (normalized(m.teamAName).includes(normalized(teamB)) && normalized(m.teamBName).includes(normalized(teamA)))
+        normalized(m.teamAName).includes(normalized(teamA)) ||
+        normalized(m.teamBName).includes(normalized(teamA)) ||
+        normalized(m.teamAName).includes(normalized(teamB)) ||
+        normalized(m.teamBName).includes(normalized(teamB))
       )
     )
   })
-  
   return matched ? matched.objId : null
 }
 
@@ -703,8 +708,11 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             if (id) {
               await getMatch(id, setMatch)
             } else {
-              const id = await getIdByDay(file)
-              await getMatch(id, setMatch)
+              console.log('file:', file)
+              if (file?.split(/[/\\]/).pop().length > 20) {
+                const id = await getIdByDay(file)
+                await getMatch(id, setMatch)
+              }
             }
             await getChapters(file, setChapters)
             title.textContent = file
@@ -731,8 +739,8 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             const time = convertMilli(parseInt(result), halfTimeEnd, initTimeEnd, fullMode)
             if (elemEff) {elemEff.textContent = time.effectiveLong === 'NaN:NaN' ? '--:--' : time.effectiveLong}
             if (elemLong) {elemLong.textContent = time.long === 'NaN:NaN:NaN' ? '--:--' : time.long}
-            elemShort.textContent = time.short === 'NaN′' ? '--' : time.short
-            elemDetail.textContent = time.short === 'NaN′' ? '--' : time.effectiveLongSimple
+            if (elemShort) {elemShort.textContent = time.short === 'NaN′' ? '--' : time.short}
+            if (elemDetail) {elemDetail.textContent = time.short === 'NaN′' ? '--' : time.effectiveLongSimple}
             milliBox.value = result
             if (fractionElem && !time.short.startsWith('0')) {
               const nextPeriod = parseInt(result) > parseInt(halfTimeEnd) ? 'st' : 'pt'
