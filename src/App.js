@@ -326,7 +326,7 @@ function RecButton ({ matchId }) {
       disabled={isGenerating}
       variant="outlined"
     >
-      <span>⏺ REC</span>
+      <span style={{ whiteSpace: 'nowrap' }}>⏺ REC</span>
     </Button>
   )
 }
