@@ -422,7 +422,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       episodeRaw = elemEff.textContent.replace(':', '')
     }
     const fastMode = /^\d+$/.test(episodeRaw?.trim())
-    const isSecondHalf = elem.value > halfTimeEnd
+    const isSecondHalf = parseInt(elem.value) > parseInt(halfTimeEnd)
     const episode = fastMode ?
       formatTime(episodeRaw, fullMode, isSecondHalf)
       :
