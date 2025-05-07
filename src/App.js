@@ -416,8 +416,9 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     const episodeDescription = document.getElementById('episodeDescription')
     const elem = document.getElementById('milliBox')
     const isGoButton = event?.currentTarget?.id === 'goTagButton'
+    const isSaveButton = event?.currentTarget?.id === 'directSave' || event?.currentTarget?.id === 'dialer-invio'
     let episodeRaw = episodeDescription.value
-    if (!episodeRaw && isGoButton) {
+    if (!episodeRaw && isSaveButton) {
       const elemEff = document.getElementById('time')
       episodeRaw = elemEff.textContent.replace(':', '')
     }
@@ -457,7 +458,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
         newChapters = [...chapters, { time: timeValue, text: episode.trim() }]
       }
     } else {
-      if (existingChapter) {
+      if (existingChapter && !isGoButton) {
         vBlank(chapters)
         newChapters = chapters.filter(chapter => Math.abs(chapter.time - timeValue) > tolerance)
       } else {
@@ -1016,7 +1017,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             {
               player === 'zoom' &&
               <>
-                <Button variant="outlined" color="primary" onClick={saveChapter} tabIndex={-1}>
+                <Button id="directSave" variant="outlined" color="primary" onClick={saveChapter} tabIndex={-1}>
                   SALVA
                 </Button>&nbsp;
               </>

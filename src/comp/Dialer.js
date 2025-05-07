@@ -5,9 +5,10 @@ import Typography from '@mui/material/Typography'
 function Dialer ({ fullMode, saveChapter }) {
   
   const handleButtonClick = useCallback(async event => {
-    const value = event.currentTarget.id.replace('dialer-', '')
+    const id = event.currentTarget.id
+    const value = id.replace('dialer-', '')
     if (value === 'invio') {
-      return saveChapter()
+      return saveChapter({ currentTarget: { id } })
     }
     if (value === 'C') {
       document.getElementById('episodeDescription').value = ''
