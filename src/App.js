@@ -111,7 +111,7 @@ const formatTime = (timeStr, fullMode = false, isSecondHalf = false) => {
   return output.length > 1 ? output.join(' / ') : output[0]
 }
 
-const tolerance = 1
+const tolerance = 2
 export const convertMilli = (millisecondi, halfTimeEnd = 0, initTimeEnd = 0, fullMode) => {
   if (millisecondi < initTimeEnd) { return { long: '00:00', effectiveLong: '00:00', short: '0′' }}
   const minute45 = 2_700_000
@@ -417,29 +417,33 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     const elem = document.getElementById('milliBox')
     const isGoButton = event?.currentTarget?.id === 'goTagButton'
     const isSaveButton = event?.currentTarget?.id === 'directSave' || event?.currentTarget?.id === 'dialer-invio'
-    let episodeRaw = episodeDescription.value
-    if (!episodeRaw && isSaveButton) {
-      const elemEff = document.getElementById('time')
-      episodeRaw = elemEff.textContent.replace(':', '')
-    }
-    const fastMode = /^\d+$/.test(episodeRaw?.trim())
+    let episodeRaw = episodeDescription.value?.trim()
     const isSecondHalf = parseInt(elem.value) > parseInt(halfTimeEnd)
-    const episode = fastMode ?
-      formatTime(episodeRaw, fullMode, isSecondHalf)
-      :
-      episodeRaw
-    const timeValue = fastMode
-      ?
-      convertToMilliseconds(episodeRaw, initTimeEnd, halfTimeEnd, fullMode, isSecondHalf) / 1000
-      :
-      parseFloat(elem.value) / 1000
+    const getFastMode = (val) => /^\d+$/.test(val)
+    const calculateTimeValue = (val) =>
+      getFastMode(val)
+        ? convertToMilliseconds(val, initTimeEnd, halfTimeEnd, fullMode, isSecondHalf) / 1000
+        : parseFloat(elem.value) / 1000
+    let fastMode = getFastMode(episodeRaw)
+    let timeValue = calculateTimeValue(episodeRaw)
+    const existingChapter = chapters.find(
+      chapter => Math.abs(chapter.time - timeValue) <= tolerance
+    )
+    if (!episodeRaw && isSaveButton && !existingChapter) {
+      const elemEff = document.getElementById('time')
+      episodeRaw = elemEff.textContent.replace(':', '').replace(/^0(?!0)/, '')
+      fastMode = getFastMode(episodeRaw)
+      timeValue = calculateTimeValue(episodeRaw)
+    }
+    const episode = fastMode
+      ? formatTime(episodeRaw, fullMode, isSecondHalf)
+      : episodeRaw
     if (fastMode && isGoButton) {
       await goTime(timeValue, true)
       episodeDescription.value = ''
       return
     }
     if (timeValue === 0) {return episodeDescription.value = ''}
-    const existingChapter = chapters.find(chapter => Math.abs(chapter.time - timeValue) <= tolerance)
     let newChapters
     if (episode) {
       if (existingChapter) {
