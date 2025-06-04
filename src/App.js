@@ -752,7 +752,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
               const nextPeriod = parseInt(result) > parseInt(halfTimeEnd) ? 'st' : 'pt'
               if (fractionElem.textContent !== nextPeriod) {
                 const savedHomeDir = localStorage.getItem('homeDirEnd')
-                const homeDir = savedHomeDir ? Boolean(parseInt(savedHomeDir, 0)) : false
+                const homeDir = savedHomeDir ? Boolean(parseInt(savedHomeDir, 10)) : false
                 if (nextPeriod === 'pt') {
                   setHomeDirEnd(homeDir)
                   direction.textContent = homeDir ? '1°◀' : '1°▶'
