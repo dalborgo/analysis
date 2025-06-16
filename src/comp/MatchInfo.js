@@ -268,9 +268,9 @@ const MatchInfo = ({ match, goTime, fullMode, mirrorMode }) => {
                       enterDelay={500}
                       enterNextDelay={500}
                       title={player.teamId === match['metadata'].home ?
-                        parse(createSVGWithHighlightedNumber(match['metadata'].coordinatesHome, parseInt(player.shirtNumber), mirrorMode))
+                        parse(createSVGWithHighlightedNumber(match['metadata'].coordinatesHome, parseInt(player.shirtNumber, 10), mirrorMode))
                         :
-                        parse(createSVGWithHighlightedNumber(match['metadata'].coordinatesAway, parseInt(player.shirtNumber), !mirrorMode))
+                        parse(createSVGWithHighlightedNumber(match['metadata'].coordinatesAway, parseInt(player.shirtNumber, 10), !mirrorMode))
                       }
                       placement="right"
                     >

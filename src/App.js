@@ -408,7 +408,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const goTime = useCallback(async (eventTime, direct = false) => {
     if (direct) {return tcpCommand(`5000 ${eventTime}`)}
     const { minute, period } = eventTime || {}
-    const to = period === 2 && halfTimeEnd ? minute * 60000 + parseInt(halfTimeEnd) : minute * 60000 + parseInt(initTimeEnd)
+    const to = period === 2 && halfTimeEnd ? minute * 60000 + parseInt(halfTimeEnd, 10) : minute * 60000 + parseInt(initTimeEnd, 10)
     await tcpCommand(`5000 ${(to - 59000) / 1000}`) // 59 per arrotondamento
   }, [halfTimeEnd, initTimeEnd])
   const saveChapter = useCallback(async event => {
@@ -418,7 +418,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     const isGoButton = event?.currentTarget?.id === 'goTagButton'
     const isSaveButton = event?.currentTarget?.id === 'directSave' || event?.currentTarget?.id === 'dialer-invio'
     let episodeRaw = episodeDescription.value?.trim()
-    const isSecondHalf = parseInt(elem.value) > parseInt(halfTimeEnd)
+    const isSecondHalf = parseInt(elem.value, 10) > parseInt(halfTimeEnd, 10)
     const getFastMode = (val) => /^\d+$/.test(val)
     const calculateTimeValue = (val) =>
       getFastMode(val)
@@ -549,7 +549,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const seekMinute = useCallback(async dir => {
     const elem = document.getElementById('time_min')
     const fraction = document.getElementById('fraction')
-    const minute = fullMode ? parseInt(elem.textContent.replace('′', '')) - 45 : parseInt(elem.textContent.replace('′', ''))
+    const minute = fullMode ? parseInt(elem.textContent.replace('′', ''), 10) - 45 : parseInt(elem.textContent.replace('′', ''), 10)
     await goTime({ minute: dir === '+' ? minute + 1 : minute - 1, period: fraction.textContent === 'st' ? 2 : 1 })
   }, [fullMode, goTime])
   const setHalfTime = useCallback(async () => {
@@ -742,14 +742,14 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             const elemDetail = document.getElementById('time_min_detail')
             const fractionElem = document.getElementById('fraction')
             const direction = document.getElementById('direction')
-            const time = convertMilli(parseInt(result), halfTimeEnd, initTimeEnd, fullMode)
+            const time = convertMilli(parseInt(result, 10), halfTimeEnd, initTimeEnd, fullMode)
             if (elemEff) {elemEff.textContent = time.effectiveLong === 'NaN:NaN' ? '--:--' : time.effectiveLong}
             if (elemLong) {elemLong.textContent = time.long === 'NaN:NaN:NaN' ? '--:--' : time.long}
             if (elemShort) {elemShort.textContent = time.short === 'NaN′' ? '--' : time.short}
             if (elemDetail) {elemDetail.textContent = time.short === 'NaN′' ? '--' : time.effectiveLongSimple}
             milliBox.value = result
             if (fractionElem && !time.short.startsWith('0')) {
-              const nextPeriod = parseInt(result) > parseInt(halfTimeEnd) ? 'st' : 'pt'
+              const nextPeriod = parseInt(result, 10) > parseInt(halfTimeEnd, 10) ? 'st' : 'pt'
               if (fractionElem.textContent !== nextPeriod) {
                 const savedHomeDir = localStorage.getItem('homeDirEnd')
                 const homeDir = savedHomeDir ? Boolean(parseInt(savedHomeDir, 10)) : false
