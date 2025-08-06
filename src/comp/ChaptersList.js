@@ -20,6 +20,14 @@ const getListText = (chapters, halfTimeEnd, fullMode, replacements, byNumber) =>
   return output.join('\n')
 }
 
+function extractSurname (fullName) {
+  const match = fullName.match(/^[A-Z]\.\s+(.+)$/)
+  if (match) {
+    return match[1]
+  }
+  return fullName
+}
+
 const replaceChunks = (text, replacements, byNumber = true) => {
   if (byNumber) {return text}
   const regex = /#\d{1,2} [A-Z]{3}/g
@@ -60,7 +68,7 @@ function ChaptersList ({
     for (let player of players) {
       const isHome = player.teamId === metadata.home
       output[`#${player.shirtNumber} ${isHome ? metadata.nameHome : metadata.nameAway}`] = {
-        lastName: player['player'].lastName,
+        lastName: extractSurname(player['player'].shortName),
         isHome
       }
     }
