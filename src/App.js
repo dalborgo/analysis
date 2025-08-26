@@ -721,7 +721,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
               }
             }
             await getChapters(file, setChapters)
-            title.textContent = file
+            title.innerHTML = `<span title="${file}" style="cursor: help">${file.split('\\').pop()}</span>`
           }
         }
         const { command, result: status } = manageResponse(await tcpCommand('1000'))
