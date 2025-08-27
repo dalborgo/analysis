@@ -127,6 +127,7 @@ const getClipInSeconds = (startTimeMs, endTimeMs) => {
   }
 }
 const NULL_TEXT = '--'
+const HIGHLIGHT_TEXT = '███'
 const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd, matchId }) => {
   const [lastClicked, setLastClicked] = useState(-1)
   return (
@@ -165,10 +166,10 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd, matchId }) => {
               const toCopyText = getElement('HUDL_FREETEXT')
               const text = highlightNeg ?
                 getElement('POS/NEG') === 'NEG' ?
-                  <span style={{ color: 'red' }}>{toCopyText}</span>
+                  <span style={{ color: 'red' }}>{toCopyText === NULL_TEXT ? HIGHLIGHT_TEXT : toCopyText}</span>
                   :
-                  <span style={{ color: 'orange' }}>{toCopyText}</span>
-                : highlightPos ? <span style={{ color: '#3FC520' }}>{toCopyText}</span> : toCopyText
+                  <span style={{ color: 'orange' }}>{toCopyText === NULL_TEXT ? HIGHLIGHT_TEXT : toCopyText}</span>
+                : highlightPos ? <span style={{ color: '#3FC520' }}>{toCopyText === NULL_TEXT ? HIGHLIGHT_TEXT : toCopyText}</span> : toCopyText
               const LineData = <Box>
                 <CopyToClipboard
                   text={rawTitle.join(' ') + ' [OA ' + getElement('O.A.') + ']\n' + rawAssessment + ' ' + toCopyText}
