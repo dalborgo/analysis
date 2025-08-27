@@ -126,7 +126,7 @@ const getClipInSeconds = (startTimeMs, endTimeMs) => {
     end
   }
 }
-
+const NULL_TEXT = '--'
 const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd, matchId }) => {
   const [lastClicked, setLastClicked] = useState(-1)
   return (
@@ -150,7 +150,7 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd, matchId }) => {
             (hudl || []).map(({ tags, startTimeMs, endTimeMs }, index) => {
               function getElement (key) {
                 const tag = tags.find(tag => tag.key === key)
-                return tag ? tag.values[0] : '--'
+                return tag ? tag.values?.[0] : NULL_TEXT
               }
               
               const clipInSeconds = getClipInSeconds(startTimeMs, endTimeMs)
@@ -220,7 +220,7 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd, matchId }) => {
                       {getElement('Tournament').toUpperCase()}
                     </Typography>&nbsp;&nbsp;
                     <Typography variant="body2" display="inline">
-                      GIOR: {getElement('Giornata di Campionato')} ({renderDay(getElement('DATA'))})
+                      GIOR: {getElement('Giornata di Campionato')}{getElement('DATA') !== NULL_TEXT ? `(${renderDay(getElement('DATA'))})` : ''}
                     </Typography>&nbsp;&nbsp;
                     <Typography variant="body2" display="inline">OA: {getElement('O.A.')}</Typography>&nbsp;&nbsp;
                     <Typography variant="body2" display="inline">OT: {getElement('O.T.')}</Typography>&nbsp;&nbsp;
