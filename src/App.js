@@ -251,7 +251,7 @@ async function getHudl (id, setHudl) {
 
 async function getChapters (file, setChapters) {
   try {
-    const response = await fetch(`http://localhost:${PORT}/zoom/chapters?file=${file}`)
+    const response = await fetch(`http://localhost:${PORT}/zoom/chapters_create?file=${file}`)
     const data = await response.json()
     setChapters(data?.results ?? [])
   } catch (error) {
@@ -338,7 +338,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const [match, setMatch] = useState()
   const [hudl, setHudl] = useState()
   const [wyView, setWyView] = useState(!hudlId)
-  const [chapters, setChapters] = useState([])
+  const [chapters, setChapters] = useState()
   const [lastTime, setLastTime] = useState(0)
   const [halfTimeEnd, setHalfTimeEnd] = useState(halfTime)
   const [initTimeEnd, setInitTimeEnd] = useState(initTime)
@@ -471,8 +471,8 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     }
     newChapters.sort((a, b) => a.time - b.time)
     setChapters(newChapters)
-    const response = await tcpCommand('5100 fnAddChapter')
-    await tcpCommand('5100 fnSaveChapter')
+    //const response = await tcpCommand('5100 fnAddChapter')
+    //await tcpCommand('5100 fnSaveChapter')
     const { result: file } = manageResponse(await tcpCommand('1800'))
     await fetch(`http://localhost:${PORT}/${player}/write-bookmark`, {
       method: 'POST',
@@ -485,7 +485,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
       })
     })
     episodeDescription.value = ''
-    setMessage(response)
+    //setMessage(response)
   }, [chapters, fullMode, goTime, halfTimeEnd, initTimeEnd])
   const skipForward = useCallback(async () => {
     if (!longPressTriggered) {
@@ -720,7 +720,9 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                 }
               }
             }
-            await getChapters(file, setChapters)
+            if(!chapters) {
+              await getChapters(file, setChapters)
+            }
             title.innerHTML = `<span title="${file}" style="cursor: help">${file.split('\\').pop()}</span>`
           }
         }
@@ -778,14 +780,16 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             } else {
               const milliBox = document.getElementById('milliBox')
               const matchTime = parseFloat(milliBox.value)
-              for (const chapter of chapters) {
-                const current = document.getElementById('' + (chapter.time * 1000))
-                if (!current) {continue}
-                const chapterTime = chapter.time * 1000
-                if (Math.abs(chapterTime - matchTime) <= tolerance) {
-                  if (current) {current.style.color = 'yellow'}
-                } else {
-                  if (current) {current.style.color = 'white'}
+              if(chapters) {
+                for (const chapter of chapters) {
+                  const current = document.getElementById('' + (chapter.time * 1000))
+                  if (!current) {continue}
+                  const chapterTime = chapter.time * 1000
+                  if (Math.abs(chapterTime - matchTime) <= tolerance) {
+                    if (current) {current.style.color = 'yellow'}
+                  } else {
+                    if (current) {current.style.color = 'white'}
+                  }
                 }
               }
             }
@@ -1054,7 +1058,6 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
               <MatchInfo
                 match={match}
                 goTime={goTime}
-                chapters={chapters}
                 halfTimeEnd={halfTimeEnd}
                 fullMode={fullMode}
                 mirrorMode={homeDirEnd}
