@@ -251,7 +251,7 @@ async function getHudl (id, setHudl) {
 
 async function getChapters (file, setChapters) {
   try {
-    const response = await fetch(`http://localhost:${PORT}/zoom/chapters_create?file=${file}`)
+    const response = await fetch(`http://localhost:${PORT}/zoom/chapters?file=${file}`)
     const data = await response.json()
     setChapters(data?.results ?? [])
   } catch (error) {
@@ -338,7 +338,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const [match, setMatch] = useState()
   const [hudl, setHudl] = useState()
   const [wyView, setWyView] = useState(!hudlId)
-  const [chapters, setChapters] = useState()
+  const [chapters, setChapters] = useState([])
   const [lastTime, setLastTime] = useState(0)
   const [halfTimeEnd, setHalfTimeEnd] = useState(halfTime)
   const [initTimeEnd, setInitTimeEnd] = useState(initTime)
@@ -348,6 +348,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
   const [longPressTriggered, setLongPressTriggered] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
   const [hasDialer] = useState(false)
+  const prevFileRef = useRef(null)
   const handleLongPressStart = () => {
     setLongPressTriggered(false)
     const timer = setTimeout(() => {
@@ -474,7 +475,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     //const response = await tcpCommand('5100 fnAddChapter')
     //await tcpCommand('5100 fnSaveChapter')
     const { result: file } = manageResponse(await tcpCommand('1800'))
-    await fetch(`http://localhost:${PORT}/${player}/write-bookmark`, {
+    await fetch(`http://localhost:${PORT}/${player}/write-bookmark-create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -705,6 +706,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     if (renderedRef.current) {
       const interval = setInterval(async () => {
         const { result: file } = manageResponse(await tcpCommand('1800'))
+        const isNewFile = file !== prevFileRef.current
         const title = document.getElementById('title')
         const filePattern = /^[a-zA-Z]:\\(?:[^\\:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]+\.[a-zA-Z0-9]+$/
         if (filePattern.test(file) || (player === 'vlc' && file !== 'from VLC Player')) {
@@ -714,14 +716,17 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
               await getMatch(id, setMatch)
             } else {
               if (file?.split(/[/\\]/).pop().length > 20) {
-                const id = await getIdByDay(file)
-                if (id) {
-                  await getMatch(id, setMatch)
+                if (isNewFile) {
+                  const id = await getIdByDay(file)
+                  if (id) {
+                    await getMatch(id, setMatch)
+                  }
                 }
               }
             }
-            if(!chapters) {
+            if (isNewFile) {
               await getChapters(file, setChapters)
+              prevFileRef.current = file
             }
             title.innerHTML = `<span title="${file}" style="cursor: help">${file.split('\\').pop()}</span>`
           }
@@ -780,7 +785,6 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
             } else {
               const milliBox = document.getElementById('milliBox')
               const matchTime = parseFloat(milliBox.value)
-              if(chapters) {
                 for (const chapter of chapters) {
                   const current = document.getElementById('' + (chapter.time * 1000))
                   if (!current) {continue}
@@ -791,7 +795,6 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
                     if (current) {current.style.color = 'white'}
                   }
                 }
-              }
             }
           }
         }
