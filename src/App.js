@@ -475,7 +475,7 @@ export default function App ({ halfTime, initTime = 0, homeDir = false }) {
     //const response = await tcpCommand('5100 fnAddChapter')
     //await tcpCommand('5100 fnSaveChapter')
     const { result: file } = manageResponse(await tcpCommand('1800'))
-    await fetch(`http://localhost:${PORT}/${player}/write-bookmark-create`, {
+    await fetch(`http://localhost:${PORT}/${player}/write-bookmark`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
