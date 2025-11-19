@@ -55,7 +55,7 @@ const renderDay = date => {
   const parts = date.split('/')
   return parts.pop()
 }
-const predefinedStrings = ['Espulsione', 'DOGSO', 'RIGORE', 'Rigore', 'Seconda Ammonizione', 'Grave Fallo di Gioco', 'Condotta Violenta', 'Rete', 'Fattuale', 'Scambio Persona']
+const predefinedStrings = ['Espulsione', 'DOGSO', 'RIGORE', 'APP', 'Rigore', 'Seconda Ammonizione', 'Grave Fallo di Gioco', 'Condotta Violenta', 'Rete', 'Fattuale', 'Scambio Persona']
 
 function containsAnyNeg (targetString) {
   return predefinedStrings.some(str => targetString.includes(str) && !targetString.includes('Non Concesso OK'))
