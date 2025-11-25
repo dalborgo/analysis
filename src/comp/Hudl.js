@@ -57,13 +57,21 @@ const renderDay = date => {
 }
 const predefinedStrings = ['Espulsione', 'DOGSO', 'RIGORE', 'APP', 'Rigore', 'Seconda Ammonizione', 'Grave Fallo di Gioco', 'Condotta Violenta', 'Rete', 'Fattuale', 'Scambio Persona']
 
-function containsAnyNeg (targetString) {
-  return predefinedStrings.some(str => targetString.includes(str) && !targetString.includes('Non Concesso OK'))
+function containsAnyNeg(targetString) {
+  return predefinedStrings.some(str => {
+    const regex = new RegExp(`\\b${str}\\b`, 'i')
+    return regex.test(targetString) && !/\bNon Concesso OK\b/i.test(targetString)
+  })
 }
 
-function containsAnyPos (targetString) {
-  return predefinedStrings.some(str => targetString.includes(str))
+
+function containsAnyPos(targetString) {
+  return predefinedStrings.some(str => {
+    const regex = new RegExp(`\\b${str}\\b`, 'i')
+    return regex.test(targetString)
+  })
 }
+
 
 export const parseAuthValue = value => {
   const regex = /^g(\d{7})-(\w{40})$/
@@ -162,6 +170,7 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd, matchId }) => {
               const hasNegative = ['NEG', 'POS/NEG', 'NEG/POS'].includes(getElement('POS/NEG')) ? 1 : 0
               const hasPositive = ['POS'].includes(getElement('POS/NEG')) || (getElement('HUDL_CODE').includes('Non Concesso OK') && ['POS/NEG', 'NEG/POS'].includes(getElement('POS/NEG'))) ? 1 : 0
               const highlightNeg = hasNegative === 1 && Boolean(containsAnyNeg(getElement('HUDL_CODE')))
+              console.log('getElement(\'HUDL_CODE\'):', getElement('HUDL_CODE'))
               const highlightPos = hasPositive === 1 && Boolean(containsAnyPos(getElement('HUDL_CODE')))
               const toCopyText = getElement('HUDL_FREETEXT')
               const text = highlightNeg ?
