@@ -64,7 +64,6 @@ function containsAnyNeg(targetString) {
   })
 }
 
-
 function containsAnyPos(targetString) {
   return predefinedStrings.some(str => {
     const regex = new RegExp(`\\b${str}\\b`, 'i')
