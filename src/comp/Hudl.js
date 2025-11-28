@@ -226,7 +226,7 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd, matchId }) => {
                 return (
                   <Box>
                     <Typography variant="body2" display="inline">
-                      {getElement('Tournament').toUpperCase()}
+                      {getElement('Tournament')?.toUpperCase()}
                     </Typography>&nbsp;&nbsp;
                     <Typography variant="body2" display="inline">
                       GIOR: {getElement('Giornata di Campionato')}{getElement('DATA') !== NULL_TEXT ? `(${renderDay(getElement('DATA'))})` : ''}
