@@ -166,7 +166,7 @@ const Hudl = ({ hudl, goTime, halfTimeEnd, initTimeEnd, matchId }) => {
               const [title, rawTitle] = renderTitle(getElement('HUDL_CODE'))
               const [assessments, rawAssessment_] = renderAssessment(getElement('POS/NEG'))
               const rawAssessment = `${rawAssessment_} (${initTimeEnd ? time.short : ''}${initTimeEnd ? `${time.period} ` : ''}${time.long})`
-              const hasNegative = ['NEG', 'NEG/POS'].includes(getElement('POS/NEG')) ? 1 : 0
+              const hasNegative = ['NEG', 'NEG/POS', 'POS/NEG'].includes(getElement('POS/NEG')) ? 1 : 0
               const hasPositive = ['POS'].includes(getElement('POS/NEG')) || (getElement('HUDL_CODE').includes('Non Concesso OK') && ['POS/NEG', 'NEG/POS'].includes(getElement('POS/NEG'))) ? 1 : 0
               const highlightNeg = hasNegative === 1 && Boolean(containsAnyNeg(getElement('HUDL_CODE')))
               console.log('getElement(\'HUDL_CODE\'):', getElement('HUDL_CODE'))
